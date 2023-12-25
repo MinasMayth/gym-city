@@ -14,6 +14,7 @@
 
 import multiprocessing
 import os
+import time
 
 import click
 import gym
@@ -39,9 +40,27 @@ def make_env():
     return env
 
 
+def run_random_actions(env, num_steps):
+    for step in range(num_steps):
+        # Take a random action from the action space
+        action = env.action_space.sample()
+
+        # Perform the action in the environment
+        observation, reward, done, _ = env.step(action)
+
+        # Render the environment (if needed)
+        env.render()
+
+        time.sleep(1)
+
+        # Check if the episode is done (e.g., the agent reached a terminal state)
+        if done:
+            print("Episode finished after {} timesteps".format(step + 1))
+            break
+
 def make_net(genome, config, bs):
     input_coords = [[-k, i - 4, j - 4] for j in range(9) for i in range(9) for k in range(32)]
-    hidden_coords = [[-k, i - 1, j - 1]  for j in range(3) for i in range(3) for k in range(32)]
+    hidden_coords = [[-k, i - 1, j - 1] for j in range(3) for i in range(3) for k in range(32)]
     output_coords = [[-k, i - 4, j - 4] for j in range(9) for i in range(9) for k in range(19)]
     return AdaptiveNet.create(
         genome,
@@ -50,10 +69,11 @@ def make_net(genome, config, bs):
         output_coords=output_coords,
         hidden_coords=hidden_coords,
         weight_threshold=0.4,
-        batch_size=batch_size,
+        batch_size=bs,  # Corrected argument name here
         activation=relu_activation,
-        device="cuda:0",
+        device="cpu",
     )
+
 
 
 
@@ -89,49 +109,61 @@ def run(n_generations, n_processes):
         config_path,
     )
 
-    evaluator = MultiEnvEvaluator(
-        make_net, activate_net, make_env=make_env, max_env_steps=max_env_steps
-    )
+    env = make_env()
+    env.reset()
+    # Set the number of steps to run the environment
+    num_steps = 100
 
-    if n_processes > 1:
-        pool = multiprocessing.Pool(processes=n_processes)
+    # Run the environment with random actions
+    run_random_actions(env, num_steps)
 
-        def eval_genomes(genomes, config):
-            fitnesses = pool.starmap(
-                    evaluator.eval_genome, ((genome, config) for _, genome in genomes)
-                    )
+    # Close the environment
+    env.close()
 
-            for (_, genome) in genomes:
-                genome.fitness = evaluator.eval_genome(genome, config)
-    else:
-        def eval_genomes(genomes, config):
-            for i, (_, genome) in enumerate(genomes):
-                try:
-                    genome.fitness = evaluator.eval_genome(
-                        genome, config, debug=DEBUG and i % 100 == 0
-                    )
-                except Exception as e:
-                    print(genome)
-                    raise e
-
-
-    pop = neat.Population(config)
-    stats = neat.StatisticsReporter()
-    pop.add_reporter(stats)
-    reporter = neat.StdOutReporter(True)
-    pop.add_reporter(reporter)
-    logger = LogReporter("log.json", evaluator.eval_genome)
-    pop.add_reporter(logger)
-
-
-
-    winner = pop.run(eval_genomes, n_generations)
-
-    print(winner)
-    final_performance = evaluator.eval_genome(winner, config)
-    print("Final performance: {}".format(final_performance))
-    generations = reporter.generation + 1
-    return generations
+    #
+    # evaluator = MultiEnvEvaluator(
+    #     make_net, activate_net, make_env=make_env, max_env_steps=max_env_steps
+    # )
+    #
+    # if n_processes > 1:
+    #     pool = multiprocessing.Pool(processes=n_processes)
+    #
+    #     def eval_genomes(genomes, config):
+    #         fitnesses = pool.starmap(
+    #                 evaluator.eval_genome, ((genome, config) for _, genome in genomes)
+    #                 )
+    #
+    #         for (_, genome) in genomes:
+    #             genome.fitness = evaluator.eval_genome(genome, config)
+    # else:
+    #     def eval_genomes(genomes, config):
+    #         for i, (_, genome) in enumerate(genomes):
+    #             try:
+    #                 genome.fitness = evaluator.eval_genome(
+    #                     genome, config, debug=DEBUG and i % 100 == 0
+    #                 )
+    #             except Exception as e:
+    #                 print(genome)
+    #                 raise e
+    #
+    #
+    # pop = neat.Population(config)
+    # stats = neat.StatisticsReporter()
+    # pop.add_reporter(stats)
+    # reporter = neat.StdOutReporter(True)
+    # pop.add_reporter(reporter)
+    # logger = LogReporter("log.json", evaluator.eval_genome)
+    # pop.add_reporter(logger)
+    #
+    #
+    #
+    # winner = pop.run(eval_genomes, n_generations)
+    #
+    # print(winner)
+    # final_performance = evaluator.eval_genome(winner, config)
+    # print("Final performance: {}".format(final_performance))
+    # generations = reporter.generation + 1
+    # return generations
 
 
 

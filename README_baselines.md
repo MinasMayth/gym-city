@@ -36,7 +36,7 @@ To use the DeepMind Control Suite environments, set the flag `--env-name dm.<dom
 
 ## Requirements
 
-* Python 3 (it might work with Python 2, but I didn't test it)
+* Python 3 (it might work with Ppython 2, but I didn't test it)
 * [PyTorch](http://pytorch.org/)
 * [Visdom](https://github.com/facebookresearch/visdom)
 * [OpenAI baselines](https://github.com/openai/baselines)

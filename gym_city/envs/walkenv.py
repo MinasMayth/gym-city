@@ -1,6 +1,8 @@
 from gym import core, spaces
 from gym.utils import seeding
 import numpy as np
+
+from . import MicropolisEnv
 from . tilemap import TileMap 
 from . walkcontrol import MicroWalkControl 
 import gtk
