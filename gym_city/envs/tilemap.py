@@ -491,7 +491,6 @@ class TileMap(object):
         if zone is None:
             tile_int = self.micro.getTile(x, y)
             zone = zoneFromInt(tile_int)
-            print(zone)
             if self.zoneSize[zone] != 1:
                 center = self.centers[x][y]
             else:
