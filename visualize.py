@@ -357,7 +357,7 @@ class Plotter(object):
         plt.xlabel('Number of Timesteps')
         header_name = header_names[header]
         plt.ylabel(header_name)
-        plt.grid(b=True, which='both')
+        plt.grid(visible=True, which='both')
         plt.title('{}_{}'.format(game, header))
         if man:
             plt.legend(loc='upper left', bbox_to_anchor=(1,1))
