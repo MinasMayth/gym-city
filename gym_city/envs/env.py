@@ -33,7 +33,7 @@ class MicropolisEnv(core.Env):
 
         self.static_player_builds = False
         ### MIXED
-        self.city_trgs = OrderedDict({
+        self.city_trgs = OrderedDict({ # so here we can add a new reward for whats possible to learn
             'res_pop': 500,
             'com_pop': 50,
             'ind_pop': 50,
@@ -41,6 +41,7 @@ class MicropolisEnv(core.Env):
             # i believe one plant is worth 12, the other 16?
             'num_plants': 14,
             'mayor_rating': 100
+            # i.e. 'pollution': 0
         })
         self.trg_param_vals = np.array([v for v in self.city_trgs.values()])
         self.param_bounds = OrderedDict({
@@ -433,7 +434,7 @@ class MicropolisEnv(core.Env):
         traffic = self.micro.total_traffic
         mayor_rating = self.getRating()
         num_plants = self.micro.map.num_plants
-        city_metrics = {
+        city_metrics = { # how to add pollution here is the question
             'res_pop': res_pop,
             'com_pop': com_pop,
             'ind_pop': ind_pop,
@@ -447,8 +448,8 @@ class MicropolisEnv(core.Env):
             self.win1.agentPanel.displayMetrics(self.city_metrics)
 
     def step(self, a, static_build=False):
-        print(self.get_city_metrics())
-	# self.micro.engine.setPasses(np.random.randint(1, 101))
+        # print(self.get_city_metrics())
+        # self.micro.engine.setPasses(np.random.randint(1, 101))
         if self.player_step:
             # if self.player_step == a:
             #    static_build=False

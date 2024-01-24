@@ -19,7 +19,7 @@ class World:
             [-1, -1], [0, -1], [1, -1] # below
         ]
 
-        self.state = np.zeros(shape=(1, width, height), dtype=np.uint8)
+        self.state = np.zeros(shape=(1, width, height), dtype=np.uint8) # so this is the state of the world
         self.populate_cells()
         self.prepopulate_neighbours()
 

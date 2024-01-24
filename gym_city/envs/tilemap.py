@@ -103,8 +103,8 @@ class TileMap(object):
                 'Forest': 1,
                 'Church': 3,
                 'Hospital': 3,
-               #'Radioactive': 1,
-               #'Flood': 1,
+               'Radioactive': 1, # Samy: why were this and the following line commented out?
+               'Flood': 1,
                 'Fire': 1
                }
         # if this feature, then another
@@ -491,6 +491,7 @@ class TileMap(object):
         if zone is None:
             tile_int = self.micro.getTile(x, y)
             zone = zoneFromInt(tile_int)
+            print(zone)
             if self.zoneSize[zone] != 1:
                 center = self.centers[x][y]
             else:

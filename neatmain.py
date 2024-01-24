@@ -22,17 +22,18 @@ import neat
 
 import numpy as np
 
-
 from PyTorch_NEAT.pytorch_neat.multi_env_eval import MultiEnvEvaluator
 from PyTorch_NEAT.pytorch_neat.activations import relu_activation
 from PyTorch_NEAT.pytorch_neat.neat_reporter import LogReporter
 from PyTorch_NEAT.pytorch_neat.adaptive_net import AdaptiveNet
 
 import gym_city
+
 max_env_steps = 200
 
 batch_size = 1
 DEBUG = False
+
 
 def make_env():
     env = gym.make("MicropolisEnv-v0")
@@ -58,6 +59,7 @@ def run_random_actions(env, num_steps):
             print("Episode finished after {} timesteps".format(step + 1))
             break
 
+
 def make_net(genome, config, bs):
     input_coords = [[-k, i - 4, j - 4] for j in range(9) for i in range(9) for k in range(32)]
     hidden_coords = [[-k, i - 1, j - 1] for j in range(3) for i in range(3) for k in range(32)]
@@ -75,8 +77,6 @@ def make_net(genome, config, bs):
     )
 
 
-
-
 def activate_net(net, states, debug=False, step_num=0):
     if debug and step_num == 1:
         print("\n" + "=" * 20 + " DEBUG " + "=" * 20)
@@ -91,7 +91,6 @@ def activate_net(net, states, debug=False, step_num=0):
         print("W_i: ", net.input_to_hidden[0])
         print("W_o: ", net.hidden_to_output[0])
     return np.argmax(outputs, axis=1)
-
 
 
 @click.command()
@@ -164,7 +163,6 @@ def run(n_generations, n_processes):
     # print("Final performance: {}".format(final_performance))
     # generations = reporter.generation + 1
     # return generations
-
 
 
 if __name__ == "__main__":

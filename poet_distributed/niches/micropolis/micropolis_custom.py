@@ -7,8 +7,8 @@ import sys
 import math
 import numpy as np
 
-import gym_micropolis
-from gym_micropolis.envs.env import MicropolisEnv
+import gym_city
+from gym_city.envs.env import MicropolisEnv
 
 import gym
 from gym import spaces
