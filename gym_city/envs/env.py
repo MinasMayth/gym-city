@@ -447,7 +447,8 @@ class MicropolisEnv(core.Env):
             self.win1.agentPanel.displayMetrics(self.city_metrics)
 
     def step(self, a, static_build=False):
-        # self.micro.engine.setPasses(np.random.randint(1, 101))
+        print(self.get_city_metrics())
+	# self.micro.engine.setPasses(np.random.randint(1, 101))
         if self.player_step:
             # if self.player_step == a:
             #    static_build=False

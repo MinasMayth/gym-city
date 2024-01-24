@@ -18,6 +18,7 @@ files. If you unzip to a different directory you'll have to modify the project p
 accordingly.
 
 The TileEngine also requires PyCairo, a Python binding for the cairo library. PyCairo is part of
+
 the PyGTK package (Python bindings for GTK+). You can download a copy of PyCairo from here:
 http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/
 

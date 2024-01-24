@@ -70,6 +70,8 @@
 import sys
 import os
 import time
+import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
 import cairo
@@ -112,7 +114,15 @@ class MicropolisPanedWindow(gtk.Window):
         engine=None,
         **args):
 
-        gtk.Window.__init__(self, **args)
+        import gi
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk as gtk
+        try:
+                gtk.init_check()
+                gtk.Window.__init__(self, **args)
+
+        except RuntimeError:
+                print("GTK could not be intialized")
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)

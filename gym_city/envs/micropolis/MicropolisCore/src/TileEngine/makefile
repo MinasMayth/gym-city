@@ -63,7 +63,7 @@
 ########################################################################
 
 
-PYTHON = python3
+PYTHON = python3.10
 SWIG = swig3.0
 
 PYTHONBUILDDIR = $(shell python3 -c 'from distutils import sysconfig, util ; \
@@ -87,9 +87,9 @@ TILEENGINE: build_python
 # ----------------------------------------------------------------------
 # Python extension module build
 
-build_python: objs/$(PYTHONBUILDDIR)/_tileengine.cpython-36m-x86_64-linux-gnu.so
+build_python: objs/$(PYTHONBUILDDIR)/_tileengine.cpython-310-x86_64-linux-gnu.so
 
-objs/$(PYTHONBUILDDIR)/_tileengine.cpython-36m-x86_64-linux-gnu.so: build_swig setup.py $(SOURCES) $(HEADERS)
+objs/$(PYTHONBUILDDIR)/_tileengine.cpython-310-x86_64-linux-gnu.so: build_swig setup.py $(SOURCES) $(HEADERS)
 	$(PYTHON) setup.py build --build-base=objs
 
 # ----------------------------------------------------------------------

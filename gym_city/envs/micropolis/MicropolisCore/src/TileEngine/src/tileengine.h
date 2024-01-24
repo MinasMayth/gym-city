@@ -103,6 +103,7 @@
 #include <map>
 
 #include <cairo.h>
+#define PYCAIRO_NO_IMPORT
 #include <py3cairo.h>
 
 
