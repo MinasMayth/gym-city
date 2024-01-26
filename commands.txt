@@ -1,4 +1,4 @@
-nohup python train_teacher.py --algo a2c --vis False --experiment_name baseline_fullyconv --model FullyConv > logs/output_script_baseline_FC.log 2>&1 &
-nohup python train_teacher.py --algo a2c --vis False --experiment_name baseline_fractal --model FractalNet > logs/output_script_baseline_Fractal1.log 2>&1 &
-nohup python train_teacher.py --algo a2c --vis False --experiment_name baseline_fractal_inter --model FractalNet --inter-shr > logs/output_script_baseline_Fractal2.log 2>&1 &
-nohup python train_teacher.py --algo a2c --vis False --experiment_name baseline_fractal_intra --model FractalNet --num-frames --intra-shr > logs/output_script_baseline_Fractal3.log 2>&1 &
+nohup python train_teacher.py --algo a2c --experiment_name baseline_fullyconv --model FullyConv > logs/output_script_baseline_FC.log 2>&1 &
+nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal --model FractalNet > logs/output_script_baseline_Fractal1.log 2>&1 &
+nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal_inter --model FractalNet --inter-shr > logs/output_script_baseline_Fractal2.log 2>&1 &
+nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal_intra --model FractalNet  --intra-shr > logs/output_script_baseline_Fractal3.log 2>&1 &
