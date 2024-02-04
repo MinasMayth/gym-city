@@ -1,23 +1,43 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
-import sys
-if sys.version[0] == '3':
-    from .kfac import KFACOptimizer
+from .kfac import KFACOptimizer
 
 
 class A2C_ACKTR_NOREWARD():
-    def __init__(self,
-                 actor_critic,
-                 value_loss_coef,
-                 entropy_coef,
-                 lr=None,
-                 eps=None,
-                 alpha=None,
-                 max_grad_norm=None,
-                 acktr=False,
-                 curiosity=False, args=None):
+    """
+    A2C_ACKTR_NOREWARD is an extension of the A2C (Advantage Actor-Critic) algorithm
+    with ACKTR (Kronecker-Factored Trust Region) optimization, and optional curiosity-based learning.
+
+    Parameters:
+        - actor_critic (nn.Module): The neural network model representing the actor-critic architecture.
+        - value_loss_coef (float): Coefficient for the value loss in the total loss calculation.
+        - entropy_coef (float): Coefficient for the entropy loss in the total loss calculation.
+        - lr (float): Learning rate for the optimizer. If ACKTR is enabled, this parameter is ignored.
+        - eps (float): Epsilon term for the RMSprop optimizer. Ignored if ACKTR is enabled.
+        - alpha (float): Alpha term for the RMSprop optimizer. Ignored if ACKTR is enabled.
+        - max_grad_norm (float): Maximum gradient norm for gradient clipping during optimization.
+        - acktr (bool): Flag to indicate whether to use the ACKTR optimizer. If True, KFACOptimizer is used.
+        - curiosity (bool): Flag to enable curiosity-based learning.
+        - args: Additional arguments for customization.
+
+    Attributes:
+        - args: Additional arguments for customization.
+        - curiosity (bool): Flag indicating whether curiosity-based learning is enabled.
+        - actor_critic (nn.Module): The actor-critic neural network model.
+        - acktr (bool): Flag indicating whether ACKTR optimizer is used.
+        - value_loss_coef (float): Coefficient for the value loss in the total loss calculation.
+        - entropy_coef (float): Coefficient for the entropy loss in the total loss calculation.
+        - max_grad_norm (float): Maximum gradient norm for gradient clipping during optimization.
+        - optimizer: The optimizer used for parameter updates, either RMSprop or KFACOptimizer.
+        - paint: Flag indicating if the environment involves painting.
+
+    Methods:
+        - update(rollouts): Performs a single update step using the provided rollouts.
+    """
+
+    def __init__(self, actor_critic, value_loss_coef, entropy_coef, lr=None, eps=None, alpha=None, max_grad_norm=None,
+                 acktr=False, curiosity=False, args=None):
 
         self.args= args
         self.curiosity = curiosity
@@ -36,6 +56,15 @@ class A2C_ACKTR_NOREWARD():
                 actor_critic.parameters(), lr, eps=eps, alpha=alpha)
 
     def update(self, rollouts):
+        """
+        Performs a single update step using the provided rollouts.
+
+        Parameters:
+            - rollouts: Rollout data containing observations, actions, rewards, etc.
+
+        Returns:
+            - Tuple of updated loss values (value_loss, action_loss, dist_entropy, forward_loss, inverse_loss).
+        """
         obs_shape = rollouts.obs.size()[2:]
         if self.curiosity:
             act_shape = rollouts.action_bins.size()[2:]

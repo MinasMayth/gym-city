@@ -13,7 +13,20 @@ from utils import AddBias
 # 3) Actually make a general KFAC optimizer so it fits PyTorch
 
 
+
 def _extract_patches(x, kernel_size, stride, padding):
+    """
+    Extracts patches from the input tensor for convolutional layers.
+
+    Parameters:
+        - x (torch.Tensor): Input tensor.
+        - kernel_size (tuple): Size of the convolutional kernel.
+        - stride (tuple): Stride for the convolution operation.
+        - padding (tuple): Padding for the convolution operation.
+
+    Returns:
+        - torch.Tensor: Extracted patches tensor.
+    """
     if padding[0] + padding[1] > 0:
         x = F.pad(x, (padding[1], padding[1], padding[0],
                       padding[0])).data  # Actually check dims
@@ -27,6 +40,18 @@ def _extract_patches(x, kernel_size, stride, padding):
 
 
 def compute_cov_a(a, classname, layer_info, fast_cnn):
+    """
+    Computes the covariance matrix for the input activations.
+
+    Parameters:
+        - a (torch.Tensor): Input activations.
+        - classname (str): Name of the layer class.
+        - layer_info (tuple): Information about the layer (e.g., kernel size, stride).
+        - fast_cnn (bool): Flag indicating if fast CNN operations should be applied.
+
+    Returns:
+        - torch.Tensor: Covariance matrix for the input activations.
+    """
     batch_size = a.size(0)
 
     if classname == 'Conv2d' or classname == 'ConvTranspose2d':
@@ -46,7 +71,20 @@ def compute_cov_a(a, classname, layer_info, fast_cnn):
     return a.t() @ (a / batch_size)
 
 
+
 def compute_cov_g(g, classname, layer_info, fast_cnn):
+    """
+    Computes the covariance matrix for the gradients.
+
+    Parameters:
+        - g (torch.Tensor): Gradients.
+        - classname (str): Name of the layer class.
+        - layer_info (tuple): Information about the layer (e.g., kernel size, stride).
+        - fast_cnn (bool): Flag indicating if fast CNN operations should be applied.
+
+    Returns:
+        - torch.Tensor: Covariance matrix for the gradients.
+    """
     batch_size = g.size(0)
 
     if classname == 'Conv2d' or classname == 'ConvTranspose2d':
@@ -64,7 +102,17 @@ def compute_cov_g(g, classname, layer_info, fast_cnn):
     return g_.t() @ (g_ / g.size(0))
 
 
+
 def update_running_stat(aa, m_aa, momentum):
+    """
+    Updates the running statistics for the covariance matrix.
+
+    Parameters:
+        - aa (torch.Tensor): Covariance matrix.
+        - m_aa (torch.Tensor): Running mean of the covariance matrix.
+        - momentum (float): Momentum for updating the mean.
+    """
+
     # Do the trick to keep aa unchanged and not create any additional tensors
     m_aa *= momentum / (1 - momentum)
     m_aa += aa
@@ -72,6 +120,16 @@ def update_running_stat(aa, m_aa, momentum):
 
 
 class SplitBias(nn.Module):
+    """
+    Splits bias from the module and applies it separately.
+
+    Parameters:
+        - module (nn.Module): Module containing the bias.
+
+    Attributes:
+        - module (nn.Module): Original module.
+        - add_bias (AddBias): Module to add bias separately.
+    """
     def __init__(self, module):
         super(SplitBias, self).__init__()
         self.module = module
@@ -84,7 +142,44 @@ class SplitBias(nn.Module):
         return x
 
 
+
 class KFACOptimizer(optim.Optimizer):
+    """
+    KFAC (Kronecker-Factored Approximate Curvature) optimizer for PyTorch models.
+
+    Parameters:
+        - model (nn.Module): PyTorch model.
+        - lr (float): Learning rate.
+        - momentum (float): Momentum for running statistics.
+        - stat_decay (float): Decay factor for running statistics.
+        - kl_clip (float): Clip value for the Kullback-Leibler divergence.
+        - damping (float): Damping factor for curvature matrix inversion.
+        - weight_decay (float): Weight decay factor.
+        - fast_cnn (bool): Flag indicating if fast CNN operations should be applied.
+        - Ts (int): Frequency of updating statistics.
+        - Tf (int): Frequency of full update of curvature matrices.
+
+    Attributes:
+        - known_modules (set): Set of known module types for KFAC computation.
+        - modules (list): List of modules in the model.
+        - grad_outputs (dict): Dictionary to store gradients.
+        - model (nn.Module): PyTorch model.
+        - steps (int): Number of optimization steps.
+        - m_aa (dict): Running mean for the covariance matrix of activations.
+        - m_gg (dict): Running mean for the covariance matrix of gradients.
+        - Q_a, Q_g (dict): Eigenvectors of covariance matrices for activations and gradients.
+        - d_a, d_g (dict): Eigenvalues of covariance matrices for activations and gradients.
+        - momentum (float): Momentum for running statistics.
+        - stat_decay (float): Decay factor for running statistics.
+        - lr (float): Learning rate.
+        - kl_clip (float): Clip value for the Kullback-Leibler divergence.
+        - damping (float): Damping factor for curvature matrix inversion.
+        - weight_decay (float): Weight decay factor.
+        - fast_cnn (bool): Flag indicating if fast CNN operations should be applied.
+        - Ts (int): Frequency of updating statistics.
+        - Tf (int): Frequency of full update of curvature matrices.
+        - optim (optim.SGD): SGD optimizer for updating model parameters.
+    """
     def __init__(self,
                  model,
                  lr=0.25,

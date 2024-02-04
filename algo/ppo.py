@@ -3,19 +3,40 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-
 class PPO():
-    def __init__(self,
-                 actor_critic,
-                 clip_param,
-                 ppo_epoch,
-                 num_mini_batch,
-                 value_loss_coef,
-                 entropy_coef,
-                 lr=None,
-                 eps=None,
-                 max_grad_norm=None,
-                 use_clipped_value_loss=False):
+    """
+    Proximal Policy Optimization (PPO) implementation for training actor-critic models.
+
+    Parameters:
+        - actor_critic (nn.Module): The neural network model representing the actor-critic architecture.
+        - clip_param (float): Clipping parameter for PPO objective to prevent large policy updates.
+        - ppo_epoch (int): Number of optimization epochs to update the policy.
+        - num_mini_batch (int): Number of mini-batches to be sampled from the collected data for each update.
+        - value_loss_coef (float): Coefficient for the value loss in the total loss calculation.
+        - entropy_coef (float): Coefficient for the entropy loss in the total loss calculation.
+        - lr (float): Learning rate for the Adam optimizer.
+        - eps (float): Epsilon term for the Adam optimizer.
+        - max_grad_norm (float): Maximum gradient norm for gradient clipping during optimization.
+        - use_clipped_value_loss (bool): Flag to enable clipped value loss in the total loss calculation.
+
+    Attributes:
+        - actor_critic (nn.Module): The actor-critic neural network model.
+        - clip_param (float): Clipping parameter for PPO objective.
+        - ppo_epoch (int): Number of optimization epochs for updating the policy.
+        - num_mini_batch (int): Number of mini-batches for sampling data in each update.
+        - value_loss_coef (float): Coefficient for the value loss in the total loss calculation.
+        - entropy_coef (float): Coefficient for the entropy loss in the total loss calculation.
+        - max_grad_norm (float): Maximum gradient norm for gradient clipping during optimization.
+        - use_clipped_value_loss (bool): Flag indicating whether to use clipped value loss.
+        - optimizer: The Adam optimizer used for parameter updates.
+
+    Methods:
+        - update(rollouts): Performs a single update step using the provided rollouts.
+
+    """
+    def __init__(self, actor_critic, clip_param, ppo_epoch, num_mini_batch, value_loss_coef, entropy_coef, lr=None,
+                 eps=None, max_grad_norm=None, use_clipped_value_loss=False):
+        # ... (implementation details)
 
         self.actor_critic = actor_critic
 
@@ -32,6 +53,15 @@ class PPO():
         self.optimizer = optim.Adam(actor_critic.parameters(), lr=lr, eps=eps)
 
     def update(self, rollouts):
+        """
+        Performs a single update step using the provided rollouts.
+
+        Parameters:
+            - rollouts: Rollout data containing observations, actions, rewards, etc.
+
+        Returns:
+            - Tuple of updated loss values (value_loss, action_loss, dist_entropy).
+        """
         advantages = rollouts.returns[:-1] - rollouts.value_preds[:-1]
         advantages = (advantages - advantages.mean()) / (
             advantages.std() + 1e-5)

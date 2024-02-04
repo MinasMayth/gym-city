@@ -38,6 +38,33 @@ class Teacher(Trainer):
         return d
 
     def __init__(self):
+        """
+             Initialization method for the Teacher class.
+
+             This class represents a teacher agent trained in a reinforcement learning setup. It extends a Trainer class.
+
+             Initialization Steps:
+             1. Calls the __init__ method of the parent Trainer class to ensure proper initialization of the Evaluator.
+             2. Initializes a dictionary, param_hist, to store parameter names and their target histories set by the ALPGMM.
+             3. Retrieves environment-related information, such as parameter bounds, from the environment manager (envs).
+             4. Sets the initial environment parameter bounds and ranges.
+             5. Initializes an ALPGMM (Adaptive Latent Parameterized Gaussian Mixture Model) for dynamic parameter adaptation.
+             6. If a checkpoint is provided, attempts to retrieve the ALPGMM model from the checkpoint.
+             7. If the ALPGMM model is not available, creates a new instance with the specified bounds.
+             8. Samples initial task parameters from the ALPGMM.
+             9. Initializes various variables such as params, params_vec, trial_remaining, and trial_reward.
+
+             Attributes:
+             - param_hist: A dictionary to store parameter names and their target histories.
+             - env_param_bounds: Initial bounds of environment parameters.
+             - num_env_params: The number of environment parameters to adapt.
+             - env_param_ranges: Ranges of environment parameters.
+             - alp_gmm: An instance of ALPGMM for dynamic parameter adaptation.
+             - params_vec: Sampled task parameters from the ALPGMM.
+             - params: OrderedDict to store parameter names and their values.
+             - trial_remaining: Remaining steps in the current trial.
+             - trial_reward: Accumulated reward in the current trial.
+             """
         # have to do above before call to parent to inirialize Evaluator correctly
         super(Teacher, self).__init__()
         # dictionary of param names to target histories as set by alp_gmm
@@ -85,6 +112,15 @@ class Teacher(Trainer):
         self.trial_reward = trial_reward
 
     def check_params(self):
+        """
+        Check and update environment parameters based on the remaining trial steps.
+
+        If the remaining trial steps reach zero, this method updates the ALPGMM model with the accumulated
+        trial reward, resets the trial-related variables, and samples new random environment parameters for the next trial.
+
+        Returns:
+        - None
+        """
         trial_remaining = self.trial_remaining
         params = self.params
         trial_reward = self.trial_reward
@@ -114,12 +150,31 @@ class Teacher(Trainer):
         self.trial_remaining = trial_remaining
 
     def plot_trg_params(self):
+        """
+        Placeholder method for plotting target parameters.
+
+        This method can be extended to visualize or log the target parameters during training.
+
+        Returns:
+        - None
+        """
         for param in self.params:
            #print('plotting param. {}'.format(param))
             pass
 
 
     def main(self):
+        """
+               Main training loop for the Teacher class.
+
+               Iterates through the specified number of training updates and performs the following steps:
+               1. Checks and updates environment parameters using the `check_params` method.
+               2. Calls the `plot_trg_params` method to visualize or log target parameters.
+               3. Initiates the training process using the `train` method from the parent class.
+
+               Returns:
+               - None
+               """
         for self.n_train in range(self.updates_remaining):
             self.check_params()
             self.plot_trg_params()

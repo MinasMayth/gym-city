@@ -26,27 +26,35 @@ import algo
 def main():
     trainer = Trainer()
     trainer.main()
-
 def init_agent(actor_critic, args):
+    """
+    Initialize and return an agent for reinforcement learning based on the specified algorithm.
+
+    Args:
+    - actor_critic: The neural network model representing the actor-critic architecture.
+    - args: An object containing hyperparameters and configuration settings.
+
+    Returns:
+    - agent: An instance of the reinforcement learning agent corresponding to the specified algorithm.
+    """
     if args.algo == 'a2c':
         agent = algo.A2C(actor_critic, args.value_loss_coef,
-                args.entropy_coef, lr=args.lr,
-                eps=args.eps, alpha=args.alpha,
-                max_grad_norm=args.max_grad_norm,
-                curiosity=args.curiosity, args=args)
+                         args.entropy_coef, lr=args.lr,
+                         eps=args.eps, alpha=args.alpha,
+                         max_grad_norm=args.max_grad_norm,
+                         curiosity=args.curiosity, args=args)
     elif args.algo == 'ppo':
         agent = algo.PPO(actor_critic, args.clip_param, args.ppo_epoch, args.num_mini_batch, args.value_loss_coef, args.entropy_coef, lr=args.lr,
-                eps=args.eps,
-                max_grad_norm=args.max_grad_norm)
+                         eps=args.eps,
+                         max_grad_norm=args.max_grad_norm)
     elif args.algo == 'acktr':
         agent = algo.A2C(actor_critic, args.value_loss_coef,
-                args.entropy_coef, lr=args.lr,
-                eps=args.eps, alpha=args.alpha,
-                max_grad_norm=args.max_grad_norm,
-                acktr=True,
-                curiosity=args.curiosity, args=args)
+                         args.entropy_coef, lr=args.lr,
+                         eps=args.eps, alpha=args.alpha,
+                         max_grad_norm=args.max_grad_norm,
+                         acktr=True,
+                         curiosity=args.curiosity, args=args)
     return agent
-
 class Teacher():
     def __init__(self):
         pass
@@ -66,11 +74,12 @@ class Trainer():
         args = get_args()
         args.log_dir = args.save_dir + '/logs'
         assert args.algo in ['a2c', 'ppo', 'acktr']
+        # Check if recurrent policy is implemented for the chosen algorithm
         if args.recurrent_policy:
             assert args.algo in ['a2c', 'ppo'], \
                     'Recurrent policy is not implemented for ACKTR'
 
-
+        # Seed for reproducibility
         torch.manual_seed(args.seed)
         if args.cuda:
             print('CUDA ENABLED')
@@ -152,6 +161,8 @@ class Trainer():
 
         if args.auto_expand:
             args.n_recs -= 1
+
+        # Create the actor-critic network model
         actor_critic = Policy(envs.observation_space.shape, envs.action_space,
             base_kwargs={'map_width': args.map_width, 'num_actions': num_actions,
                 'recurrent': args.recurrent_policy, 'prebuild': args.prebuild,
@@ -160,7 +171,7 @@ class Trainer():
                          curiosity=args.curiosity, algo=args.algo,
                          model=args.model, args=args)
         if not agent:
-            agent = init_agent(actor_critic, args)
+            agent = init_agent(actor_critic, args) # Initialize the reinforcement learning agent
         if args.auto_expand:
             args.n_recs += 1
 
@@ -262,7 +273,7 @@ class Trainer():
             recurrent_hidden_state_size = actor_critic.base.get_recurrent_state_size()
         else:
             recurrent_hidden_state_size = actor_critic.recurrent_hidden_state_size
-        if args.curiosity:
+        if args.curiosity:  # Rollout storage for storing training data
             rollouts = CuriosityRolloutStorage(args.num_steps, args.num_processes,
                                 envs.observation_space.shape, envs.action_space,
                                 recurrent_hidden_state_size, actor_critic.base.feature_state_size(), args=args)
@@ -300,8 +311,8 @@ class Trainer():
         # in case we want to change this dynamically in the future (e.g., we may
         # not know how much traffic the agent can possibly produce in Micropolis)
         envs.set_param_bounds(env_param_bounds) # start with default bounds
-        self.updates_remaining = updates_remaining
-        self.envs = envs
+        self.updates_remaining = updates_remaining # Keep track of updates remaining for training
+        self.envs = envs # Store essential components in class attributes
         self.start = start
         self.rollouts = rollouts
         self.args = args
@@ -336,6 +347,22 @@ class Trainer():
                #envs.venv.venv.remotes[0].recv()
 
     def step(self):
+        """
+            Perform a single step in the training loop.
+
+            This method executes the following steps:
+            1. Get the action to take in the environment from the actor-critic model.
+            2. Execute the action in the environment and observe the next state, reward, and other information.
+            3. If an episode is completed, reset the environment.
+            4. If rendering is enabled, visualize the environment.
+            5. If curiosity-driven exploration is enabled, compute intrinsic rewards using the Intrinsic Curiosity Module (ICM).
+            6. Update the rollout buffer with the observed information.
+
+            Note:
+                - The method is used within the training loop to advance the learning process.
+                - It incorporates rendering, curiosity-driven exploration, and updates the rollout buffer.
+
+            """
         player_act = self.player_act
         n_step = self.n_step
         args = self.args
@@ -396,9 +423,22 @@ class Trainer():
             rollouts.insert(obs, recurrent_hidden_states, action, action_log_probs, value, reward, masks)
         self.n_frames += self.args.num_steps * self.args.num_processes
 
-
-
     def train(self):
+        """
+        Execute a single training iteration.
+
+        This method performs the following steps:
+        1. Sample actions for a specified number of steps using the `step` method.
+        2. Compute returns and update the actor-critic model using the PPO or A2C algorithm.
+        3. Record and print training statistics, including rewards, loss values, and entropy.
+        4. If an evaluation interval is specified, conduct evaluations using the `Evaluator`.
+        5. Save the trained model at specified intervals.
+
+        Note:
+            - The method is part of the main training loop and is called repeatedly during training.
+            - It interacts with the environment, updates the model, and records training progress.
+
+        """
         evaluator = self.evaluator
         episode_rewards = self.episode_rewards
         args = self.args
@@ -409,99 +449,94 @@ class Trainer():
         plotter = self.plotter
         n_train = self.n_train
         start = self.start
-        plotter = self.plotter
-        n_cols = self.n_cols
         model = self.model
         device = self.device
         vec_norm = self.vec_norm
         n_frames = self.n_frames
+
+        # Reset evaluation if needed
         if self.reset_eval:
             obs = envs.reset()
             rollouts.obs[0].copy_(obs)
             rollouts.to(device)
             self.reset_eval = False
+
+        # Apply FractalNet specific settings
         if args.model == 'FractalNet' and args.drop_path:
             model.set_drop_path()
         if args.model == 'fixed' and model.RAND:
             model.num_recursions = random.randint(1, model.map_width * 2)
+
         self.player_act = None
+
+        # Iterate over each step within the training iteration
         for self.n_step in range(args.num_steps):
-            # Sample actions
+            # Sample actions using the step method
             self.step()
 
+        # Compute the value of the last observation
         with torch.no_grad():
             next_value = actor_critic.get_value(rollouts.obs[-1],
                                                 rollouts.recurrent_hidden_states[-1],
                                                 rollouts.masks[-1]).detach()
 
+        # Compute returns and update the actor-critic model
         rollouts.compute_returns(next_value, args.use_gae, args.gamma, args.tau)
         if args.curiosity:
             value_loss, action_loss, dist_entropy, fwd_loss, inv_loss = agent.update(rollouts)
         else:
             value_loss, action_loss, dist_entropy = agent.update(rollouts)
         envs.dist_entropy = dist_entropy
-
         rollouts.after_update()
-
-
 
         total_num_steps = (n_train + 1) * args.num_processes * args.num_steps
 
         if not dist_entropy:
             dist_entropy = 0
-       #print(episode_rewards)
-       #if torch.max(rollouts.rewards) > 0:
-       #    print(rollouts.rewards)
+
+        # Print and record training statistics
         if args.log and n_train % args.log_interval == 0 and len(episode_rewards) > 1:
             end = time.time()
             print("Updates {}, num timesteps {}, FPS {} \n Last {} training episodes: mean/median reward {:.6f}/{:.6f}, min/max reward {:.6f}/{:.6f}\n \
-dist entropy {:.6f}, val/act loss {:.6f}/{:.6f},".
-                format(n_train, total_num_steps,
-                       int((self.n_frames - self.past_frames) / (end - start)),
-                       len(episode_rewards),
-                       round(np.mean(episode_rewards), 6),
-                       round(np.median(episode_rewards), 6),
-                       round(np.min(episode_rewards), 6),
-                       round(np.max(episode_rewards), 6), round(dist_entropy, 6),
-                       round(value_loss, 6), round(action_loss, 6)))
+        dist entropy {:.6f}, val/act loss {:.6f}/{:.6f},".
+                  format(n_train, total_num_steps,
+                         int((self.n_frames - self.past_frames) / (end - start)),
+                         len(episode_rewards),
+                         round(np.mean(episode_rewards), 6),
+                         round(np.median(episode_rewards), 6),
+                         round(np.min(episode_rewards), 6),
+                         round(np.max(episode_rewards), 6), round(dist_entropy, 6),
+                         round(value_loss, 6), round(action_loss, 6)))
             if args.curiosity:
                 print("fwd/inv icm loss {:.1f}/{:.1f}\n".
-                format(
-                       fwd_loss, inv_loss))
+                      format(fwd_loss, inv_loss))
 
+        # Conduct evaluations at specified intervals
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and n_train % args.eval_interval == 0):
             if evaluator is None:
                 evaluator = Evaluator(args, actor_critic, device, envs=envs, vec_norm=vec_norm,
-                        fieldnames=self.fieldnames)
+                                      fieldnames=self.fieldnames)
                 self.evaluator = evaluator
 
-            col_idx = [-1, *[i for i in range(0, n_cols, self.col_step)]]
+            col_idx = [-1, *[i for i in range(0, self.n_cols, self.col_step)]]
             for i in col_idx:
                 evaluator.evaluate(column=i)
-           #num_eval_frames = (args.num_frames // (args.num_steps * args.eval_interval * args.num_processes)) * args.num_processes *  args.max_step
-           # making sure the evaluator plots the '-1'st column (the overall net)
+
             viz = self.viz
             win_eval = self.win_eval
             graph_name = self.graph_name
-            if args.vis: #and n_train % args.vis_interval == 0:
+            if args.vis:
                 try:
                     # Sometimes monitor doesn't properly flush the outputs
                     win_eval = evaluator.plotter.visdom_plot(viz, win_eval, evaluator.eval_log_dir, graph_name,
-                                  args.algo, args.num_frames, n_graphs= col_idx)
+                                                             args.algo, args.num_frames, n_graphs=col_idx)
                 except IOError:
                     pass
-           #elif args.model == 'fixed' and model.RAND:
-           #    for i in model.eval_recs:
-           #        evaluator.evaluate(num_recursions=i)
-           #    win_eval = visdom_plot(viz, win_eval, evaluator.eval_log_dir, graph_name,
-           #                           args.algo, args.num_frames, n_graphs=model.eval_recs)
-           #else:
-           #    evaluator.evaluate(column=-1)
-           #    win_eval = visdom_plot(viz, win_eval, evaluator.eval_log_dir, graph_name,
-           #                  args.algo, args.num_frames)
+
             self.reset_eval = True
 
+        # Save the trained model at specified intervals
         if args.save and n_train % args.save_interval == 0 and args.save_dir != "":
             save_path = os.path.join(args.save_dir)
             try:
@@ -524,27 +559,16 @@ dist entropy {:.6f}, val/act loss {:.6f}/{:.6f},".
             self.ob_rms = ob_rms
             torch.save(self.get_save_dict(), os.path.join(save_path, args.env_name + ".tar"))
 
-           #save_model = [save_model,
-           #              getattr(get_vec_normalize(envs), 'ob_rms', None)]
-
-           #torch.save(save_model, os.path.join(save_path, args.env_name + ".pt"))
-           #save_agent = copy.deepcopy(agent)
-
-           #torch.save(save_agent, os.path.join(save_path, args.env_name + '_agent.pt'))
-           #torch.save(actor_critic.state_dict(), os.path.join(save_path, args.env_name + "_weights.pt"))
-
-            print('model saved at {}'.format(save_path))
-
         if args.vis and n_train % args.vis_interval == 0:
             if plotter is None:
-                plotter = Plotter(n_cols, args.log_dir, args.num_processes)
+                plotter = Plotter(self.n_cols, args.log_dir, args.num_processes)
             try:
                 # Sometimes monitor doesn't properly flush the outputs
                 viz = self.viz
                 win = self.win
                 graph_name = self.graph_name
                 win = plotter.visdom_plot(viz, win, args.log_dir, graph_name,
-                                  args.algo, args.num_frames)
+                                          args.algo, args.num_frames)
             except IOError:
                 pass
 
