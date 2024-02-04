@@ -1,4 +1,7 @@
-nohup python train_teacher.py --algo a2c --experiment_name baseline_fullyconv --model FullyConv > logs/output_script_baseline_FC.log 2>&1 &
-nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal --model FractalNet > logs/output_script_baseline_Fractal1.log 2>&1 &
-nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal_inter --model FractalNet --inter-shr > logs/output_script_baseline_Fractal2.log 2>&1 &
-nohup python train_teacher.py --algo a2c --experiment_name baseline_fractal_intra --model FractalNet  --intra-shr > logs/output_script_baseline_Fractal3.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fullyconv --model FullyConv > logs/output_script_baseline_FC_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fractal --model FractalNet > logs/output_script_baseline_Fractal_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fractal_inter --model FractalNet --inter-shr > logs/output_script_baseline_FractalInter_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fractal_intra --model FractalNet  --intra-shr > logs/output_script_baseline_FractalIntra_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fractal_drop --model FractalNet --drop-path > logs/output_script_baseline_FractalDrop_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fractal_expand --model FractalNet --auto-expand > logs/output_script_baseline_FractalExpand_PP.log 2>&1 &
+nohup python train_teacher.py --algo a2c --add-timestep --power-puzzle --num-processes 96 --num-frames 2000000 --experiment_name PP_baseline_fullyconv_gae --use-gae --model FullyConv > logs/output_script_baseline_FC_PP_gae.log 2>&1 &

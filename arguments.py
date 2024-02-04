@@ -60,6 +60,7 @@ def get_args():
 
 def get_parser():
     '''The basic set of arguments pertaining to gym-city.'''
+    ######## General ########
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument('--algo', default='a2c',
                         help='algorithm to use: a2c | ppo | acktr')
@@ -133,7 +134,7 @@ def get_parser():
     parser.add_argument('--overwrite', action='store_true', help='overwrite log files and saved model, optimizer')
     parser.add_argument('--max-step', type=int, default=200)
 
-    ######## Fractal Net ########
+    ######## Utility ########
 
 #   parser.add_argument('--squeeze', action='store_true',
 #           help= 'squeeze outward columns of fractal by recurrent up and down convolution')
@@ -143,7 +144,7 @@ def get_parser():
             help='directory to save agent logs (default: ./trained_models/)')
     parser.add_argument('--record', default=False, action='store_true',
             help='film videos of inference')
-########################################### Fractal Nets
+########################################### Fractal Nets  ###########################################
     parser.add_argument('--drop-path', action='store_true', help='enable global and local drop path on fractal model (ignored otherwise)')
     parser.add_argument('--inter-shr', action='store_true',
             help='layers shared between columns')
@@ -155,11 +156,11 @@ def get_parser():
             help='which fractal expansion rule to apply if using a fractal network architecture')
     parser.add_argument('--n-recs', default=3, type=int,
             help='number of times the expansion rule is applied in the construction of a fractal net')
-########################################### Micropolis
+########################################### Micropolis ###########################################
     parser.add_argument('--power-puzzle', action='store_true',
             help='a minigame: the agent uses wire to efficiently connect zones.')
-   #parser.add_argument('--simple-reward', action='store_true',
-   #        help='reward only for overall population according to game')
+    parser.add_argument('--simple-reward', action='store_true',
+           help='reward only for overall population according to game')
    #parser.add_argument('--traffic-only', action='store_true',
    #        help='reward only for overall traffic')
     parser.add_argument('--random-builds', type=str2bool, default=True,
@@ -169,20 +170,20 @@ def get_parser():
     parser.add_argument('--n-chan', type=int, default=64)
     parser.add_argument('--val-kern', default=3)
     parser.add_argument(
-        '--prebuild', default=False, help='GoL mini-game \
-        encouraging blossoming structures')
-    parser.add_argument(
         '--extinction-prob', type=float, default=0.0, help='probability of extinction event')
     parser.add_argument(
         '--extinction-type', type=str, default=None,
         help='type of extinction event')
     parser.add_argument('--im-render', action='store_true',
             help='Render micropolis as a simplistic image')
-########################################### Game of Life
+########################################### Game of Life ###########################################
+    parser.add_argument(
+        '--prebuild', default=False, help='GoL mini-game \
+        encouraging blossoming structures')
     parser.add_argument(
         '--prob-life', type=int, default=20,
         help='percent chance each tile is alive on reset')
-########################################### ICM
+########################################### ICM ###########################################
     parser.add_argument(
         '--eta',
         type=float,
