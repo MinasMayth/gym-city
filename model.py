@@ -415,7 +415,7 @@ class FullyConvLSTM(NNBase):
         return(self.n_chan, self.map_width, self.map_width)
 
 
-class MicropolisBase_FullyConvRec(NNBase):
+class MicropolisBase_FullyConvRec(NNBase): # OUTDATED
     def __init__(self, num_inputs, recurrent=False, hidden_size=256,
             map_width=20, num_actions=18):
 
