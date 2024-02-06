@@ -17,7 +17,7 @@ from arguments import get_parser
 from envs import VecPyTorch, make_vec_envs
 from evaluate import Evaluator
 from model import Policy
-from utils import get_vec_normalize
+from working_utils import get_vec_normalize
 
 #plt.switch_backend('agg')
 

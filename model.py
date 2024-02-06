@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from distributions import Categorical, Categorical2D, CategoricalPaint, DiagGaussian
-from utils import init, init_normc_
+from working_utils import init, init_normc_
 from torchsummary import summary
 import math
 
@@ -1201,7 +1201,7 @@ class MicropolisBase_squeeze(NNBase):
         return  vals, acts, rnn_hxs
 
 class MicropolisBase_ICM(MicropolisBase_fixed):
-    def __init__(self, num_inputs, recurrent=False, hidden_size=512, num_actions=19):
+    def __init__(self, num_inputs, recurrent=False, hidden_size=512, num_actions=19, map_width=16):
         super(MicropolisBase_ICM, self).__init__(num_inputs, recurrent, hidden_size)
 
         ### ICM feature encoder

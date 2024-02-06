@@ -7,7 +7,7 @@ import torch
 
 from model import Policy
 from envs import VecPyTorch, make_vec_envs
-from utils import get_render_func, get_vec_normalize
+from working_utils import get_render_func, get_vec_normalize
 
 from arguments import get_parser
 from train import Evaluator

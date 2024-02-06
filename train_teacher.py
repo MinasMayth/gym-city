@@ -18,7 +18,7 @@ from arguments import get_args
 from envs import make_vec_envs
 from model import Policy
 from storage import RolloutStorage, CuriosityRolloutStorage
-from utils import get_vec_normalize
+from working_utils import get_vec_normalize
 from visualize import Plotter
 from shutil import copyfile
 from teachDRL.teachers.algos.alp_gmm import ALPGMM
