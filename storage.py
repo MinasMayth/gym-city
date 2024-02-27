@@ -107,10 +107,17 @@ class RolloutStorage(object):
                 gae = delta + gamma * tau * self.masks[step + 1] * gae
                 self.returns[step] = gae + self.value_preds[step]
         else:
+            # V_n = V(b_{t+n})
             self.returns[-1] = next_value
-            for step in reversed(range(self.rewards.size(0))):
+
+            # I want to ignore r_{t+0}
+            # For i = n-1, n-2, ... 0
+            # V_i = r_{i+1} + m_{i+1} * gamma * V_{i+1}
+            # V(b_{t+n-1}) = r_{t+n} + m_{t+n} * gamma * V(b_{t+n})
+            # Until V(b_{t}) [shifted by 1 compared to value_preds?!]
+            for step in reversed(range(self.rewards.size(0) - 1)):
                 self.returns[step] = self.returns[step + 1] * \
-                    gamma * self.masks[step + 1] + self.rewards[step]
+                                     gamma * self.masks[step + 1] + self.rewards[step + 1]
 
 
     def feed_forward_generator(self, advantages, num_mini_batch):

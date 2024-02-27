@@ -84,25 +84,25 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial',
-                'FireDept',
-                'PoliceDept',
+                #'FireDept',
+                #'PoliceDept',
                 # 'Query',
-                'Clear',
+                #'Clear',
                 'Wire',
                 # 'Land',
-                'Rail',
+                #'Rail',
                 'Road',
-                'Stadium',
-                'Park',
-                'Seaport',
+                #'Stadium',
+                #'Park',
+                #'Seaport',
                 'CoalPowerPlant',
-                'NuclearPowerPlant',
-                'Airport',
-                'Net',
-                'Water',
-                'Land',
-                'Forest',
-                'Nil' # the agent takes no action
+                #'NuclearPowerPlant',
+                #'Airport',
+                #'Net',
+                #'Water',
+                #'Land',
+                #'Forest',
+                #'Nil' # the agent takes no action
                 ]
         #['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
         # since query is exluded for now:
