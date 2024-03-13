@@ -350,22 +350,24 @@ class MicropolisEnv(core.Env):
     def getReward(self):
         '''Calculate reward.
         '''
-        if False: # changed here
-            reward = 0
-            for metric, trg in self.city_trgs.items():
-                last_val = self.last_city_metrics[metric]
-                trg_change = trg - last_val
-                val = self.city_metrics[metric]
-                change = val - last_val
-                if np.sign(change) != np.sign(trg_change):
-                    metric_rew = -abs(change)
-                elif abs(change) < abs(trg_change):
-                    metric_rew = abs(change)
-                else:
-                    metric_rew = abs(trg_change) - abs(trg_change - change)
-                reward += metric_rew * self.weights[metric]
-        else: # simple reward
-            reward = self.micro.getTotPop()
+        reward = self.micro.getTotPop()
+        reward = 5
+        # if False: # changed here
+        #     reward = 0
+        #     for metric, trg in self.city_trgs.items():
+        #         last_val = self.last_city_metrics[metric]
+        #         trg_change = trg - last_val
+        #         val = self.city_metrics[metric]
+        #         change = val - last_val
+        #         if np.sign(change) != np.sign(trg_change):
+        #             metric_rew = -abs(change)
+        #         elif abs(change) < abs(trg_change):
+        #             metric_rew = abs(change)
+        #         else:
+        #             metric_rew = abs(trg_change) - abs(trg_change - change)
+        #         reward += metric_rew * self.weights[metric]
+        # else: # simple reward
+        #     reward = self.micro.getTotPop()
         # if self.render_gui and reward != 0:
         #    print(self.city_metrics)
         #    print(self.city_trgs)
