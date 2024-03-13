@@ -18,18 +18,15 @@ def make_env():
 
 def main():
     env = make_env()
-    for i in range(5):
-        env.reset()
-        done = False
-        while not done:
-            env.render()
-            action = env.action_space.sample()
-            obs, reward, done, info = env.step(action)
-            if reward > 0:
-                print(reward)
-            if done:
-                env.reset()
-                break
+    env = YourEnv()
+    obs, info = env.reset()
+    n_steps = 10
+    for _ in range(n_steps):
+        # Random action
+        action = env.action_space.sample()
+        obs, reward, terminated, truncated, info = env.step(action)
+        if done:
+            obs, info = env.reset()
 
     env.close()
 

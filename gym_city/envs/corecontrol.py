@@ -87,7 +87,7 @@ class MicropolisControl():
                 #'FireDept',
                 #'PoliceDept',
                 # 'Query',
-                #'Clear',
+                'Clear',
                 'Wire',
                 # 'Land',
                 #'Rail',
@@ -313,6 +313,9 @@ class MicropolisControl():
     def getResPop(self):
         return self.engine.resPop
 
+    def getCoalPowerPop(self):
+        return self.engine.coalPowerPop
+
     def getComPop(self):
         return self.engine.comPop
 
@@ -334,7 +337,7 @@ class MicropolisControl():
         tool = self.tools[a[0]]
         x = int(a[1])
         y = int(a[2])
-       #print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
+        print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
         self.doBotTool(x, y, tool, static_build)
        #gtk.main_iteration() # for observation or recording
        #time.sleep(1/60)

@@ -350,8 +350,7 @@ class MicropolisEnv(core.Env):
     def getReward(self):
         '''Calculate reward.
         '''
-        reward = self.micro.getTotPop()
-        reward = 5
+        reward = self.getPop()
         # if False: # changed here
         #     reward = 0
         #     for metric, trg in self.city_trgs.items():
@@ -516,7 +515,6 @@ class MicropolisEnv(core.Env):
         #           #    max_net_2 = max_net_1
         #           #elif n > max_net_2:
         #           #    max_net_2 = n
-        reward = 0
 
         reward = self.getReward()
         # reward = reward / (self.max_step)
