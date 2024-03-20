@@ -1,4 +1,5 @@
 from gym import core, spaces
+import gym
 from gym.utils import seeding
 from collections import OrderedDict
 import numpy as np
@@ -7,6 +8,7 @@ import math
 import sys
 
 if sys.version_info[0] >= 3:
+    print(sys.version_info[0])
     import gi
 
     gi.require_version('Gtk', '3.0')
@@ -21,9 +23,10 @@ import time
 import torch
 
 
-class MicropolisEnv(core.Env):
+class MicropolisEnv(gym.Env):
 
     def __init__(self, MAP_X=20, MAP_Y=20, PADDING=0):
+        super(MicropolisEnv, self).__init__()
         self.SHOW_GUI = False
         self.start_time = time.time()
         self.print_map = False
@@ -91,7 +94,7 @@ class MicropolisEnv(core.Env):
         #        'mayor_rating':0
         #        }
         self.city_metrics = {}
-        self.max_reward = 100
+        # self.max_reward = 100
         self.setMapSize(MAP_X)
 
     def seed(self, seed=None):
@@ -351,6 +354,9 @@ class MicropolisEnv(core.Env):
         '''Calculate reward.
         '''
         reward = self.getPop()
+        if reward>0:
+            print(reward)
+
         # if False: # changed here
         #     reward = 0
         #     for metric, trg in self.city_trgs.items():

@@ -13,8 +13,7 @@ from stable_baselines3.common.env_checker import check_env
 
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    print(check_env(env))
-    env.setMapSize(32, render_gui=True)
+    env.setMapSize(16, render_gui=True)
     return env
 
 def main():
@@ -31,8 +30,8 @@ def main():
 
     new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
 
-    env = make_vec_env("MicropolisEnv-v0", n_envs=4, seed=0, vec_env_cls=SubprocVecEnv)
-    # env = make_env()
+    # env = make_vec_env("MicropolisEnv-v0", n_envs=4, seed=0, vec_env_cls=SubprocVecEnv)
+    env = make_env()
 
     if algorithm == "A2C":
         model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
