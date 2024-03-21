@@ -126,7 +126,13 @@ class MicropolisPanedWindow(gtk.Window):
             print("GTK could not be initialized")
             print("Error:", error)
 
-            quit()
+            self.engine = engine
+
+            engine.expressInterest(
+                self,
+                ('gameMode',))
+            self.startGame()
+
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)
