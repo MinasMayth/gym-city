@@ -354,8 +354,6 @@ class MicropolisEnv(gym.Env):
         '''Calculate reward.
         '''
         reward = self.getPop()
-        if reward>0:
-            print(reward)
 
         # if False: # changed here
         #     reward = 0
