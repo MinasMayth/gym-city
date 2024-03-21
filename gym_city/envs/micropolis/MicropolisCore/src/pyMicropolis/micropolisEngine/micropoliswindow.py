@@ -121,8 +121,12 @@ class MicropolisPanedWindow(gtk.Window):
                 gtk.init_check()
                 gtk.Window.__init__(self, **args)
 
-        except RuntimeError:
-                print("GTK could not be intialized")
+
+        except RuntimeError as error:
+            print("GTK could not be initialized")
+            print("Error:", error)
+
+            quit()
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)
