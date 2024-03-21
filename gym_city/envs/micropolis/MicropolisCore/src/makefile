@@ -103,7 +103,7 @@ TILEENGINEDEST = pyMicropolis/tileEngine
 build_tileEngine:
 	$(MAKE) -C TileEngine build_python
 	cp TileEngine/objs/tileengine.py $(TILEENGINEDEST)
-	cp TileEngine/objs/lib.linux-x86_64-3/_tileengine.cpython-310-x86_64-linux-gnu.so $(TILEENGINEDEST)
+	cp TileEngine/objs/lib.linux-x86_64-3.6/_tileengine.cpython-36m-x86_64-linux-gnu.so $(TILEENGINEDEST)
 
 # ----------------------------------------------------------------------
 # build/install cellEngine
@@ -113,7 +113,7 @@ CELLENGINEDEST = pyMicropolis/cellEngine
 build_cellEngine:
 	$(MAKE) -C CellEngine build_python
 	cp CellEngine/objs/cellengine.py $(CELLENGINEDEST)
-	cp CellEngine/objs/lib.linux-x86_64-3/_cellengine.cpython-310-x86_64-linux-gnu.so $(CELLENGINEDEST)
+	cp CellEngine/objs/lib.linux-x86_64-3.6/_cellengine.cpython-36m-x86_64-linux-gnu.so $(CELLENGINEDEST)
 
 # ----------------------------------------------------------------------
 # build/install micropolisEngine
@@ -123,6 +123,6 @@ MICROPOLISENGINEDEST = pyMicropolis/micropolisEngine
 build_micropolisEngine:
 	$(MAKE) -C MicropolisEngine build_python
 	cp MicropolisEngine/objs/micropolisengine.py $(MICROPOLISENGINEDEST)
-	cp MicropolisEngine/objs/lib.linux-x86_64-3/_micropolisengine.cpython-310-x86_64-linux-gnu.so $(MICROPOLISENGINEDEST)
+	cp MicropolisEngine/objs/lib.linux-x86_64-3.6/_micropolisengine.cpython-36m-x86_64-linux-gnu.so $(MICROPOLISENGINEDEST)
 
 ########################################################################

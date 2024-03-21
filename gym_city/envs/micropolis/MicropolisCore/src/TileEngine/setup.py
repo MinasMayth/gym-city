@@ -81,7 +81,9 @@ setup(
             ],
             include_dirs = [
                 'src',
-                '/usr/local/include',
+		'/cm/shared/easybuild/software/cairo/1.16.0-GCCcore-8.2.0/include/cairo',
+              	'/cm/shared/easybuild/software/PyCairo/1.18.0-foss-2018b-Python-3.6.6/include/pycairo',
+		'/usr/local/include',
                 '/usr/local/include/cairo',
                 '/usr/local/include/pycairo',
                 '/usr/include/cairo',
