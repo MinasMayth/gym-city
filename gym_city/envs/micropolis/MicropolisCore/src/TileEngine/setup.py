@@ -74,32 +74,31 @@ setup(
     author='Don Hopkins',
     author_email='dhopkins@DonHopkins.com',
     url='http://www.DonHopkins.com',
-    ext_modules = [
+    ext_modules=[
         Extension('_tileengine', [
-                'objs/tileengine_wrap.cpp',
-                'src/tileengine.cpp'
-            ],
-            include_dirs = [
-                'src',
-		'/cm/shared/easybuild/software/cairo/1.16.0-GCCcore-8.2.0/include/cairo',
-              	'/cm/shared/easybuild/software/PyCairo/1.18.0-foss-2018b-Python-3.6.6/include/pycairo',
-		'/usr/local/include',
-                '/usr/local/include/cairo',
-                '/usr/local/include/pycairo',
-                '/usr/include/cairo',
-                '/usr/include/pycairo',
-                '/opt/local/include/cairo',
-                '/opt/local/include/pycairo',
-            ],
-            library_dirs = [
-                '/opt/gtk/lib',
-                '/opt/local/lib',
-            ],
-            libraries = [
-                'cairo',
-            ]),
+            'objs/tileengine_wrap.cpp',
+            'src/tileengine.cpp'
+        ],
+                  include_dirs=[
+                      'src',
+                      '/cm/shared/easybuild/software/cairo/1.16.0-GCCcore-8.2.0/include/cairo',
+                      '/cm/shared/easybuild/software/PyCairo/1.18.0-foss-2018b-Python-3.6.6/include/pycairo',
+                      '/usr/local/include',
+                      '/usr/local/include/cairo',
+                      '/usr/local/include/pycairo',
+                      '/usr/include/cairo',
+                      '/usr/include/pycairo',
+                      '/opt/local/include/cairo',
+                      '/opt/local/include/pycairo',
+                  ],
+                  library_dirs=[
+                      '/opt/gtk/lib',
+                      '/opt/local/lib',
+                  ],
+                  libraries=[
+                      'cairo',
+                  ]),
     ]
 )
-
 
 ########################################################################

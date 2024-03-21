@@ -17,10 +17,10 @@ from stable_baselines3.common.env_checker import check_env
 
 def make_env(vec, args):
     if vec:
-        env = make_vec_env("MicropolisEnv-v0", n_envs=4, vec_env_cls=DummyVecEnv)
+        env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
         env.env_method("setMapSize", 16)
     else:
-        env = gym.make("MicropolisEnv-v0")
+        env = gym.make(args.env_name)
         env.setMapSize(16, render_gui=args.visualise_training)
     return env
 
@@ -47,14 +47,14 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
 
-    env = make_env(vec=True, args=args)
+    env = make_env(vec=False, args=args)
 
     if args.save:
         if algorithm == "a2c":
             model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                         learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                        create_eval_env=True)
+                        create_eval_env=True, gae_lambda=args.gae)
         elif algorithm == "ppo":
             model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
@@ -65,7 +65,7 @@ def main():
         if algorithm == "a2c":
             model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose)
+                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
         elif algorithm == "ppo":
             model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
@@ -84,9 +84,9 @@ def main():
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
         model.set_logger(new_logger)
-        model.learn(total_timesteps=1_000_000, callback=callback, eval_log_path=log_path, reset_num_timesteps=True)
+        model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
     else:
-        model.learn(total_timesteps=1_000_000)
+        model.learn(total_timesteps=args.num_frames)
 
     if args.save:
         model.save(save_path)

@@ -72,10 +72,10 @@ def get_parser():
                         help='RMSprop optimizer apha (default: 0.99)')
     parser.add_argument('--gamma', type=float, default=0.99,
                         help='discount factor for rewards (default: 0.99)')
-    parser.add_argument('--use-gae', action='store_true', default=False,
-                        help='use generalized advantage estimation')
-    parser.add_argument('--tau', type=float, default=0.95,
-                        help='gae parameter (default: 0.95)')
+    # parser.add_argument('--use-gae', action='store_true', default=False,
+    #                     help='use generalized advantage estimation')
+    parser.add_argument('--gae', type=float, default=1,
+                        help='gae parameter (default: 1)')
     parser.add_argument('--entropy-coef', type=float, default=0.01,
                         help='entropy term coefficient (default: 0.01)')
     parser.add_argument('--value-loss-coef', type=float, default=0.5,
@@ -105,8 +105,8 @@ def get_parser():
                         help='eval interval, one eval per n updates (default: None)')
     parser.add_argument('--vis-interval', type=int, default=100,
                         help='vis interval, one log per n updates (default: 100)')
-    parser.add_argument('--num-frames', type=int, default=10e6,
-                        help='number of frames to train (default: 10e6)')
+    parser.add_argument('--num-frames', type=int, default=2_500_000,
+                        help='number of frames to train (default: 2_500_000)')
     parser.add_argument('--env-name', default='MicropolisEnv-v0',
                         help='environment to train on (default: MicropolisEnv-v0)')
 #   parser.add_argument('--log-dir', default='trained_models',
