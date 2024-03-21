@@ -8,10 +8,10 @@ def make_env():
     return env
 
 def main():
-    model = A2C.load("logs/baselines/a2c/2024-03-21_00-04-14/models/rl_model_150000_steps.zip")
+    model = A2C.load("logs/baselines/a2c/2024-03-21_00-04-14/models/rl_model_975000_steps.zip")
     env = make_env()
     obs = env.reset()
-    for i in range(1000):
+    for i in range(10000):
         action, _state = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render("human")
