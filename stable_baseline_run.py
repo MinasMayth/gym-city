@@ -39,9 +39,25 @@ def main():
 
     # Define the path with the current date and time
     # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
-    log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
-    save_path = log_path
+    if algorithm == "a2c":
+        parameter_values = {
+            'gamma': str(args.gamma),
+            'num_steps': str(args.num_steps),
+            'value_loss_coef': str(args.value_loss_coef),
+            'entropy_coef': str(args.entropy_coef),
+            'max_grad_norm': str(args.max_grad_norm),
+            'lr': str(args.lr),
+            'eps': str(args.eps),
+            'gae_lambda': str(args.gae)
+        }
+        # Generate a string representation of parameters
+        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
+        log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
+        save_path = log_path
 
+    else:
+        log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
+        save_path = log_path
 
     if args.save:
         os.makedirs(log_path, exist_ok=True)
@@ -89,7 +105,7 @@ def main():
         model.learn(total_timesteps=args.num_frames)
 
     if args.save:
-        model.save(save_path)
+        model.save(save_path + "/models")
     env.close()
 
 
