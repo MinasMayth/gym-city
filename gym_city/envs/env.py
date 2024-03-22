@@ -95,7 +95,7 @@ class MicropolisEnv(gym.Env):
         #        }
         self.city_metrics = {}
         # self.max_reward = 100
-        self.setMapSize(MAP_X)
+        # self.setMapSize(MAP_X)
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)

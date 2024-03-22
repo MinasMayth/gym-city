@@ -118,7 +118,8 @@ class MicropolisPanedWindow(gtk.Window):
         gi.require_version('Gtk', '3.0')
         from gi.repository import Gtk as gtk
         try:
-                gtk.init_check()
+                print("IAMHERE")
+                gtk_alive = gtk.init_check()[0]
                 gtk.Window.__init__(self, **args)
 
 
@@ -132,7 +133,7 @@ class MicropolisPanedWindow(gtk.Window):
                 self,
                 ('gameMode',))
             self.startGame()
-
+            raise RuntimeError("No GTK")
 
         self.connect('destroy', gtk.main_quit)
         self.connect('realize', self.handleRealize)
@@ -293,8 +294,7 @@ class MicropolisPanedWindow(gtk.Window):
 
     def update(self, name, *args):
 
-        if name == 'gameMode':
-
+        if name == 'gameMode' and hasattr(self, "navigationMapView"):
             engine = self.engine
             gameMode = engine.gameMode
 

@@ -930,7 +930,7 @@ class MicropolisGenericEngine(micropolisengine.Micropolis):
 
 
     def sendUpdate(self, name, *args):
-        #print "SENDUPDATE", name, args
+        # print ("SENDUPDATE", name, args)
         interests = self.interests
         a = interests.get(name)
         if a:

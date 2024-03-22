@@ -1,2 +1,0 @@
-nohup python train_teacher.py --algo a2c --num-processes 8 --num-frames 20000000 --experiment_name PP_baseline_fullyconv --model FullyConv > logs/output_script_baseline_FC.log 2>&1 &
-nohup python train_teacher.py --algo a2c --simple-reward --num-processes 8 --num-frames 20000000 --experiment_name baseline_fullyconv_simplereward --model FullyConv > logs/output_script_baseline_FCsimple.log 2>&1 &
