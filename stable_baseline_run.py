@@ -21,9 +21,43 @@ def make_env(vec, args):
         env.env_method("setMapSize", 16)
     else:
         env = gym.make(args.env_name)
-        env.setMapSize(16, render_gui=args.visualise_training)
+        env.setMapSize(16, render_gui=args.render)
     return env
 
+
+def create_model(args, algorithm, env, verbose, log_path):
+    if args.load_dir is None:
+        if args.save:
+            if algorithm == "a2c":
+                model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                            create_eval_env=True, gae_lambda=args.gae)
+            elif algorithm == "ppo":
+                model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
+            else:
+                exit()
+        else:
+            if algorithm == "a2c":
+                model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+            elif algorithm == "ppo":
+                model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, verbose=verbose)
+            else:
+                exit()
+    else:
+        if algorithm == "a2c":
+            model = A2C.load(args.load_dir, env)
+        elif algorithm == "ppo":
+            model = PPO.load(args.load_dir, env)
+        else:
+            exit()
+    return model
 
 def main():
     args = get_args()
@@ -65,29 +99,7 @@ def main():
 
     env = make_env(vec=False, args=args)
 
-    if args.save:
-        if algorithm == "a2c":
-            model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                        create_eval_env=True, gae_lambda=args.gae)
-        elif algorithm == "ppo":
-            model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
-        else:
-            exit()
-    else:
-        if algorithm == "a2c":
-            model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
-        elif algorithm == "ppo":
-            model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, verbose=verbose)
-        else:
-            exit()
+    model = create_model(args, algorithm, env, verbose, log_path)
 
     if args.save:
         checkpoint_callback = CheckpointCallback(save_freq=100000, save_path=save_path + "/models")
@@ -100,12 +112,20 @@ def main():
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
         model.set_logger(new_logger)
-        model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
+        if args.load_dir is None:
+            model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path,
+                        reset_num_timesteps=True)
+        else:
+            model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
     else:
-        model.learn(total_timesteps=args.num_frames)
+        if args.load_dir is None:
+            model.learn(total_timesteps=args.num_frames, reset_num_timesteps=True)
+        else:
+            model.learn(total_timesteps=args.num_frames)
 
     if args.save:
         model.save(save_path + "/models")
+        model.save_replay_buffer(save_path + "/models")
     env.close()
 
 

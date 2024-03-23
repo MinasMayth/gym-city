@@ -105,8 +105,8 @@ def get_parser():
                         help='eval interval, one eval per n updates (default: None)')
     parser.add_argument('--vis-interval', type=int, default=100,
                         help='vis interval, one log per n updates (default: 100)')
-    parser.add_argument('--num-frames', type=int, default=2_500_000,
-                        help='number of frames to train (default: 2_500_000)')
+    parser.add_argument('--num-frames', type=int, default=10_000_000,
+                        help='number of frames to train (default: 10_000_000)')
     parser.add_argument('--env-name', default='MicropolisEnv-v0',
                         help='environment to train on (default: MicropolisEnv-v0)')
 #   parser.add_argument('--log-dir', default='trained_models',
@@ -142,7 +142,7 @@ def get_parser():
 #   parser.add_argument('--n-conv-recs', default=2,
 #           help='number of recurrences of convolution at base level of fractal net')
     parser.add_argument('--load-dir', default=None,
-            help='directory to save agent logs (default: ./trained_models/)')
+            help='directory to load trained models')
     parser.add_argument('--record', default=False, action='store_true',
             help='film videos of inference')
 ########################################### Fractal Nets  ###########################################
