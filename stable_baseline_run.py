@@ -52,11 +52,13 @@ def main():
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
-        log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
+        ALICE_path = '/home/s3458717/data1/'
+        log_path = os.path.join(ALICE_path, "logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
         save_path = log_path
 
     else:
-        log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
+        ALICE_path = '/home/s3458717/data1/'
+        log_path = os.path.join(ALICE_path, "logs", "baselines", algorithm, current_datetime)
         save_path = log_path
 
     if args.save:
@@ -90,10 +92,10 @@ def main():
             exit()
 
     if args.save:
-        checkpoint_callback = CheckpointCallback(save_freq=100000, save_path=save_path + "/models")
+        checkpoint_callback = CheckpointCallback(save_freq=1_000_000, save_path=save_path + "/models")
         # Separate evaluation env
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
-                                     log_path=save_path + '/models/best_model', eval_freq=2500)
+                                     log_path=save_path + '/models/best_model', eval_freq=250_000)
         # Create the callback list
         callback = CallbackList([checkpoint_callback, eval_callback])
         # Save model parameters to a text file
