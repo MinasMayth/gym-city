@@ -1,15 +1,15 @@
 #!/bin/bash
-#BATCH --job-name=gym_city
-#SBATCH --output=logs/alice/%x_%j.out
+#BATCH --job-name=gym_city_reward_expanded
+#SBATCH --output=logs/alice/g_c_roads_e%x_%j.out
 #SBATCH --mail-user="<samyhashim2001@gmail.com>"
 #SBATCH --mail-type="ALL"
-#SBATCH --mem=16G
+#SBATCH --mem=8G
 #SBATCH --time=24:00:00
 #SBATCH --partition=gpu-medium
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 
-module restore gym_city
+# module restore gym_city
 
 echo "[$SHELL] #### Starting Gym City"
 echo "[$SHELL] This is $SLURM_JOB_USER and this job has the ID $SLURM_JOB_ID"
@@ -29,5 +29,5 @@ echo "[$SHELL] Log directory "$LOGDIR
 # Run the file
 echo "[$SHELL] Running gym city on $(hostname)"
 python --version
-python stable_baseline_run.py --num-frames 10_000_000 --algo a2c --log False --alpha 0.95 --value-loss-coef 0.5 --max-grad-norm 0.5 --entropy-coef 0 --lr 7e-4 --eps 1e-5 --gae 0.98 --gamma 0.98 --num-steps 9
+python stable_baseline_run.py --num-frames 15_000_000 --algo a2c  --alpha 0.99 --value-loss-coef 0.5 --max-grad-norm 0.5 --entropy-coef 0 --lr 7e-4 --eps 1e-5 --gae 0.98 --gamma 0.98 --num-steps 9
 echo "[$SHELL] Terminated. Job done"

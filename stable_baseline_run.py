@@ -53,12 +53,12 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
+        log_path = os.path.join(ALICE_path, "logs", "baselines", "reward_with_roads", algorithm, f"{parameter_string}_{current_datetime}")
         save_path = log_path
 
     else:
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", algorithm, current_datetime)
+        log_path = os.path.join(ALICE_path, "logs", "baselines", "reward_with_roads", algorithm, current_datetime)
         save_path = log_path
 
     if args.save:
