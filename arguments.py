@@ -84,7 +84,7 @@ def get_parser():
                         help='max norm of gradients (default: 0.5)')
     parser.add_argument('--seed', type=int, default=1,
                         help='random seed (default: 1)')
-    parser.add_argument("--visualise-training", type=str2bool, default=False)
+    # parser.add_argument("--visualise-training", type=str2bool, default=False)
     parser.add_argument('--num-processes', type=int, default=12,
                         help='how many training CPU processes to use (default: 12)')
     parser.add_argument('--num-steps', type=int, default=5,

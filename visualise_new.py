@@ -8,7 +8,7 @@ def make_env():
     return env
 
 def main():
-    model = A2C.load("logs/baselines/a2c/gamma=0.98_num_steps=9_value_loss_coef=0.5_entropy_coef=0.0_max_grad_norm=0.5_lr=0.0007_eps=1e-05_gae_lambda=0.98_2024-03-22_21-53-03/models/best_model/best_model.zip")
+    model = A2C.load("logs/baselines/a2c/ExpandedAgentToolset/NewReward/gamma=0.98_num_steps=9_value_loss_coef=0.5_entropy_coef=0.0_max_grad_norm=0.5_lr=0.0007_eps=1e-05_gae_lambda=0.98_2024-03-23_16-18-51/models/best_model/best_model.zip")
     env = make_env()
     obs = env.reset()
     for i in range(10000):
