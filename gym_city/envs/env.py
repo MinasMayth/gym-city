@@ -43,8 +43,9 @@ class MicropolisEnv(gym.Env):
             'traffic': 2000,
             # i believe one plant is worth 12, the other 16?
             'num_plants': 14,
-            'mayor_rating': 100
+            'mayor_rating': 100,
             # i.e. 'pollution': 0
+            'num_roads': 40
         })
         self.trg_param_vals = np.array([v for v in self.city_trgs.values()])
         self.param_bounds = OrderedDict({
@@ -53,7 +54,8 @@ class MicropolisEnv(gym.Env):
             'ind_pop': (0, 100),
             'traffic': (0, 2000),
             'num_plants': (0, 100),
-            'mayor_rating': (0, 100)
+            'mayor_rating': (0, 100),
+            'num_roads': (0, 150)
         })
         self.weights = OrderedDict({
             'res_pop': 1,
@@ -62,9 +64,10 @@ class MicropolisEnv(gym.Env):
             'traffic': 1,
             'num_plants': 0,
             'mayor_rating': 0,
+            'num_roads': 1
         })
 
-        self.num_params = 6
+        self.num_params = 7
         # not necessarily true but should take care of most cases
         self.max_loss = 0
         i = 0
@@ -95,7 +98,7 @@ class MicropolisEnv(gym.Env):
         #        }
         self.city_metrics = {}
         # self.max_reward = 100
-        # self.setMapSize(MAP_X)
+        self.setMapSize(MAP_X)
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -441,12 +444,14 @@ class MicropolisEnv(gym.Env):
         traffic = self.micro.total_traffic
         mayor_rating = self.getRating()
         num_plants = self.micro.map.num_plants
+        num_roads = self.micro.map.num_roads
         city_metrics = { # how to add pollution here is the question
             'res_pop': res_pop,
             'com_pop': com_pop,
             'ind_pop': ind_pop,
             'traffic': traffic, 'num_plants': num_plants,
-            'mayor_rating': mayor_rating
+            'mayor_rating': mayor_rating,
+            'num_roads' : num_roads
         }
         return city_metrics
 
