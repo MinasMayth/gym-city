@@ -356,9 +356,8 @@ class MicropolisEnv(gym.Env):
     def getReward(self):
         '''Calculate reward.
         '''
-        # reward = self.getPop()
 
-        if True: # changed here
+        if False: # changed here
             reward = 0
             for metric, trg in self.city_trgs.items():
                 last_val = self.last_city_metrics[metric]
@@ -373,7 +372,9 @@ class MicropolisEnv(gym.Env):
                     metric_rew = abs(trg_change) - abs(trg_change - change)
                 reward += metric_rew * self.weights[metric]
         else: # simple reward
-            reward = self.micro.getTotPop()
+            # reward = self.micro.getTotPop()
+            reward = self.getPop()
+
         if self.render_gui and reward != 0:
            print(self.city_metrics)
            print(self.city_trgs)

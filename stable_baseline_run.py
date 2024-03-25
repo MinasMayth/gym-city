@@ -5,6 +5,7 @@ from datetime import datetime
 from arguments import get_args
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
+from networks import CustomActorCriticPolicy
 import os
 from stable_baselines3 import A2C, PPO, DQN
 from stable_baselines3 import SAC
@@ -69,27 +70,29 @@ def main():
 
     if args.save:
         if algorithm == "a2c":
-            model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+            model = A2C(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                         learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
                         create_eval_env=True, gae_lambda=args.gae)
         elif algorithm == "ppo":
-            model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+            model = PPO(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                         learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
         else:
             exit()
     else:
         if algorithm == "a2c":
-            model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+            model = A2C(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                         learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
         elif algorithm == "ppo":
-            model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+            model = PPO(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
                         vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                         learning_rate=args.lr, verbose=verbose)
         else:
             exit()
+
+    print(model.policy)
 
     if args.save:
         checkpoint_callback = CheckpointCallback(save_freq=1_000_000, save_path=save_path + "/models")
@@ -101,6 +104,7 @@ def main():
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
+            f.write(str(model.policy))
         model.set_logger(new_logger)
         model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
     else:
