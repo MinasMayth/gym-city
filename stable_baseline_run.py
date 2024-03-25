@@ -3,6 +3,7 @@ import gym_city
 import time
 from datetime import datetime
 from arguments import get_args
+import torch
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
@@ -22,8 +23,44 @@ def make_env(vec, args):
         env.env_method("setMapSize", 16)
     else:
         env = gym.make(args.env_name)
-        env.setMapSize(16, render_gui=args.visualise_training)
+        env.setMapSize(16, render_gui=args.render)
     return env
+
+
+def create_model(args, algorithm, env, verbose, log_path):
+    policy_kwargs = dict(net_arch=[128, 128, dict(vf=[64, 64], pi=[256])])
+    if args.load_dir is None:
+        if args.save:
+            if algorithm == "a2c":
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                            create_eval_env=True, gae_lambda=args.gae)
+            elif algorithm == "ppo":
+                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
+            else:
+                exit()
+        else:
+            if algorithm == "a2c":
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+            elif algorithm == "ppo":
+                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                            learning_rate=args.lr, verbose=verbose)
+            else:
+                exit()
+    else:
+        if algorithm == "a2c":
+            model = A2C.load(args.load_dir, env)
+        elif algorithm == "ppo":
+            model = PPO.load(args.load_dir, env)
+        else:
+            exit()
+    return model
 
 
 def main():
@@ -56,7 +93,8 @@ def main():
         ALICE_path = '/home/s3458717/data1/'
         log_path = os.path.join(ALICE_path, "logs", "baselines", "reward_with_roads", "BaseAgentToolset", algorithm, f"{parameter_string}_{current_datetime}")
         save_path = log_path
-
+    elif algorithm == "ppo":
+        pass  # to implement
     else:
         ALICE_path = '/home/s3458717/data1/'
         log_path = os.path.join(ALICE_path, "logs", "baselines", "reward_with_roads", algorithm, current_datetime)
@@ -68,31 +106,8 @@ def main():
 
     env = make_env(vec=False, args=args)
 
-    if args.save:
-        if algorithm == "a2c":
-            model = A2C(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                        create_eval_env=True, gae_lambda=args.gae)
-        elif algorithm == "ppo":
-            model = PPO(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
-        else:
-            exit()
-    else:
-        if algorithm == "a2c":
-            model = A2C(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
-        elif algorithm == "ppo":
-            model = PPO(CustomActorCriticPolicy, env, gamma=args.gamma, n_steps=args.num_steps,
-                        vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                        learning_rate=args.lr, verbose=verbose)
-        else:
-            exit()
-
-    print(model.policy)
+    model = create_model(args, algorithm, env, verbose, log_path)
+    print("POLICY:", model.policy)
 
     if args.save:
         checkpoint_callback = CheckpointCallback(save_freq=1_000_000, save_path=save_path + "/models")
@@ -106,9 +121,16 @@ def main():
             f.write(str(model.get_parameters()))
             f.write(str(model.policy))
         model.set_logger(new_logger)
-        model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
+        if args.load_dir is None:
+            model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
+        else:
+            model.learn(total_timesteps=args.num_frames, callback=callback,
+                        eval_log_path=log_path, reset_num_timesteps=True)
     else:
-        model.learn(total_timesteps=args.num_frames)
+        if args.load_dir is None:
+            model.learn(total_timesteps=args.num_frames)
+        else:
+            model.learn(total_timesteps=args.num_frames, reset_num_timesteps=True)
 
     if args.save:
         model.save(save_path + "/models")
