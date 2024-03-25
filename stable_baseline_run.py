@@ -3,8 +3,10 @@ import gym_city
 import time
 from datetime import datetime
 from arguments import get_args
+import torch
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
+from networks import CustomActorCriticPolicy
 import os
 from stable_baselines3 import A2C, PPO, DQN
 from stable_baselines3 import SAC
@@ -26,26 +28,27 @@ def make_env(vec, args):
 
 
 def create_model(args, algorithm, env, verbose, log_path):
+    policy_kwargs = dict(net_arch=[128, 128, dict(vf=[64, 64], pi=[256])])
     if args.load_dir is None:
         if args.save:
             if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
                             create_eval_env=True, gae_lambda=args.gae)
             elif algorithm == "ppo":
-                model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
             else:
                 exit()
         else:
             if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
             elif algorithm == "ppo":
-                model = PPO("MlpPolicy", env, gamma=args.gamma, n_steps=args.num_steps,
+                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, verbose=verbose)
             else:
@@ -58,6 +61,7 @@ def create_model(args, algorithm, env, verbose, log_path):
         else:
             exit()
     return model
+
 
 def main():
     args = get_args()
@@ -88,7 +92,8 @@ def main():
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
         save_path = log_path
-
+    elif algorithm == "ppo":
+        pass  # to implement
     else:
         log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
         save_path = log_path
@@ -100,6 +105,7 @@ def main():
     env = make_env(vec=False, args=args)
 
     model = create_model(args, algorithm, env, verbose, log_path)
+    print("POLICY:", model.policy)
 
     if args.save:
         checkpoint_callback = CheckpointCallback(save_freq=100000, save_path=save_path + "/models")
@@ -111,21 +117,21 @@ def main():
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
+            f.write(str(model.policy))
         model.set_logger(new_logger)
         if args.load_dir is None:
-            model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path,
-                        reset_num_timesteps=True)
-        else:
             model.learn(total_timesteps=args.num_frames, callback=callback, eval_log_path=log_path)
+        else:
+            model.learn(total_timesteps=args.num_frames, callback=callback,
+                        eval_log_path=log_path, reset_num_timesteps=True)
     else:
         if args.load_dir is None:
-            model.learn(total_timesteps=args.num_frames, reset_num_timesteps=True)
-        else:
             model.learn(total_timesteps=args.num_frames)
+        else:
+            model.learn(total_timesteps=args.num_frames, reset_num_timesteps=True)
 
     if args.save:
         model.save(save_path + "/models")
-        model.save_replay_buffer(save_path + "/models")
     env.close()
 
 
