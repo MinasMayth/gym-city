@@ -98,7 +98,7 @@ class MicropolisControl():
                 'CoalPowerPlant',
                 'NuclearPowerPlant',
                 'Airport',
-                # 'Net',
+                'Net',
                 #'Water',
                 #'Land',
                 #'Forest',

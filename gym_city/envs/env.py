@@ -36,7 +36,7 @@ class MicropolisEnv(gym.Env):
 
         self.static_player_builds = False
         ### MIXED
-        self.city_trgs = OrderedDict({ # so here we can add a new reward for whats possible to learn
+        self.city_trgs = OrderedDict({  # so here we can add a new reward for whats possible to learn
             'res_pop': 500,
             'com_pop': 50,
             'ind_pop': 50,
@@ -66,6 +66,7 @@ class MicropolisEnv(gym.Env):
             'mayor_rating': 0,
             'num_roads': 1
         })
+
 
         self.num_params = 7
         # not necessarily true but should take care of most cases
@@ -301,6 +302,9 @@ class MicropolisEnv(gym.Env):
         self.last_num_roads = 0
         # self.past_actions.fill(False)
         self.num_episode += 1
+
+        self.micro.layGrid(8, 8) ###GRID
+
         return self.state
 
     # def getRoadPenalty(self):
@@ -356,9 +360,13 @@ class MicropolisEnv(gym.Env):
     def getReward(self):
         '''Calculate reward.
         '''
+        # add population
+        # make sure to build at least one road
+        # Check if certain scenarios occur, i.e. a certain system breaks
+          # changed here
         complexReward = False
 
-        if complexReward: # changed here
+        if complexReward:  # changed here
             reward = 0
             for metric, trg in self.city_trgs.items():
                 last_val = self.last_city_metrics[metric]
@@ -372,35 +380,22 @@ class MicropolisEnv(gym.Env):
                 else:
                     metric_rew = abs(trg_change) - abs(trg_change - change)
                 reward += metric_rew * self.weights[metric]
-        else: # simple reward
-            reward = self.getPop()
+        else:  # simple reward
 
+            reward = self.getPop() + self.micro.map.num_roads
+
+            if 0 < self.micro.getCoalPowerPop() < 3:
+                reward += 100
+            else:
+                reward -= 100
 
         if self.render_gui and reward != 0:
-           print(self.city_metrics)
-           print(self.city_trgs)
-           print(reward)
-           print()
+            pass
+            print(self.city_metrics)
+            print(self.city_trgs)
+            print(reward)
+            print()
 
-        # if False:
-        #    max_reward = self.max_reward
-        #    loss = 0
-        #    i = 0
-        #    for k, v in self.city_trgs.items():
-        #        if i == self.num_params:
-        #            break
-        #        else:
-        #            if True:
-        #                reward = 0
-        #                for metric_name, trg in self.city_trgs.items():
-
-        #            weight = self.weights[k]
-        #            loss += abs(v - self.city_metrics[k]) * weight
-        #            i += 1
-
-        #    reward = (self.max_loss - loss) * max_reward / self.max_loss
-        #    reward = self.getPopReward()
-        # self.curr_reward = reward
         return reward
 
     def getPopReward(self):
@@ -447,13 +442,13 @@ class MicropolisEnv(gym.Env):
         mayor_rating = self.getRating()
         num_plants = self.micro.map.num_plants
         num_roads = self.micro.map.num_roads
-        city_metrics = { # how to add pollution here is the question
+        city_metrics = {  # how to add pollution here is the question
             'res_pop': res_pop,
             'com_pop': com_pop,
             'ind_pop': ind_pop,
             'traffic': traffic, 'num_plants': num_plants,
             'mayor_rating': mayor_rating,
-            'num_roads' : num_roads
+            'num_roads': num_roads
         }
         return city_metrics
 
