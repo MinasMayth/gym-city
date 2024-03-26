@@ -20,10 +20,10 @@ from stable_baselines3.common.env_checker import check_env
 def make_env(vec, args):
     if vec:
         env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
-        env.env_method("setMapSize", 16)
+        env.env_method("setMapSize", args.map_width)
     else:
         env = gym.make(args.env_name)
-        env.setMapSize(16, render_gui=args.render)
+        env.setMapSize(args.map_width, render_gui=args.render)
     return env
 
 
@@ -38,6 +38,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                             create_eval_env=True, gae_lambda=args.gae)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                            batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
             else:
@@ -81,19 +82,31 @@ def main():
         parameter_values = {
             'gamma': str(args.gamma),
             'num_steps': str(args.num_steps),
-            'value_loss_coef': str(args.value_loss_coef),
-            'entropy_coef': str(args.entropy_coef),
-            'max_grad_norm': str(args.max_grad_norm),
+            #'value_loss_coef': str(args.value_loss_coef),
+            #'entropy_coef': str(args.entropy_coef),
+            #'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
             'eps': str(args.eps),
-            'gae_lambda': str(args.gae)
+            #'gae_lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
-        pass  # to implement
+        parameter_values = {
+            'gamma': str(args.gamma),
+            'num_steps': str(args.num_steps),
+            'clip_range': str(args.clip_param),
+            'batch_size': str(args.num_mini_batch),
+            'n_epochs': str(args.ppo_epoch),
+            'lr': str(args.lr),
+            'eps': str(args.eps)
+        }
+        # Generate a string representation of parameters
+        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
+        log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
+        save_path = log_path
     else:
         log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
         save_path = log_path
