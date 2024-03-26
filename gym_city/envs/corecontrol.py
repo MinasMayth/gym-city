@@ -89,7 +89,6 @@ class MicropolisControl():
                 # 'Query',
                 'Clear',
                 'Wire',
-                # 'Land',
                 'Rail',
                 'Road',
                 'Stadium',
@@ -99,9 +98,9 @@ class MicropolisControl():
                 'NuclearPowerPlant',
                 'Airport',
                 'Net',
-                'Water',
+                #'Water',
                 #'Land',
-                'Forest',
+                #'Forest',
                 'Nil' # the agent takes no action
                 ]
         #['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
