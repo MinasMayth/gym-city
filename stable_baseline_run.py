@@ -92,7 +92,7 @@ def main():
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
         log_path = os.path.join(ALICE_path, "logs", "baselines", "ExpandedAgentToolset", "CustomNetworkV1",
-                                "BaseReward",
+                                "NewReward",
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
@@ -100,7 +100,7 @@ def main():
     else:
         ALICE_path = '/home/s3458717/data1/'
         log_path = os.path.join(ALICE_path, "logs", "baselines", "ExpandedAgentToolset", "CustomNetworkV1",
-                                "BaseReward", algorithm, current_datetime)
+                                "NewReward", algorithm, current_datetime)
         save_path = log_path
 
     if args.save:
