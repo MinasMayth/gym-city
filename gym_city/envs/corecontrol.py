@@ -312,8 +312,13 @@ class MicropolisControl():
     def getResPop(self):
         return self.engine.resPop
 
+    def getTotalPowerPop(self):
+        return  self.getCoalPowerPop() + self.getNuclearPowerPop()
     def getCoalPowerPop(self):
         return self.engine.coalPowerPop
+
+    def getNuclearPowerPop(self):
+        return self.engine.nuclearPowerPop
 
     def getComPop(self):
         return self.engine.comPop

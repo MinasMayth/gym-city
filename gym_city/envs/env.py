@@ -382,12 +382,16 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
         else:  # simple reward
 
-            reward = self.getPop() + self.micro.map.num_roads
+            reward = self.getPop()
 
-            if 0 < self.micro.getCoalPowerPop() < 3:
-                reward += 100
+            if self.micro.map.num_roads > 5:
+                reward += 10
             else:
-                reward -= 100
+                reward -= 10
+            if 0 < self.micro.getTotalPowerPop() < 3:
+                reward += 10
+            else:
+                reward -= 10
 
         if self.render_gui and reward != 0:
             pass
