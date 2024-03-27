@@ -67,6 +67,7 @@ class MicropolisEnv(gym.Env):
             'num_roads': 1
         })
 
+
         self.num_params = 7
         # not necessarily true but should take care of most cases
         self.max_loss = 0
@@ -302,7 +303,7 @@ class MicropolisEnv(gym.Env):
         # self.past_actions.fill(False)
         self.num_episode += 1
 
-        self.micro.layGrid(8, 8)  ###GRID
+        # self.micro.layGrid(8, 8) ###GRID
 
         return self.state
 
@@ -362,7 +363,7 @@ class MicropolisEnv(gym.Env):
         # add population
         # make sure to build at least one road
         # Check if certain scenarios occur, i.e. a certain system breaks
-        # changed here
+          # changed here
         complexReward = False
 
         if complexReward:  # changed here
@@ -381,7 +382,7 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
         else:  # simple reward
 
-            reward = self.getPop()
+            reward = self.getPop() * 1000
 
             if self.micro.map.num_roads > 5:
                 reward += 100
