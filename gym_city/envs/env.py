@@ -303,7 +303,7 @@ class MicropolisEnv(gym.Env):
         # self.past_actions.fill(False)
         self.num_episode += 1
 
-        self.micro.layGrid(8, 8) ###GRID
+        # self.micro.layGrid(8, 8) ###GRID
 
         return self.state
 
@@ -382,16 +382,16 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
         else:  # simple reward
 
-            reward = self.getPop()
+            reward = self.getPop() * 1000
 
             if self.micro.map.num_roads > 5:
-                reward += 10
+                reward += 100
             else:
-                reward -= 10
+                reward -= 100
             if 0 < self.micro.getTotalPowerPop() < 3:
-                reward += 10
+                reward += 100
             else:
-                reward -= 10
+                reward -= 100
 
         if self.render_gui and reward != 0:
             pass
