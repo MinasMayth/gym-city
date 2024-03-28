@@ -92,7 +92,7 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", "ExpandedAgentToolset", "CustomNetworkV1",
+        log_path = os.path.join(ALICE_path, "logs", "baselines", "BaseToolSet", "CustomNetworkV1",
                                 "NewReward", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
@@ -134,7 +134,7 @@ def main():
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
                                      log_path=save_path + '/models/best_model', eval_freq=250_000)
         # Create the callback list
-        callback = CallbackList([checkpoint_callback, eval_callback])
+        callback = CallbackList([checkpoint_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))

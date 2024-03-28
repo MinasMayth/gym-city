@@ -84,20 +84,20 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial',
-                'FireDept',
-                'PoliceDept',
+                #'FireDept',
+                #'PoliceDept',
                 # 'Query',
                 'Clear',
                 'Wire',
-                'Rail',
+                #'Rail',
                 'Road',
-                'Stadium',
-                'Park',
-                'Seaport',
+                #'Stadium',
+                #'Park',
+                #'Seaport',
                 'CoalPowerPlant',
                 'NuclearPowerPlant',
-                'Airport',
-                'Net',
+                #'Airport',
+                #'Net',
                 #'Water',
                 #'Land',
                 #'Forest',
@@ -157,8 +157,8 @@ class MicropolisControl():
 
     def layGrid(self, w, h):
 
-        for i in range(self.MAP_X):
-            for j in range(self.MAP_Y):
+        for i in range(round(self.MAP_X/2)):
+            for j in range(round(self.MAP_Y/2)):
             #   gtk.mainiteration()
                 self.simTick()
                 # vertical road
