@@ -67,7 +67,6 @@ class MicropolisEnv(gym.Env):
             'num_roads': 1
         })
 
-
         self.num_params = 7
         # not necessarily true but should take care of most cases
         self.max_loss = 0
@@ -126,7 +125,7 @@ class MicropolisEnv(gym.Env):
 
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
-                render_gui=False, empty_start=True, simple_reward=False,
+                render_gui=False, empty_start=False, simple_reward=False,
                 power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
@@ -274,7 +273,7 @@ class MicropolisEnv(gym.Env):
                                  np.random.randint(0, self.micro.MAP_Y),
                                  'NuclearPowerPlant', static_build=True)
 
-    def reset(self):
+    def reset(self, prebuild=True):
         self.display_city_trgs()
         if True:
             # if self.render_gui:
@@ -303,7 +302,7 @@ class MicropolisEnv(gym.Env):
         # self.past_actions.fill(False)
         self.num_episode += 1
 
-        # self.micro.layGrid(8, 8) ###GRID
+        # self.micro.layGrid(round(8), round(8))  ###GRID
 
         return self.state
 
@@ -344,6 +343,7 @@ class MicropolisEnv(gym.Env):
         state = np.concatenate((state, density_maps, scalar_layers), 0)
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
+
         return state
 
     def getPop(self):
@@ -363,7 +363,7 @@ class MicropolisEnv(gym.Env):
         # add population
         # make sure to build at least one road
         # Check if certain scenarios occur, i.e. a certain system breaks
-          # changed here
+        # changed here
         complexReward = False
 
         if complexReward:  # changed here
@@ -382,18 +382,19 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
         else:  # simple reward
 
-            reward = self.getPop() * 1000
+            current_pop = self.getPop()
+            current_num_roads = self.micro.map.num_roads
+            pop_difference = current_pop - self.last_pop
+            roads_difference = current_num_roads - self.last_num_roads
 
-            if self.micro.map.num_roads > 5:
-                reward += 100
-            else:
-                reward -= 100
-            if 0 < self.micro.getTotalPowerPop() < 3:
-                reward += 100
-            else:
-                reward -= 100
+            reward = pop_difference
 
-        if self.render_gui and reward != 0:
+            self.last_pop = current_pop
+            self.last_num_roads = current_num_roads
+
+
+        if False:
+            # if self.render_gui and reward != 0:
             pass
             print(self.city_metrics)
             print(self.city_trgs)

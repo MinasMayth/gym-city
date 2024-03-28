@@ -126,7 +126,7 @@ def main():
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
                                      log_path=save_path + '/models/best_model', eval_freq=2500)
         # Create the callback list
-        callback = CallbackList([checkpoint_callback, eval_callback])
+        callback = CallbackList([checkpoint_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
@@ -145,6 +145,18 @@ def main():
 
     if args.save:
         model.save(save_path + "/models")
+
+    for i in range(1000):
+        vec_env = model.get_env()
+        obs = vec_env.reset()
+        action, _state = model.predict(obs)
+        obs, reward, done, info = vec_env.step(action)
+        vec_env.render("human")
+    # VecEnv resets automatically
+    if done:
+        print("Episode finished after {} timesteps".format(i + 1))
+        obs = vec_env.reset()
+
     env.close()
 
 

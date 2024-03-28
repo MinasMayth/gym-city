@@ -45,7 +45,7 @@ class MicropolisControl():
         else:
             engine, win1 = main.train(env=env, rank=rank, map_x=MAP_W, map_y=MAP_H,
                 gui=gui)
-       #os.chdir(CURR_DIR)
+        #os.chdir(CURR_DIR)
         self.env = env
         self.engine = engine
         self.engine.setGameLevel(2)
@@ -84,21 +84,21 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial',
-                'FireDept',
-                'PoliceDept',
+                #'FireDept',
+                #'PoliceDept',
                 # 'Query',
                 'Clear',
                 'Wire',
-                # 'Land',
-                'Rail',
+                'Land',
+                #'Rail',
                 'Road',
-                'Stadium',
-                'Park',
-                'Seaport',
+                #'Stadium',
+                #'Park',
+                #'Seaport',
                 'CoalPowerPlant',
                 'NuclearPowerPlant',
-                'Airport',
-                'Net',
+                #'Airport',
+                #'Net',
                 #'Water',
                 #'Land',
                 #'Forest',
@@ -158,8 +158,8 @@ class MicropolisControl():
 
     def layGrid(self, w, h):
 
-        for i in range(self.MAP_X):
-            for j in range(self.MAP_Y):
+        for i in range(round(self.MAP_X/2)):
+            for j in range(round(self.MAP_Y/2)):
             #   gtk.mainiteration()
                 self.simTick()
                 # vertical road
