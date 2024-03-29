@@ -67,7 +67,6 @@ class MicropolisEnv(gym.Env):
             'num_roads': 1
         })
 
-
         self.num_params = 7
         # not necessarily true but should take care of most cases
         self.max_loss = 0
@@ -126,7 +125,7 @@ class MicropolisEnv(gym.Env):
 
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
-                render_gui=False, empty_start=True, simple_reward=False,
+                render_gui=False, empty_start=False, simple_reward=False,
                 power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
@@ -388,7 +387,7 @@ class MicropolisEnv(gym.Env):
             pop_difference = current_pop - self.last_pop
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = pop_difference
+            reward = roads_difference * 0.1 + pop_difference
 
             self.last_pop = current_pop
             self.last_num_roads = current_num_roads

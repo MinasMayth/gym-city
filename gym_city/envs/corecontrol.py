@@ -45,7 +45,7 @@ class MicropolisControl():
         else:
             engine, win1 = main.train(env=env, rank=rank, map_x=MAP_W, map_y=MAP_H,
                 gui=gui)
-       #os.chdir(CURR_DIR)
+        #os.chdir(CURR_DIR)
         self.env = env
         self.engine = engine
         self.engine.setGameLevel(2)
