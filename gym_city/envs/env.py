@@ -392,6 +392,11 @@ class MicropolisEnv(gym.Env):
             self.last_pop = current_pop
             self.last_num_roads = current_num_roads
 
+            if self.micro.getTotalPowerPop() == 1:
+                reward += 10
+
+            if self.micro.getTotalZonePop() > 5:
+                reward += 10
 
         if False:
             # if self.render_gui and reward != 0:
