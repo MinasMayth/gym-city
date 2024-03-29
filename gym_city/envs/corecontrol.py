@@ -89,7 +89,6 @@ class MicropolisControl():
                 # 'Query',
                 'Clear',
                 'Wire',
-                'Land',
                 #'Rail',
                 'Road',
                 #'Stadium',

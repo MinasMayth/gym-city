@@ -7,6 +7,7 @@ import torch
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
+from typing import Callable
 import os
 from stable_baselines3 import A2C, PPO, DQN
 from stable_baselines3 import SAC
@@ -15,7 +16,7 @@ from stable_baselines3.common.logger import Image
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
-
+import tensorflow as tf
 
 def make_env(vec, args):
     if vec:
@@ -27,31 +28,52 @@ def make_env(vec, args):
     return env
 
 
+
+def linear_schedule(initial_value: float) -> Callable[[float], float]:
+    """
+    Linear learning rate schedule.
+
+    :param initial_value: Initial learning rate.
+    :return: schedule that computes
+      current learning rate depending on remaining progress
+    """
+    def func(progress_remaining: float) -> float:
+        """
+        Progress will decrease from 1 (beginning) to 0.
+
+        :param progress_remaining:
+        :return: current learning rate
+        """
+        return progress_remaining * initial_value
+
+    return func
+
 def create_model(args, algorithm, env, verbose, log_path):
+
     policy_kwargs = dict(net_arch=[128, 128, dict(vf=[64, 64], pi=[256])])
     if args.load_dir is None:
         if args.save:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                            learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
                             create_eval_env=True, gae_lambda=args.gae)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path)
+                            learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
             else:
                 exit()
         else:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+                            learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=args.lr, verbose=verbose)
+                            learning_rate=linear_schedule(args.lr), verbose=verbose)
             else:
                 exit()
     else:
