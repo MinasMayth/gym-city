@@ -182,6 +182,7 @@ class MicropolisEnv(gym.Env):
         self.actionsToInts = np.zeros((self.num_tools, self.MAP_X, self.MAP_Y))
         self.mapIntsToActions()
         self.last_pop = 0
+        self.last_n_zones = 0
         self.last_num_roads = 0
         #       self.past_actions = np.full((self.num_tools, self.MAP_X, self.MAP_Y), False)
         self.auto_reset = True
@@ -297,6 +298,7 @@ class MicropolisEnv(gym.Env):
         self.curr_reward = self.getReward()
         self.state = self.getState()
         self.last_pop = 0
+        self.last_n_zones = 0
         self.micro.num_roads = 0
         self.last_num_roads = 0
         # self.past_actions.fill(False)
@@ -384,19 +386,20 @@ class MicropolisEnv(gym.Env):
 
             current_pop = self.getPop()
             current_num_roads = self.micro.map.num_roads
+            current_n_zones = self.micro.getTotalZonePop()
             pop_difference = current_pop - self.last_pop
+            zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = roads_difference * 0.1 + pop_difference
+            reward = roads_difference * 0.01 + pop_difference + zone_diff
+
 
             self.last_pop = current_pop
+            self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
 
-            if self.micro.getTotalPowerPop() == 1:
-                reward += 10
+            resDemand, comDemand, indDemand = self.micro.engine.getDemands()
 
-            if self.micro.getTotalZonePop() > 5:
-                reward += 10
 
         if False:
             # if self.render_gui and reward != 0:
