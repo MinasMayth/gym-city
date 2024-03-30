@@ -102,13 +102,14 @@ def main():
     # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
     if algorithm == "a2c":
         parameter_values = {
-            'gamma': str(args.gamma),
+            'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
+            'map_width': str(args.map_width),
             #'value_loss_coef': str(args.value_loss_coef),
             #'entropy_coef': str(args.entropy_coef),
             #'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
-            'eps': str(args.eps),
+            # 'eps': str(args.eps),
             #'gae_lambda': str(args.gae)
         }
         # Generate a string representation of parameters
@@ -120,13 +121,13 @@ def main():
         save_path = log_path
     elif algorithm == "ppo":
         parameter_values = {
-            'gamma': str(args.gamma),
+            'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
+            'map_width': str(args.map_width),
             'clip_range': str(args.clip_param),
             'batch_size': str(args.num_mini_batch),
             'n_epochs': str(args.ppo_epoch),
-            'lr': str(args.lr),
-            'eps': str(args.eps)
+            'lr': str(args.lr)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
