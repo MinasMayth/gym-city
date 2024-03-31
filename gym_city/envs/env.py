@@ -391,7 +391,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = roads_difference * 0.01 + pop_difference + zone_diff
+            reward = roads_difference * 0.1 + pop_difference + zone_diff
 
 
             self.last_pop = current_pop
