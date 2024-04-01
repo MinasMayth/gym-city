@@ -53,27 +53,42 @@ def create_model(args, algorithm, env, verbose, log_path):
     policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     if args.load_dir is None:
         if args.save:
-            if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                            create_eval_env=True, gae_lambda=args.gae)
-            elif algorithm == "ppo":
-                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                            batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
-                            vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
+            if args.lr_schedule:
+                if algorithm == "a2c":
+                    model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                create_eval_env=True, gae_lambda=args.gae)
+                elif algorithm == "ppo":
+                    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                                batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
+                else:
+                    exit()
             else:
-                exit()
+                if algorithm == "a2c":
+                    model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                create_eval_env=True, gae_lambda=args.gae)
+                elif algorithm == "ppo":
+                    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                                batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path)
+                else:
+                    exit()
         else:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+                            learning_rate=(args.lr), normalize_advantage=True
+                            , rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=linear_schedule(args.lr), verbose=verbose)
+                            learning_rate=(args.lr), verbose=verbose)
             else:
                 exit()
     else:
@@ -109,7 +124,7 @@ def main():
             #'entropy_coef': str(args.entropy_coef),
             #'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
-            # 'eps': str(args.eps),
+            'eps': str(args.eps),
             #'gae_lambda': str(args.gae)
         }
         # Generate a string representation of parameters
@@ -127,7 +142,8 @@ def main():
             'clip_range': str(args.clip_param),
             'batch_size': str(args.num_mini_batch),
             'n_epochs': str(args.ppo_epoch),
-            'lr': str(args.lr)
+            'lr': str(args.lr),
+            'eps': str(args.eps)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
