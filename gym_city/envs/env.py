@@ -409,7 +409,7 @@ class MicropolisEnv(gym.Env):
                 # You can adjust the shaping factor based on your requirements
                 shaping_factor = 1  # Adjust this value as needed
                 if length > 1 and length > self.last_networks[road_net_id]:
-                    road_net_reward += 1
+                    road_net_reward += 20
                 else:
                     pass
 

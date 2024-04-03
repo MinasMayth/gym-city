@@ -1,5 +1,5 @@
 #!/bin/bash
-#BATCH --job-name=gym_city_gpu_run
+#BATCH --job-name=gym_city_cpu_run
 #SBATCH --output=logs/alice/gym_city%x_%j.out
 #SBATCH --mail-user="<samyhashim2001@gmail.com>"
 #SBATCH --mail-type="ALL"
