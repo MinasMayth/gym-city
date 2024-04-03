@@ -30,6 +30,7 @@ class MicropolisEnv(gym.Env):
         self.SHOW_GUI = False
         self.start_time = time.time()
         self.print_map = False
+        self.last_networks = None
         self.num_episode = 0
         self.max_static = 0
         self.player_step = False
@@ -38,24 +39,26 @@ class MicropolisEnv(gym.Env):
         ### MIXED
         self.city_trgs = OrderedDict({  # so here we can add a new reward for whats possible to learn
             'res_pop': 500,
-            'com_pop': 50,
-            'ind_pop': 50,
+            'com_pop': 500,
+            'ind_pop': 500,
             'traffic': 2000,
             # i believe one plant is worth 12, the other 16?
-            'num_plants': 14,
+            'num_plants': 2,
             'mayor_rating': 100,
             # i.e. 'pollution': 0
-            'num_roads': 40
+            'num_roads': 40,
+            'zones': 20
         })
         self.trg_param_vals = np.array([v for v in self.city_trgs.values()])
         self.param_bounds = OrderedDict({
             'res_pop': (0, 750),
-            'com_pop': (0, 100),
-            'ind_pop': (0, 100),
+            'com_pop': (0, 750),
+            'ind_pop': (0, 750),
             'traffic': (0, 2000),
             'num_plants': (0, 100),
             'mayor_rating': (0, 100),
-            'num_roads': (0, 150)
+            'num_roads': (0, 150),
+            'zones': (0, 50)
         })
         self.weights = OrderedDict({
             'res_pop': 1,
@@ -64,10 +67,11 @@ class MicropolisEnv(gym.Env):
             'traffic': 1,
             'num_plants': 0,
             'mayor_rating': 0,
-            'num_roads': 1
+            'num_roads': 1,
+            'zones': 1
         })
 
-        self.num_params = 7
+        self.num_params = 8
         # not necessarily true but should take care of most cases
         self.max_loss = 0
         i = 0
@@ -165,7 +169,7 @@ class MicropolisEnv(gym.Env):
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
         self.num_obs_channels = self.micro.map.num_features + self.num_scalars \
-                                + self.num_density_maps + num_user_features
+                                + self.num_density_maps + num_user_features + 1 # for the road network
         if self.poet:
             self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -301,6 +305,7 @@ class MicropolisEnv(gym.Env):
         self.last_n_zones = 0
         self.micro.num_roads = 0
         self.last_num_roads = 0
+        self.last_networks = None
         # self.past_actions.fill(False)
         self.num_episode += 1
 
@@ -342,7 +347,8 @@ class MicropolisEnv(gym.Env):
             fill_val = scalars[si]
             if not type(fill_val) == str:
                 scalar_layers[si].fill(scalars[si])
-        state = np.concatenate((state, density_maps, scalar_layers), 0)
+
+        state = np.concatenate((state, density_maps, scalar_layers, road_networks), 0)
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
@@ -387,18 +393,35 @@ class MicropolisEnv(gym.Env):
             current_pop = self.getPop()
             current_num_roads = self.micro.map.num_roads
             current_n_zones = self.micro.getTotalZonePop()
+
             pop_difference = current_pop - self.last_pop
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = roads_difference * 0.1 + pop_difference + zone_diff
+            reward = pop_difference + zone_diff
+
+            if self.last_networks is None:
+                self.last_networks = self.micro.map.road_net_sizes
+
+            # Calculate the reward based on road network length
+            road_net_reward = 0
+            for road_net_id, length in self.micro.map.road_net_sizes.items():
+                # You can adjust the shaping factor based on your requirements
+                shaping_factor = 1  # Adjust this value as needed
+                if length > 1 and length > self.last_networks[road_net_id]:
+                    road_net_reward += 1
+                else:
+                    pass
+
+            # Integrate road network reward into the total reward
+            reward += road_net_reward
 
 
             self.last_pop = current_pop
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
+            self.last_networks = self.micro.map.road_net_sizes
 
-            resDemand, comDemand, indDemand = self.micro.engine.getDemands()
 
 
         if False:
@@ -453,15 +476,17 @@ class MicropolisEnv(gym.Env):
             self.micro.getIndPop()
         traffic = self.micro.total_traffic
         mayor_rating = self.getRating()
-        num_plants = self.micro.map.num_plants
+        num_plants = self.micro.getTotalPowerPop()
         num_roads = self.micro.map.num_roads
+        zones = self.micro.getTotalZonePop()
         city_metrics = {  # how to add pollution here is the question
             'res_pop': res_pop,
             'com_pop': com_pop,
             'ind_pop': ind_pop,
             'traffic': traffic, 'num_plants': num_plants,
             'mayor_rating': mayor_rating,
-            'num_roads': num_roads
+            'num_roads': num_roads,
+            'zones': zones
         }
         return city_metrics
 
