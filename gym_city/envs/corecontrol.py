@@ -157,8 +157,8 @@ class MicropolisControl():
 
     def layGrid(self, w, h):
 
-        for i in range(round(self.MAP_X/2)):
-            for j in range(round(self.MAP_Y/2)):
+        for i in range(round(self.MAP_X/1)):
+            for j in range(round(self.MAP_Y/1)):
             #   gtk.mainiteration()
                 self.simTick()
                 # vertical road
