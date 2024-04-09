@@ -131,7 +131,7 @@ def main():
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
         log_path = os.path.join(ALICE_path, "logs", "baselines", "BaseToolSet", "CustomNetworkV1",
-                                "NewReward", algorithm,
+                                "AprilCodes", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":

@@ -414,7 +414,7 @@ class MicropolisEnv(gym.Env):
                     pass
 
             # Integrate road network reward into the total reward
-            reward += road_net_reward
+            # reward += road_net_reward
 
 
             self.last_pop = current_pop
