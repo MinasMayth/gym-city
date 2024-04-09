@@ -99,6 +99,21 @@ def create_model(args, algorithm, env, verbose, log_path):
         else:
             exit()
     return model
+class ImageRecorderCallback(BaseCallback):
+    def __init__(self, env, verbose=0):
+        super().__init__(verbose)
+        self.env = env
+
+    def _on_step(self):
+        image = self.env.render(mode="rgb_array")
+        print(type(self.env))
+        quit()
+        # "HWC" specify the dataformat of the image, here channel last
+        # (H for height, W for width, C for channel)
+        # See https://pytorch.org/docs/stable/tensorboard.html
+        # for supported formats
+        self.logger.record("trajectory/image", Image(image, "HWC"), exclude=("stdout", "log", "json", "csv"))
+        return True
 
 
 def main():
@@ -163,7 +178,7 @@ def main():
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
                                      log_path=save_path + '/models/best_model', eval_freq=2500)
         # Create the callback list
-        callback = CallbackList([checkpoint_callback])
+        callback = CallbackList([checkpoint_callback, ImageRecorderCallback(env)])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
