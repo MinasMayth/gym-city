@@ -398,13 +398,13 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = pop_difference + zone_diff
+            reward = pop_difference # + zone_diff
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
             # Calculate the reward based on road network length
-            road_net_reward = 0
+            # road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
                 # You can adjust the shaping factor based on your requirements
                 shaping_factor = 1  # Adjust this value as needed
