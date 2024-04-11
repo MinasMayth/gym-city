@@ -9,7 +9,7 @@ def make_env():
 
 def main():
     model = A2C.load(
-            "logs/baselines/new/logs/baselines/BaseToolSet/CustomNetworkV1/AprilCodes/a2c/alpha=0.99_num_steps=7_map_width=32_lr=0.0009_eps=1e-05_2024-04-11_14-57-47/models/rl_model_1000000_steps.zip"
+            "logs/baselines/new/logs/baselines/BaseToolSet/CustomNetworkV1/AprilCodes/a2c/alpha=0.99_num_steps=7_map_width=32_lr=0.0009_eps=1e-05_2024-04-11_14-57-47/models/rl_model_2000000_steps.zip"
         )
     env = make_env()
     obs = env.reset()
