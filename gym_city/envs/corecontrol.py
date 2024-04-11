@@ -343,7 +343,17 @@ class MicropolisControl():
         x = int(a[1])
         y = int(a[2])
         # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
-        self.doBotTool(x, y, tool, static_build)
+        self.doBotTool(x, y, tool, True)
+        if tool != "Road":
+            if x < 30 and y < 30:
+                if x > 3:
+                    self.doBotTool(x - 2, y, "Road", static_build)
+                    self.doBotTool(x - 2, y - 1, "Road", static_build)
+                    self.doBotTool(x - 2, y + 1, "Road", static_build)
+                else:
+                    self.doBotTool(x + 2, y, "Road", static_build)
+                    self.doBotTool(x + 2, y - 1, "Road", static_build)
+                    self.doBotTool(x + 2, y + 1, "Road", static_build)
        #gtk.main_iteration() # for observation or recording
        #time.sleep(1/60)
        #self.engine.simTick()
