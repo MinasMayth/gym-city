@@ -9,9 +9,8 @@ def make_env():
 
 def main():
     model = A2C.load(
-        "logs/baselines/a2c/CustomNetworkV1/logs/baselines/BaseToolSet/CustomNetworkV1/NewReward/a2c/alpha=0.99_num_steps=11_map_width=32_lr=0.0009_eps=1e-05_2024-04-04_23-41-27/models/rl_model_1000000_steps.zip"
-
-    )
+        "logs/baselines/new/logs/baselines/BaseToolSet/CustomNetworkV1/NewReward/a2c/alpha=0.99_num_steps=9_map_width=32_lr=0.0009_eps=1e-05_2024-04-03_21-29-37/models/rl_model_14000000_steps.zip"
+        )
     env = make_env()
     obs = env.reset()
     for i in range(10000):
