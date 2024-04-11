@@ -104,6 +104,7 @@ def create_model(args, algorithm, env, verbose, log_path):
 def main():
     args = get_args()
     print(args)
+
     algorithm = args.algo
 
     if args.log:
@@ -161,6 +162,7 @@ def main():
     if args.save:
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
+        save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
 
     env = make_env(vec=False, args=args)
 
@@ -194,6 +196,15 @@ def main():
         model.save(save_path + "/models")
     env.close()
 
+def save_to_text_file(args, file_path):
+    try:
+        # Open the file in write mode
+        with open(file_path, 'w') as file:
+            # Write the contents of the args variable to the file
+            file.write(str(args))
+        print("Data successfully saved to", file_path)
+    except Exception as e:
+        print("Error occurred while saving to file:", str(e))
 
 if __name__ == "__main__":
     main()
