@@ -170,7 +170,7 @@ def main():
     print("POLICY:", model.policy)
 
     if args.save:
-        checkpoint_callback = CheckpointCallback(save_freq=1_000_000, save_path=save_path + "/models")
+        checkpoint_callback = CheckpointCallback(save_freq=args.save_interval, save_path=save_path + "/models")
         # Separate evaluation env
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
                                      log_path=save_path + '/models/best_model', eval_freq=250_000)
