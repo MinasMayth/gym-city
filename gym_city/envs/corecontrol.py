@@ -124,7 +124,7 @@ class MicropolisControl():
 
         self.init_funds = 2000000
         self.engine.setFunds(self.init_funds)
-        self.engine.setSpeed(3)
+        self.engine.setSpeed(1)
         self.engine.setPasses(100)
         #engine.simSpeed =99
         self.total_traffic = 0
@@ -344,17 +344,17 @@ class MicropolisControl():
         y = int(a[2])
         # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
         self.doBotTool(x, y, tool, True)
-        if tool != "Road":
-            if x < self.MAP_X - 2 and y < self.MAP_Y - 2:
-                if x > 3:
-                    self.doBotTool(x - 2, y, "Road", static_build)
-                    self.doBotTool(x - 2, y - 1, "Road", static_build)
-                    self.doBotTool(x - 2, y + 1, "Road", static_build)
-                else:
-                    self.doBotTool(x + 2, y, "Road", static_build)
-                    self.doBotTool(x + 2, y - 1, "Road", static_build)
-                    self.doBotTool(x + 2, y + 1, "Road", static_build)
-       #gtk.main_iteration() # for observation or recording
+       #  if tool != "Road":
+       #      if x < self.MAP_X - 2 and y < self.MAP_Y - 2:
+       #          if x > 3:
+       #              self.doBotTool(x - 2, y, "Road", static_build)
+       #              self.doBotTool(x - 2, y - 1, "Road", static_build)
+       #              self.doBotTool(x - 2, y + 1, "Road", static_build)
+       #          else:
+       #              self.doBotTool(x + 2, y, "Road", static_build)
+       #              self.doBotTool(x + 2, y - 1, "Road", static_build)
+       #              self.doBotTool(x + 2, y + 1, "Road", static_build)
+       # #gtk.main_iteration() # for observation or recording
        #time.sleep(1/60)
        #self.engine.simTick()
        #time.sleep(1/60)

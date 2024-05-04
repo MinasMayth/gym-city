@@ -127,7 +127,7 @@ class MicropolisEnv(gym.Env):
         self.last_city_metrics = self.city_metrics
         self.post_gui()
 
-    def pre_gui(self, size, max_step=1000, rank=0, print_map=False,
+    def pre_gui(self, size, max_step=15000, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
                 render_gui=False, empty_start=False, simple_reward=False,
                 power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):

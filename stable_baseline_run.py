@@ -18,6 +18,7 @@ from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
 import tensorflow as tf
 
+
 def make_env(vec, args):
     if vec:
         env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
@@ -28,6 +29,17 @@ def make_env(vec, args):
     return env
 
 
+def make_change_log(log_path, changes):
+    """
+    Function to save a text string to a .txt file detailing changes made.
+
+    :param log_path: Path to the directory where the log file will be saved.
+    :param changes: Text string describing the changes made.
+    """
+    change_log_file = os.path.join(log_path, "change_log.txt")
+    with open(change_log_file, "a") as f:
+        f.write(changes + "\n")
+
 
 def linear_schedule(initial_value: float) -> Callable[[float], float]:
     """
@@ -37,6 +49,7 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
     :return: schedule that computes
       current learning rate depending on remaining progress
     """
+
     def func(progress_remaining: float) -> float:
         """
         Progress will decrease from 1 (beginning) to 0.
@@ -48,34 +61,40 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
     return func
 
-def create_model(args, algorithm, env, verbose, log_path):
 
+def create_model(args, algorithm, env, verbose, log_path):
     policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     if args.load_dir is None:
         if args.save:
             if args.lr_schedule:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose,
+                                tensorboard_log=log_path,
                                 create_eval_env=True, gae_lambda=args.gae)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
                                 learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
                 else:
                     exit()
             else:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
+                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose,
+                                tensorboard_log=log_path,
                                 create_eval_env=True, gae_lambda=args.gae)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
                                 learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path)
                 else:
                     exit()
@@ -99,6 +118,8 @@ def create_model(args, algorithm, env, verbose, log_path):
         else:
             exit()
     return model
+
+
 class ImageRecorderCallback(BaseCallback):
     def __init__(self, env, verbose=0):
         super().__init__(verbose)
@@ -134,12 +155,12 @@ def main():
         parameter_values = {
             'gamma': str(args.gamma),
             'num_steps': str(args.num_steps),
-            #'value_loss_coef': str(args.value_loss_coef),
-            #'entropy_coef': str(args.entropy_coef),
-            #'max_grad_norm': str(args.max_grad_norm),
+            # 'value_loss_coef': str(args.value_loss_coef),
+            # 'entropy_coef': str(args.entropy_coef),
+            # 'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
             'eps': str(args.eps),
-            #'gae_lambda': str(args.gae)
+            # 'gae_lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
@@ -166,6 +187,8 @@ def main():
     if args.save:
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
+        changes = "TO FILL"
+        make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)
 
@@ -198,7 +221,7 @@ def main():
     if args.save:
         model.save(save_path + "/models")
 
-    #local render
+    # local render
 
     for i in range(1000):
         vec_env = model.get_env()
