@@ -4,8 +4,8 @@
 #SBATCH --mail-user="<samyhashim2001@gmail.com>"
 #SBATCH --mail-type="ALL"
 #SBATCH --mem=4G
-#SBATCH --time=4:00:00
-#SBATCH --partition=gpu-short
+#SBATCH --time=24:00:00
+#SBATCH --partition=gpu-medium
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 

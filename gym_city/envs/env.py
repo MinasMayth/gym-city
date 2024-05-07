@@ -398,7 +398,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = self.getPop()
+            reward = self.getPop() + self.micro.getTotalZonePop()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
