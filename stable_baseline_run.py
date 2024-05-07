@@ -28,6 +28,17 @@ def make_env(vec, args):
     return env
 
 
+def make_change_log(log_path, changes):
+    """
+    Function to save a text string to a .txt file detailing changes made.
+
+    :param log_path: Path to the directory where the log file will be saved.
+    :param changes: Text string describing the changes made.
+    """
+    change_log_file = os.path.join(log_path, "change_log.txt")
+    with open(change_log_file, "a") as f:
+        f.write(changes + "\n")
+
 
 def linear_schedule(initial_value: float) -> Callable[[float], float]:
     """
@@ -131,8 +142,7 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", "BaseToolSet", "CustomNetworkV1",
-                                "AprilCodes", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
@@ -149,20 +159,20 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", "ExpandedAgentToolset", "CustomNetworkV1",
-                                "PoponlyReward", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     else:
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "baselines", "ExpandedAgentToolset", "CustomNetworkV1",
-                                "PoponlyReward", algorithm, current_datetime)
+        log_path = os.path.join(ALICE_path, "logs", "new", algorithm, current_datetime)
         save_path = log_path
 
     if args.save:
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
+        changes = "Limited Toolset. Gamespeed 3. Reward is simple total population. "
+        make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)
 
