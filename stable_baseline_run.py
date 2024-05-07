@@ -132,17 +132,18 @@ def main():
             'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
             'map_width': str(args.map_width),
+            'gamma': str(args.gamma),
             #'value_loss_coef': str(args.value_loss_coef),
             #'entropy_coef': str(args.entropy_coef),
             #'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
-            'eps': str(args.eps),
-            #'gae_lambda': str(args.gae)
+            #'eps': str(args.eps),
+            'lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "grid_search", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":

@@ -398,7 +398,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = self.getPop() + current_n_zones
+            reward = current_pop + current_n_zones
 
             #if current_n_zones >= 4:
             #    reward += current_num_roads
