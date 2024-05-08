@@ -168,8 +168,7 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = self.micro.map.num_features + self.num_scalars \
-                                + self.num_density_maps + num_user_features + 1  # for the road network
+        self.num_obs_channels = 24
         if self.poet:
             self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -334,7 +333,7 @@ class MicropolisEnv(gym.Env):
         return self.observation(scalars)
 
     def observation(self, scalars):
-        state = self.micro.map.getMapState()
+        simple_state = self.micro.map.getMapState()
         density_maps = self.micro.getDensityMaps()
         # if self.render_gui:
         #    print(density_maps[2])
@@ -348,11 +347,11 @@ class MicropolisEnv(gym.Env):
             if not type(fill_val) == str:
                 scalar_layers[si].fill(scalars[si])
 
-        state = np.concatenate((state, density_maps, scalar_layers, road_networks), 0)
+        state = np.concatenate((simple_state, density_maps, scalar_layers, road_networks), 0)
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        return state
+        return simple_state
 
     def getPop(self):
         self.resPop, self.comPop, self.indPop = self.micro.getResPop(), \
@@ -406,21 +405,8 @@ class MicropolisEnv(gym.Env):
 
             reward = current_pop + current_n_zones
 
-            # if current_n_zones >= 4:
-            #    reward += current_num_roads
-
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
-
-            density_maps = self.micro.getDensityMaps()
-
-            # Accessing the population density map
-            pop_density_map = density_maps[1]
-
-            # Calculating the total population density using NumPy sum function
-            total_pop_density = np.sum(pop_density_map)
-
-            reward += total_pop_density
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
