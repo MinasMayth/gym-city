@@ -309,7 +309,7 @@ class MicropolisEnv(gym.Env):
         # self.past_actions.fill(False)
         self.num_episode += 1
 
-        self.micro.layGrid(round(8), round(8))  ###GRID
+        # self.micro.layGrid(round(8), round(8))  ###GRID
 
         return self.state
 
@@ -378,24 +378,25 @@ class MicropolisEnv(gym.Env):
         complexReward = False
 
         if complexReward:  # changed here
-            zoning_penalty = calculate_zoning_penalty()
+            #zoning_penalty = calculate_zoning_penalty()
 
             # Calculate zoning encouragement
-            zoning_encouragement_reward = calculate_zoning_encouragement_reward()
+            #zoning_encouragement_reward = calculate_zoning_encouragement_reward()
 
             # Calculate zoning diversity
-            zoning_diversity_reward = calculate_zoning_diversity_reward()
+            #zoning_diversity_reward = calculate_zoning_diversity_reward()
 
             # Calculate population density reward
-            population_density_reward = calculate_population_density_reward()
+            #population_density_reward = calculate_population_density_reward()
 
             # Calculate road efficiency reward
-            road_efficiency_reward = calculate_road_efficiency_reward()
+            #road_efficiency_reward = calculate_road_efficiency_reward()
 
             # Update total reward
-            reward = ((current_pop + current_n_zones) - zoning_penalty +
-                      zoning_encouragement_reward + zoning_diversity_reward +
-                      population_density_reward + road_efficiency_reward)
+            #reward = ((current_pop + current_n_zones) - zoning_penalty +
+            #          zoning_encouragement_reward + zoning_diversity_reward +
+            #          population_density_reward + road_efficiency_reward)
+            reward = 0
 
         else:  # simple reward
 
@@ -413,12 +414,11 @@ class MicropolisEnv(gym.Env):
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
-            # for road_net_id, length in self.micro.map.road_net_sizes.items():
-            #    # You can adjust the shaping factor based on your requirements
-            #    shaping_factor = 1  # Adjust this value as needed
-            #    if length > 1 and length > self.last_networks[road_net_id]:
-            #        road_net_reward += 1
-            #    else:
+            for road_net_id, length in self.micro.map.road_net_sizes.items():
+                # You can adjust the shaping factor based on your requirements
+                if length == 1:
+                    reward -= 1
+            #       else:
             #        pass
 
             # Integrate road network reward into the total reward
