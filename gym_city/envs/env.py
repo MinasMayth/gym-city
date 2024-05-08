@@ -412,6 +412,16 @@ class MicropolisEnv(gym.Env):
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
+            density_maps = self.micro.getDensityMaps()
+
+            # Accessing the population density map
+            pop_density_map = density_maps[1]
+
+            # Calculating the total population density using NumPy sum function
+            total_pop_density = np.sum(pop_density_map)
+
+            reward += total_pop_density
+
             # Calculate the reward based on road network length
             # road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
