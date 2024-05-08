@@ -415,9 +415,8 @@ class MicropolisEnv(gym.Env):
             # Calculate the reward based on road network length
             # road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
-                # You can adjust the shaping factor based on your requirements
-                if length == 1:
-                    reward -= 1
+                # You can adjust the shaping factor based on your requirem
+                reward += (-4 + length)
             #       else:
             #        pass
 

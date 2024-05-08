@@ -143,7 +143,7 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "grid_search", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "reward_experiments", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
@@ -172,7 +172,7 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
-        changes = "Limited Toolset. Gamespeed 1. Reward is simple total population + total zones. Static Build."
+        changes = "Limited Toolset. Gamespeed 1. Reward is simple total population + total zones with more advanced penalty for individual roads. Static Build."
         make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)
