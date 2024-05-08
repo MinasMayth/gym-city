@@ -127,7 +127,7 @@ class MicropolisEnv(gym.Env):
         self.last_city_metrics = self.city_metrics
         self.post_gui()
 
-    def pre_gui(self, size, max_step=15000, rank=0, print_map=False,
+    def pre_gui(self, size, max_step=4000, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
                 render_gui=False, empty_start=False, simple_reward=False,
                 power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
@@ -169,7 +169,7 @@ class MicropolisEnv(gym.Env):
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
         self.num_obs_channels = self.micro.map.num_features + self.num_scalars \
-                                + self.num_density_maps + num_user_features + 1 # for the road network
+                                + self.num_density_maps + num_user_features + 1  # for the road network
         if self.poet:
             self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -365,6 +365,30 @@ class MicropolisEnv(gym.Env):
 
         return curr_pop
 
+    def calculate_zoning_penalty(self):
+        num_roads_without_zones = self.calculate_roads_without_zones()
+        # Define a penalty for each road without adjacent zones
+        penalty_per_road = 0.5  # Adjust as needed
+        zoning_penalty = num_roads_without_zones * penalty_per_road
+        return zoning_penalty
+
+    def calculate_roads_without_zones(self):
+        num_roads_without_zones = 0
+        for road in self.micro.map.roads:
+            adjacent_zones = self.get_adjacent_zones(road)
+            if not adjacent_zones:
+                num_roads_without_zones += 1
+        return num_roads_without_zones
+
+    def get_adjacent_zones(self, road):
+        adjacent_zones = []
+        for cell in road.cells:
+            neighbors = self.micro.map.grid.get_neighbors(cell)
+            for neighbor in neighbors:
+                if neighbor.zone:
+                    adjacent_zones.append(neighbor.zone)
+        return adjacent_zones
+
     def getReward(self):
         '''Calculate reward.
         '''
@@ -372,33 +396,43 @@ class MicropolisEnv(gym.Env):
         # make sure to build at least one road
         # Check if certain scenarios occur, i.e. a certain system breaks
         # changed here
+        current_pop = self.getPop()
+        current_num_roads = self.micro.map.num_roads
+        current_n_zones = self.micro.getTotalZonePop()
         complexReward = False
 
         if complexReward:  # changed here
-            reward = 0
-            for metric, trg in self.city_trgs.items():
-                last_val = self.last_city_metrics[metric]
-                trg_change = trg - last_val
-                val = self.city_metrics[metric]
-                change = val - last_val
-                if np.sign(change) != np.sign(trg_change):
-                    metric_rew = -abs(change)
-                elif abs(change) < abs(trg_change):
-                    metric_rew = abs(change)
-                else:
-                    metric_rew = abs(trg_change) - abs(trg_change - change)
-                reward += metric_rew * self.weights[metric]
-        else:  # simple reward
+            #zoning_penalty = calculate_zoning_penalty()
 
-            current_pop = self.getPop()
-            current_num_roads = self.micro.map.num_roads
-            current_n_zones = self.micro.getTotalZonePop()
+            # Calculate zoning encouragement
+            #zoning_encouragement_reward = calculate_zoning_encouragement_reward()
+
+            # Calculate zoning diversity
+            #zoning_diversity_reward = calculate_zoning_diversity_reward()
+
+            # Calculate population density reward
+            #population_density_reward = calculate_population_density_reward()
+
+            # Calculate road efficiency reward
+            #road_efficiency_reward = calculate_road_efficiency_reward()
+
+            # Update total reward
+            #reward = ((current_pop + current_n_zones) - zoning_penalty +
+            #          zoning_encouragement_reward + zoning_diversity_reward +
+            #          population_density_reward + road_efficiency_reward)
+            reward = 0
+
+        else:  # simple reward
 
             pop_difference = current_pop - self.last_pop
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = pop_difference + zone_diff
+            reward = current_pop + current_n_zones
+            print(self.micro.map.road_networks)
+
+            # if current_n_zones >= 4:
+            #    reward += current_num_roads
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
@@ -407,22 +441,18 @@ class MicropolisEnv(gym.Env):
             road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
                 # You can adjust the shaping factor based on your requirements
-                shaping_factor = 1  # Adjust this value as needed
-                if length > 1 and length > self.last_networks[road_net_id]:
-                    road_net_reward += 20
-                else:
-                    pass
+                if length == 1:
+                    reward -= 1
+            #       else:
+            #        pass
 
             # Integrate road network reward into the total reward
-            reward += road_net_reward
-
+            # reward += road_net_reward
 
             self.last_pop = current_pop
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
             self.last_networks = self.micro.map.road_net_sizes
-
-
 
         if False:
             # if self.render_gui and reward != 0:
