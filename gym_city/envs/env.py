@@ -36,70 +36,7 @@ class MicropolisEnv(gym.Env):
         self.player_step = False
 
         self.static_player_builds = False
-        ### MIXED
-        self.city_trgs = OrderedDict({  # so here we can add a new reward for whats possible to learn
-            'res_pop': 500,
-            'com_pop': 500,
-            'ind_pop': 500,
-            'traffic': 2000,
-            # i believe one plant is worth 12, the other 16?
-            'num_plants': 2,
-            'mayor_rating': 100,
-            # i.e. 'pollution': 0
-            'num_roads': 40,
-            'zones': 20
-        })
-        self.trg_param_vals = np.array([v for v in self.city_trgs.values()])
-        self.param_bounds = OrderedDict({
-            'res_pop': (0, 750),
-            'com_pop': (0, 750),
-            'ind_pop': (0, 750),
-            'traffic': (0, 2000),
-            'num_plants': (0, 100),
-            'mayor_rating': (0, 100),
-            'num_roads': (0, 150),
-            'zones': (0, 50)
-        })
-        self.weights = OrderedDict({
-            'res_pop': 1,
-            'com_pop': 1,
-            'ind_pop': 1,
-            'traffic': 1,
-            'num_plants': 0,
-            'mayor_rating': 0,
-            'num_roads': 1,
-            'zones': 1
-        })
 
-        self.num_params = 8
-        # not necessarily true but should take care of most cases
-        self.max_loss = 0
-        i = 0
-        self.param_ranges = []
-        for param, (lb, ub) in self.param_bounds.items():
-            weight = self.weights[param]
-            rng = abs(ub - lb)
-            self.param_ranges += [rng]
-            if i < self.num_params:
-                self.max_loss += rng * weight
-                i += 1
-        ### MIXED
-        # self.city_trgs = {
-        #        'res_pop': 1,
-        #        'com_pop': 4,
-        #        'ind_pop': 4,
-        #        'traffic': 0.2,
-        #        'num_plants': 0,
-        #        'mayor_rating': 0}
-        ### Traffic
-        # self.city_trgs = {
-        #        'res_pop': 1,
-        #        'com_pop': 4,
-        #        'ind_pop': 4,
-        #        'traffic': 5,
-        #        'num_plants': 0,
-        #        'mayor_rating':0
-        #        }
         self.city_metrics = {}
         # self.max_reward = 100
         self.setMapSize(MAP_X)
@@ -117,12 +54,14 @@ class MicropolisEnv(gym.Env):
         '''Do most of the actual initialization.
         '''
         self.pre_gui(size, **kwargs)
+
         # TODO: this better
         if hasattr(self, 'micro'):
             self.micro.reset_params(size)
         else:
             self.micro = MicropolisControl(self, self.MAP_X, self.MAP_Y, self.PADDING,
                                            rank=self.rank, power_puzzle=self.power_puzzle, gui=self.render_gui)
+
         self.city_metrics = self.get_city_metrics()
         self.last_city_metrics = self.city_metrics
         self.post_gui()
@@ -154,7 +93,7 @@ class MicropolisEnv(gym.Env):
         self.poet = poet
         self.print_map = print_map
 
-    def post_gui(self):
+    def  post_gui(self):
         self.win1 = self.micro.win1
         self.micro.SHOW_GUI = self.SHOW_GUI
         self.num_step = 0
@@ -168,8 +107,7 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = self.micro.map.num_features + self.num_scalars \
-                                + self.num_density_maps + num_user_features + 1  # for the road network
+        self.num_obs_channels = 24
         if self.poet:
             self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -193,7 +131,7 @@ class MicropolisEnv(gym.Env):
         self.mayor_rating = 50
         self.last_mayor_rating = self.mayor_rating
         self.last_priority_road_net_size = 0
-        self.display_city_trgs()
+        #self.display_city_trgs()
         if self.render_gui and self.rank == 0:
             self.render()
 
@@ -279,7 +217,7 @@ class MicropolisEnv(gym.Env):
                                  'NuclearPowerPlant', static_build=True)
 
     def reset(self, prebuild=True):
-        self.display_city_trgs()
+        # self.display_city_trgs()
         if True:
             # if self.render_gui:
             if False:
@@ -334,7 +272,7 @@ class MicropolisEnv(gym.Env):
         return self.observation(scalars)
 
     def observation(self, scalars):
-        state = self.micro.map.getMapState()
+        simple_state = self.micro.map.getMapState()
         density_maps = self.micro.getDensityMaps()
         # if self.render_gui:
         #    print(density_maps[2])
@@ -348,11 +286,11 @@ class MicropolisEnv(gym.Env):
             if not type(fill_val) == str:
                 scalar_layers[si].fill(scalars[si])
 
-        state = np.concatenate((state, density_maps, scalar_layers, road_networks), 0)
+        state = np.concatenate((simple_state, density_maps, scalar_layers, road_networks), 0)
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        return state
+        return simple_state
 
     def getPop(self):
         self.resPop, self.comPop, self.indPop = self.micro.getResPop(), \
@@ -432,16 +370,6 @@ class MicropolisEnv(gym.Env):
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
-
-            density_maps = self.micro.getDensityMaps()
-
-            # Accessing the population density map
-            pop_density_map = density_maps[1]
-
-            # Calculating the total population density using NumPy sum function
-            total_pop_density = np.sum(pop_density_map)
-
-            reward += total_pop_density
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
