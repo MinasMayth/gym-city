@@ -173,7 +173,7 @@ def main():
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
         changes = ("Limited Toolset. Gamespeed 1. Reward is simple total population + total zones with more advanced "
-                   "penalty for individual roads. Static Build. Simplified Observation")
+                   "penalty for individual roads AND road-zone adjacency score. Static Build.")
         make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)

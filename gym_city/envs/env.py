@@ -1,6 +1,7 @@
 from gym import core, spaces
 import gym
 from gym.utils import seeding
+from .tilemap import zoneFromInt
 from collections import OrderedDict
 import numpy as np
 import math
@@ -168,7 +169,7 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 24
+        self.num_obs_channels = 35
         if self.poet:
             self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -351,7 +352,7 @@ class MicropolisEnv(gym.Env):
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        return simple_state
+        return state
 
     def getPop(self):
         self.resPop, self.comPop, self.indPop = self.micro.getResPop(), \
@@ -364,10 +365,66 @@ class MicropolisEnv(gym.Env):
 
         return curr_pop
 
+    def calculate_zoning_penalty(self):
+        num_roads_without_zones = self.calculate_roads_without_zones()
+        # Define a penalty for each road without adjacent zones
+        penalty_per_road = 0.5  # Adjust as needed
+        zoning_penalty = num_roads_without_zones * penalty_per_road
+        return zoning_penalty
+
+    def calculate_roads_without_zones(self):
+        num_roads_without_zones = 0
+        for road in self.micro.map.roads:
+            adjacent_zones = self.get_adjacent_zones(road)
+            if not adjacent_zones:
+                num_roads_without_zones += 1
+        return num_roads_without_zones
+
+    def check_surroundings(self, building_map):
+        # Define lonely building types
+        lonely_buildings = ["Road", "RoadWire", "Wire", "Water", "Land", "Forest", "Rubble",
+                            "Flood", "Rail", "RailWire", "RoadRail", "Bridge"]
+
+        # Define function to check if a tile is lonely
+        def is_valid(tile):
+            return tile in lonely_buildings
+
+        # Define function to check surroundings of a tile
+        def check_tile(x, y):
+            tile = building_map[x][y]
+            if tile == "Road" or tile == "RoadWire":
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        if dx != 0 or dy != 0:
+                            nx, ny = x + dx, y + dy
+                            if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
+                                return 0
+                            if not is_valid(building_map[nx][ny]):
+                                return 4
+                return -1
+            return 0
+
+        result_map = []
+        for x in range(len(building_map)):
+            row_result = []
+            for y in range(len(building_map[0])):
+                row_result.append(check_tile(x, y))
+            result_map.append(row_result)
+
+        return np.sum(result_map)
+    def get_adjacent_zones(self, road):
+        adjacent_zones = []
+        for cell in road.cells:
+            neighbors = self.micro.map.grid.get_neighbors(cell)
+            for neighbor in neighbors:
+                if neighbor.zone:
+                    adjacent_zones.append(neighbor.zone)
+        return adjacent_zones
+
     def getReward(self):
         '''Calculate reward.
         '''
-        # add population
+        # add population, connectivity, road adjacency
         # make sure to build at least one road
         # Check if certain scenarios occur, i.e. a certain system breaks
         # changed here
@@ -408,6 +465,13 @@ class MicropolisEnv(gym.Env):
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
+            #print(self.micro.map.zoneMap)
+            #print(self.micro.map.zoneInts)
+
+            buildings = (self.get_building_map())
+            reward += (self.check_surroundings(building_map=buildings))
+
+
             # Calculate the reward based on road network length
             # road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
@@ -433,6 +497,17 @@ class MicropolisEnv(gym.Env):
             print()
 
         return reward
+
+    def get_building_map(self):
+        building_map = []
+        for x in range(self.MAP_X):
+            row_buildings = []
+            for y in range(self.MAP_Y):
+                tile = (self.micro.getTile(x, y))
+                tile = zoneFromInt(tile)
+                row_buildings.append(tile)
+            building_map.append(row_buildings)
+        return building_map
 
     def getPopReward(self):
         if False:
