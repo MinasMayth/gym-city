@@ -318,7 +318,8 @@ class MicropolisControl():
         return self.engine.totalZonePop
     def getNuclearPowerPop(self):
         return self.engine.nuclearPowerPop
-
+    def getPoweredZoneCount(self):
+        return self.engine.poweredZoneCount
     def getResPop(self):
         return self.engine.resPop
 
