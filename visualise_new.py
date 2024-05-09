@@ -4,12 +4,13 @@ import gym_city
 from stable_baselines3 import A2C, PPO
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    env.setMapSize(32, render_gui=True)
+    env.setMapSize(24, render_gui=True)
     return env
 
 def main():
     model = A2C.load(
-        "logs/baselines/may/new/grid_search/a2c/alpha=0.99_num_steps=9_map_width=32_gamma=0.75_lr=0.0001_lambda=0.95_2024-05-08_10-55-18/models/rl_model_1500000_steps.zip"
+        "logs/baselines/may/new/reward_experiments/a2c/alpha=0.99_num_steps=9_map_width=24_gamma=0.75_lr=0.0001_lambda=0.95_2024-05-08_20-58-30/models/rl_model_7000000_steps.zip"
+
         )
     env = make_env()
     obs = env.reset()

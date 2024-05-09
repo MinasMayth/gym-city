@@ -309,8 +309,6 @@ class MicropolisControl():
        #print('result in SimToolInt: {}'.format(result))
         return result
 
-    def getResPop(self):
-        return self.engine.resPop
 
     def getTotalPowerPop(self):
         return  self.getCoalPowerPop() + self.getNuclearPowerPop()
@@ -320,6 +318,9 @@ class MicropolisControl():
         return self.engine.totalZonePop
     def getNuclearPowerPop(self):
         return self.engine.nuclearPowerPop
+
+    def getResPop(self):
+        return self.engine.resPop
 
     def getComPop(self):
         return self.engine.comPop
