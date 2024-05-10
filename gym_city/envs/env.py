@@ -386,7 +386,7 @@ class MicropolisEnv(gym.Env):
                             "Flood", "Rail", "RailWire", "RoadRail", "Bridge"]
 
         # Define function to check if a tile is lonely
-        def is_valid(tile):
+        def is_lonely(tile):
             return tile in lonely_buildings
 
         # Define function to check surroundings of a tile
@@ -399,8 +399,8 @@ class MicropolisEnv(gym.Env):
                             nx, ny = x + dx, y + dy
                             if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
                                 return 0
-                            if not is_valid(building_map[nx][ny]):
-                                return 10
+                            if not is_lonely(building_map[nx][ny]):
+                                return 1
                 return -1
             return 0
 
@@ -472,16 +472,20 @@ class MicropolisEnv(gym.Env):
             reward += (self.check_surroundings(building_map=buildings))
 
 
+
             # Calculate the reward based on road network length
             # road_net_reward = 0
             for road_net_id, length in self.micro.map.road_net_sizes.items():
-                # You can adjust the shaping factor based on your requirem
-                reward += (-4 + length)
+                # You can adjust the shaping factor based on your requirement
+                reward += (-6 + length)
             #       else:
             #        pass
 
             # Integrate road network reward into the total reward
             # reward += road_net_reward
+
+            if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
+                reward = 0
 
             self.last_pop = current_pop
             self.last_n_zones = current_n_zones

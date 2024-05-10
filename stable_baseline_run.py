@@ -172,9 +172,10 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
-        changes = ("Limited Toolset. Gamespeed 3. Reward is simple total population + total POWERED zones with more "
-                   "advanced penalty for individual roads AND increased road-zone adjacency score of +10. Static Build."
-                   "Also small increase to reward for unpowered zones.")
+        changes = ("Limited Toolset. Gamespeed 3. Reward is simple total pop + total POWERED zones with -6"
+                   "penalty for individual roads AND increased road-zone adjacency score of +1. Static Build."
+                   "Also multiplicative 0.1 increase to reward for unpowered zones + penalty for too many"
+                   "or too little power plants.")
         make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)
