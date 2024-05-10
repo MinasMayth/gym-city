@@ -322,6 +322,8 @@ class MicropolisControl():
         return self.engine.poweredZoneCount
     def getResPop(self):
         return self.engine.resPop
+    def getUnpoweredZoneCount(self):
+        return self.engine.unpoweredZoneCount
 
     def getComPop(self):
         return self.engine.comPop
