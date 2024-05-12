@@ -84,23 +84,23 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial',
-                #'FireDept',
-                #'PoliceDept',
+                'FireDept',
+                'PoliceDept',
                 # 'Query',
                 'Clear',
                 'Wire',
-                #'Rail',
+                'Rail',
                 'Road',
-                #'Stadium',
-                #'Park',
-                #'Seaport',
+                'Stadium',
+                'Park',
+                'Seaport',
                 'CoalPowerPlant',
                 'NuclearPowerPlant',
-                #'Airport',
+                'Airport',
                 #'Net',
                 #'Water',
-                #'Land',
-                #'Forest',
+                'Land',
+                'Forest',
                 'Nil' # the agent takes no action
                 ]
         #['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']

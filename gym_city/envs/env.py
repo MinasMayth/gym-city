@@ -401,7 +401,7 @@ class MicropolisEnv(gym.Env):
                                 return 0
                             if not is_lonely(building_map[nx][ny]):
                                 return 1
-                return -1
+                return 0
             return 0
 
         result_map = []
@@ -460,7 +460,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = current_pop + self.micro.getPoweredZoneCount() + (self.micro.getUnpoweredZoneCount() * 0.1)
+            reward = current_pop + self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
@@ -475,17 +475,17 @@ class MicropolisEnv(gym.Env):
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
-            for road_net_id, length in self.micro.map.road_net_sizes.items():
+            #for road_net_id, length in self.micro.map.road_net_sizes.items():
                 # You can adjust the shaping factor based on your requirement
-                reward += (-6 + length)
+            #    reward += (-4 + length)
             #       else:
             #        pass
 
             # Integrate road network reward into the total reward
             # reward += road_net_reward
 
-            if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
-                reward = 0
+            #if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
+            #    reward = 0
 
             self.last_pop = current_pop
             self.last_n_zones = current_n_zones
