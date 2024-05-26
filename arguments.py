@@ -44,7 +44,7 @@ def get_parser():
     # parser.add_argument('--use-gae', action='store_true', default=False,
     #                     help='use generalized advantage estimation')
     parser.add_argument('--gae', type=float, default=1,
-                        help='gae parameter (default: 1)')
+                        help='gae lambda parameter (default: 1)')
     parser.add_argument('--entropy-coef', type=float, default=0.01,
                         help='entropy term coefficient (default: 0.01)')
     parser.add_argument('--value-loss-coef', type=float, default=0.5,

@@ -4,7 +4,8 @@ import time
 from datetime import datetime
 from arguments import get_args
 import torch
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+from subproc_vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
 from typing import Callable
@@ -21,8 +22,24 @@ import tensorflow as tf
 
 def make_env(vec, args):
     if vec:
-        env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
-        env.env_method("setMapSize", args.map_width)
+        # env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
+        # env.env_method("setMapSize", args.map_width)
+
+        def make_env_vec(env_id):
+            def _init():
+                return gym.make(env_id)
+
+            return _init
+
+        # Number of parallel environments
+        num_envs = 4
+        env_id = args.env_name
+
+        # List of environment creation functions
+        env_fns = [make_env_vec(env_id) for _ in range(num_envs)]
+
+        # Create SubprocVecEnv
+        env = SubprocVecEnv(env_fns)
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
