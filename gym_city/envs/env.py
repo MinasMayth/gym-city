@@ -8,6 +8,9 @@ import math
 
 import sys
 
+# Reward ideas: Multiply your reward values. Additive makes it easy for get reward in one direction
+# You want to force it to do multiple things,
+
 if sys.version_info[0] >= 3:
     print(sys.version_info[0])
     import gi

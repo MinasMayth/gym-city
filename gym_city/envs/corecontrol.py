@@ -98,8 +98,8 @@ class MicropolisControl():
                 'CoalPowerPlant', # basetoolset
                 'NuclearPowerPlant', # basetoolset?? maybe not check this
                 'Airport',
-                # 'Net', #not included in full toolset
-                # 'Water', #not included in full toolset
+                 'Net', #not included in full toolset
+                 'Water', #not included in full toolset
                 'Land',
                 'Forest',
                 'Nil'  # the agent takes no action # basetoolset

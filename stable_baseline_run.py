@@ -81,6 +81,7 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
 def create_model(args, algorithm, env, verbose, log_path):
     policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
+
     if args.load_dir is None:
         if args.save:
             if args.lr_schedule:
@@ -98,7 +99,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 max_grad_norm=args.max_grad_norm,
                                 learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
                 else:
-                    exit()
+                    raise NotImplementedError
             else:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
@@ -114,7 +115,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 max_grad_norm=args.max_grad_norm,
                                 learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path)
                 else:
-                    exit()
+                    raise NotImplementedError
         else:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
