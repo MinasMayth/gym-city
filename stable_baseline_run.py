@@ -69,12 +69,12 @@ def create_model(args, algorithm, env, verbose, log_path):
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                                create_eval_env=True, gae_lambda=args.gae)
+                                create_eval_env=True, gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
+                                learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path, seed=args.seed)
                 else:
                     exit()
             else:
@@ -82,12 +82,12 @@ def create_model(args, algorithm, env, verbose, log_path):
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                                create_eval_env=True, gae_lambda=args.gae)
+                                create_eval_env=True, gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path)
+                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path, seed=args.seed)
                 else:
                     exit()
         else:
@@ -95,11 +95,11 @@ def create_model(args, algorithm, env, verbose, log_path):
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=(args.lr), normalize_advantage=True
-                            , rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+                            , rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae, seed=args.seed)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=(args.lr), verbose=verbose)
+                            learning_rate=(args.lr), verbose=verbose, seed=args.seed)
             else:
                 exit()
     else:
@@ -133,17 +133,17 @@ def main():
             'num_steps': str(args.num_steps),
             'map_width': str(args.map_width),
             'gamma': str(args.gamma),
-            #'value_loss_coef': str(args.value_loss_coef),
-            #'entropy_coef': str(args.entropy_coef),
-            #'max_grad_norm': str(args.max_grad_norm),
+            'value_loss_coef': str(args.value_loss_coef),
+            'entropy_coef': str(args.entropy_coef),
+            'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
             #'eps': str(args.eps),
-            'lambda': str(args.gae)
+            #'lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "improvements", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "nuevo_grid_search", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
@@ -154,13 +154,18 @@ def main():
             'clip_range': str(args.clip_param),
             'batch_size': str(args.num_mini_batch),
             'n_epochs': str(args.ppo_epoch),
+            'value_loss_coef': str(args.value_loss_coef),
+            'entropy_coef': str(args.entropy_coef),
             'lr': str(args.lr),
-            'eps': str(args.eps)
+            'eps': str(args.eps),
+            'gamma': str(args.gamma),
+            'max_grad_norm': str(args.max_grad_norm),
+            'lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "improvements", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "nuevo_grid_search", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     else:
@@ -170,8 +175,8 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
-        changes = ("Full Toolset. Gamespeed 3. Reward is simple total population +" 
-                "total POWERED zones with road adjacency score. Static Build.")
+        changes = ("Full Toolset. Gamespeed 3. Reward is simple total population *" 
+                "total POWERED zones with road adjacency score of 0.1. Static Build.")
         make_change_log(log_path, changes)
 
     env = make_env(vec=False, args=args)

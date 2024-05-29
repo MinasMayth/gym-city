@@ -400,7 +400,7 @@ class MicropolisEnv(gym.Env):
                             if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
                                 return 0
                             if not is_lonely(building_map[nx][ny]):
-                                return 1
+                                return 0.1
                 return 0
             return 0
 
@@ -460,7 +460,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = current_pop + self.micro.getPoweredZoneCount()
+            reward = current_pop * self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
