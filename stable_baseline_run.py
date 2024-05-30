@@ -137,6 +137,7 @@ def main():
             'entropy_coef': str(args.entropy_coef),
             'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
+            'seed': str(args.seed)
             #'eps': str(args.eps),
             #'lambda': str(args.gae)
         }
@@ -160,7 +161,8 @@ def main():
             'eps': str(args.eps),
             'gamma': str(args.gamma),
             'max_grad_norm': str(args.max_grad_norm),
-            'lambda': str(args.gae)
+            'lambda': str(args.gae),
+            'seed': str(args.seed)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
