@@ -19,9 +19,22 @@ from stable_baselines3.common.env_checker import check_env
 
 
 def make_env(vec, args):
-    if vec:
-        env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
-        env.env_method("setMapSize", args.map_width)
+    if args.vec_envs > 1:
+        def make_env_vec(env_id):
+            def _init():
+                env = gym.make(env_id)
+                env.setMapSize(args.map_width, render_gui=False)
+                return env
+
+            return _init
+
+        env_id = args.env_name
+
+        # List of environment creation functions
+        env_fns = [make_env_vec(env_id) for _ in range(args.vec_envs)]
+
+        # Create SubprocVecEnv
+        env = SubprocVecEnv(env_fns)
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
@@ -76,7 +89,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path, seed=args.seed)
                 else:
-                    exit()
+                    raise NotImplementedError
             else:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
@@ -89,7 +102,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path, seed=args.seed)
                 else:
-                    exit()
+                    raise NotImplementedError
         else:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,

@@ -2,6 +2,7 @@ import sys
 import os
 import random
 import numpy as np
+
 if sys.version_info[0] >= 3:
     from gi.repository import Gtk as gtk
     from .tilemap import TileMap, zoneFromInt
@@ -12,26 +13,26 @@ import time
 ## assumes you've downloaded the micropolis-4bots repo into the same directory as this (the gym-micropolis) repo.
 FILE_DIR = os.path.dirname(os.path.realpath(__file__))
 GIT_DIR = os.path.abspath(os.path.join(FILE_DIR, os.pardir, os.pardir))
-#if sys.version_info[0] >= 3:
+# if sys.version_info[0] >= 3:
 #    MICROPOLISCORE_DIR = GIT_DIR + '/micropolis/MicropolisCore/src'
 #    sys.path.append(MICROPOLISCORE_DIR)
 #    from .tilemap import TileMap, zoneFromInt
-#else:
+# else:
 #    MICROPOLISCORE_DIR = GIT_DIR + '/micropolis/MicropolisCore/src'
 #    sys.path.append(MICROPOLISCORE_DIR)
 #    from tilemap import TileMap
 #
-#CURR_DIR = os.getcwd()
+# CURR_DIR = os.getcwd()
 ## we need to do this so the micropolisgenericengine can access images/micropolisEngine/dataColorMap.png
 #
 #
-#os.chdir(MICROPOLISCORE_DIR)
+# os.chdir(MICROPOLISCORE_DIR)
 sys.path.append(os.path.abspath(os.path.join(FILE_DIR, './micropolis/MicropolisCore/src')))
 print(sys.path)
 from pyMicropolis.gtkFrontend import main
 
 
-#os.chdir(CURR_DIR)
+# os.chdir(CURR_DIR)
 
 class MicropolisControl():
 
@@ -83,19 +84,19 @@ class MicropolisControl():
             self.tools = ['Wire']
         else:
             self.tools = [
-                'Residential', 'Commercial', 'Industrial',
+                'Residential', 'Commercial', 'Industrial', # basetoolset
                 'FireDept',
                 'PoliceDept',
                 # 'Query',
-                'Clear',
-                'Wire',
+                'Clear',  # basetoolset
+                'Wire', # basetoolset
                 'Rail',
-                'Road',
+                'Road', # basetoolset
                 'Stadium',
                 'Park',
                 'Seaport',
-                'CoalPowerPlant',
-                'NuclearPowerPlant',
+                'CoalPowerPlant', # basetoolset
+                'NuclearPowerPlant', # basetoolset?? maybe not check this
                 'Airport',
                 #'Net',
                 #'Water',

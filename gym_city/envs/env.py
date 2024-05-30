@@ -8,6 +8,9 @@ import math
 
 import sys
 
+# Reward ideas: Multiply your reward values. Additive makes it easy for get reward in one direction
+# You want to force it to do multiple things,
+
 if sys.version_info[0] >= 3:
     print(sys.version_info[0])
     import gi
@@ -460,7 +463,7 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = current_pop * self.micro.getPoweredZoneCount()
+            reward = current_pop + self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
