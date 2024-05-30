@@ -7,8 +7,8 @@ def make_env():
     env.setMapSize(24, render_gui=True)
     return env
 def main():
-    model = PPO.load(
-    "logs/baselines/may/improvements/improvements/ppo/alpha=0.99_num_steps=9_map_width=24_clip_range=0.2_batch_size=32_n_epochs=4_lr=0.0001_eps=1e-05_2024-05-26_23-58-39/models/rl_model_3500000_steps.zip"
+    model = A2C.load(
+    "logs/baselines/may/nuevo_grid_search/a2c/alpha=0.99_num_steps=5_map_width=24_gamma=0.9_value_loss_coef=0.5_entropy_coef=0.01_max_grad_norm=0.5_lr=1e-05_2024-05-29_19-16-35/models/rl_model_4500000_steps.zip"
             )
     env = make_env()
     obs = env.reset()

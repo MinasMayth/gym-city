@@ -4,8 +4,7 @@ import time
 from datetime import datetime
 from arguments import get_args
 import torch
-from subproc_vec_env import SubprocVecEnv
-from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
 from typing import Callable
@@ -21,22 +20,19 @@ import tensorflow as tf
 
 
 def make_env(vec, args):
-    if vec:
-        # env = make_vec_env(args.env_name, n_envs=4, vec_env_cls=DummyVecEnv)
-        # env.env_method("setMapSize", args.map_width)
-
+    if args.vec_envs > 1:
         def make_env_vec(env_id):
             def _init():
-                return gym.make(env_id)
+                env = gym.make(env_id)
+                env.setMapSize(args.map_width, render_gui=False)
+                return env
 
             return _init
 
-        # Number of parallel environments
-        num_envs = 4
         env_id = args.env_name
 
         # List of environment creation functions
-        env_fns = [make_env_vec(env_id) for _ in range(num_envs)]
+        env_fns = [make_env_vec(env_id) for _ in range(args.vec_envs)]
 
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
@@ -208,7 +204,7 @@ def main():
         changes = "TO FILL"
         make_change_log(log_path, changes)
 
-    env = make_env(vec=False, args=args)
+    env = make_env(vec=True, args=args)
 
     model = create_model(args, algorithm, env, verbose, log_path)
     print("POLICY:", model.policy)

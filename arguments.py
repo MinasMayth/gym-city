@@ -57,7 +57,9 @@ def get_parser():
     #parser.add_argument('--num-processes', type=int, default=12,
     #                    help='how many training CPU processes to use (default: 12)')
     parser.add_argument('--num-steps', type=int, default=5,
-                        help='number of forward steps in A2C (default: 5)')
+                        help='number of forward steps in A2C/PPO (default: 5)')
+    parser.add_argument('--vec-envs', type=int, default=1,
+                        help='number of vectorized environments trained in parallel (default: 1)')
     parser.add_argument('--ppo-epoch', type=int, default=4,
                         help='number of ppo epochs (default: 4)')
     parser.add_argument('--num-mini-batch', type=int, default=32,
