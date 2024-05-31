@@ -16,7 +16,6 @@ from stable_baselines3.common.logger import Image
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
-import tensorflow as tf
 
 
 def make_env(args, log_path):
@@ -178,7 +177,7 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "nuevo_grid_search", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "testing", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     elif algorithm == "ppo":
@@ -201,7 +200,7 @@ def main():
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "nuevo_grid_search", algorithm,
+        log_path = os.path.join(ALICE_path, "logs", "new", "testing", algorithm,
                                 f"{parameter_string}_{current_datetime}")
         save_path = log_path
     else:
