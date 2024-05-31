@@ -437,25 +437,19 @@ class MicropolisEnv(gym.Env):
         complexReward = False
 
         if complexReward:  # changed here
-            #zoning_penalty = calculate_zoning_penalty()
-
-            # Calculate zoning encouragement
-            #zoning_encouragement_reward = calculate_zoning_encouragement_reward()
-
-            # Calculate zoning diversity
-            #zoning_diversity_reward = calculate_zoning_diversity_reward()
-
-            # Calculate population density reward
-            #population_density_reward = calculate_population_density_reward()
-
-            # Calculate road efficiency reward
-            #road_efficiency_reward = calculate_road_efficiency_reward()
-
-            # Update total reward
-            #reward = ((current_pop + current_n_zones) - zoning_penalty +
-            #          zoning_encouragement_reward + zoning_diversity_reward +
-            #          population_density_reward + road_efficiency_reward)
             reward = 0
+            for metric, trg in self.city_trgs.items():
+                last_val = self.last_city_metrics[metric]
+                trg_change = trg - last_val
+                val = self.city_metrics[metric]
+                change = val - last_val
+                if np.sign(change) != np.sign(trg_change):
+                    metric_rew = -abs(change)
+                elif abs(change) < abs(trg_change):
+                    metric_rew = abs(change)
+                else:
+                    metric_rew = abs(trg_change) - abs(trg_change - change)
+                reward += metric_rew * self.weights[metric]
 
         else:  # simple reward
 
