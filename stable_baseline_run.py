@@ -16,6 +16,7 @@ from stable_baselines3.common.logger import Image
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
+import tensorflow as tf
 
 
 def make_env(args, log_path):
@@ -114,7 +115,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 buffer_size=args.buffer_size, learning_starts=args.learning_starts,
                                 batch_size=args.batch_size,
                                 tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
-                                seed=args.seed)
+                                seed=args.seed, tensorboard_log=log_path)
 
                 else:
                     raise NotImplementedError
@@ -128,7 +129,11 @@ def create_model(args, algorithm, env, verbose, log_path):
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=(args.lr), verbose=verbose, gae_lambda=args.gae, seed=args.seed)
             elif algorithm == "dqn":
-                model = DQN.load(args.load_dir, env)
+                model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=(args.lr),
+                            buffer_size=args.buffer_size, learning_starts=args.learning_starts,
+                            batch_size=args.batch_size,
+                            tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
+                            seed=args.seed)
             else:
                 raise NotImplementedError
     else:

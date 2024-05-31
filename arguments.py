@@ -105,11 +105,11 @@ def get_parser():
     #parser.add_argument('--experiment_name', default='', help='a title for the experiment log')
     #parser.add_argument('--overwrite', action='store_true', help='overwrite log files and saved model, optimizer')
     #parser.add_argument('--max-step', type=int, default=200)
-    parser.add_argument('--buffer_size', type=int, default=1000000, help='Buffer size for DQN')
-    parser.add_argument('--learning_starts', type=int, default=1000, help='Number of steps before training starts for DQN')
-    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for DQN')
+    parser.add_argument('--buffer-size', type=int, default=10000, help='Buffer size for DQN')
+    parser.add_argument('--learning-starts', type=int, default=1000, help='Number of steps before training starts for DQN')
+    parser.add_argument('--batch-size', type=int, default=32, help='Batch size for DQN')
     parser.add_argument('--tau', type=float, default=1.0, help='Soft update coefficient for DQN')
-    parser.add_argument('--target_update_interval', type=int, default=1000, help='Target update interval for DQN')
+    parser.add_argument('--target-update-interval', type=int, default=1000, help='Target update interval for DQN')
 
     ######## Utility ########
 
