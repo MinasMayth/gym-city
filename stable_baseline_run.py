@@ -35,6 +35,7 @@ def make_env(vec, args):
 
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
+        env.seed(args.seed)
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
