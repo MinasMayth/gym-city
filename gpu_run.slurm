@@ -3,7 +3,7 @@
 #SBATCH --output=logs/alice/gym_city%x_%j.out
 #SBATCH --mail-user="<samyhashim2001@gmail.com>"
 #SBATCH --mail-type="ALL"
-#SBATCH --mem=4G
+#SBATCH --mem=8G
 #SBATCH --time=24:00:00
 #SBATCH --partition=gpu-medium
 #SBATCH --ntasks=1
@@ -28,6 +28,6 @@ echo "[$SHELL] Log directory "$LOGDIR
 # Run the file
 echo "[$SHELL] Running gym city on $(hostname)"
 python --version
-python stable_baseline_run.py --num-frames 10_000_000 --algo ppo  --alpha 0.99 --value-loss-coef 1.0 --max-grad-norm 0.5 --entropy-coef 0.01 --lr 1e-5 --eps 1e-5 --gae 0.95 --gamma 0.95 --num-steps 4096  --map-width 24 --save-interval 500_000 --num-mini-batch 64 --ppo-epoch 10 --clip-param 0.2 --seed 1 --vec-env  1 --save False
+python stable_baseline_run.py --num-frames 10_000_000 --algo ppo  --alpha 0.99 --value-loss-coef 0.5 --max-grad-norm 0.5 --entropy-coef 0.01 --lr 1e-4 --eps 1e-5 --gae 0.95 --gamma 0.95 --num-steps 256 --map-width 24 --save-interval 500_000 --num-mini-batch 128 --ppo-epoch 10 --clip-param 0.2 --seed 1 --vec-env  4 --save False
 
 echo "[$SHELL] Terminated. Job done"

@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from arguments import get_args
 import torch
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
 from typing import Callable
@@ -18,7 +18,7 @@ from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
 
 
-def make_env(vec, args):
+def make_env(args, log_path):
     if args.vec_envs > 1:
         def make_env_vec(env_id):
             def _init():
@@ -36,6 +36,7 @@ def make_env(vec, args):
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
         env.seed(args.seed)
+        env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
@@ -191,11 +192,11 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(save_path, "arguments.txt"))
-        changes = ("Full Toolset. Gamespeed 3. Reward is simple total population *" 
-                "total POWERED zones with road adjacency score of 0.1. Static Build.")
+        changes = ("Full Toolset. Gamespeed 3. Reward is simple total population +" 
+                "total POWERED zones with road adjacency score of 0.1 + traffic. Static Build.")
         make_change_log(log_path, changes)
 
-    env = make_env(vec=False, args=args)
+    env = make_env(args, log_path)
 
     model = create_model(args, algorithm, env, verbose, log_path)
     print("POLICY:", model.policy)

@@ -474,6 +474,8 @@ class MicropolisEnv(gym.Env):
             buildings = (self.get_building_map())
             reward += (self.check_surroundings(building_map=buildings))
 
+            reward += self.micro.total_traffic
+
 
 
             # Calculate the reward based on road network length
