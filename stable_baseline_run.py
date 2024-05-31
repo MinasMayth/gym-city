@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from arguments import get_args
 import torch
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor
 from stable_baselines3.common.env_util import make_vec_env
 from networks import CustomActorCriticPolicy
 from typing import Callable
@@ -19,7 +19,7 @@ from stable_baselines3.common.env_checker import check_env
 import tensorflow as tf
 
 
-def make_env(vec, args):
+def make_env(args, log_path):
     if args.vec_envs > 1:
         def make_env_vec(env_id):
             def _init():
@@ -36,6 +36,8 @@ def make_env(vec, args):
 
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
+        env.seed(args.seed)
+        env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
@@ -74,56 +76,67 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
     return func
 
-
 def create_model(args, algorithm, env, verbose, log_path):
-    policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
 
+    policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     if args.load_dir is None:
         if args.save:
             if args.lr_schedule:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
-                                max_grad_norm=args.max_grad_norm,
-                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose,
-                                tensorboard_log=log_path,
-                                create_eval_env=True, gae_lambda=args.gae)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
-                                max_grad_norm=args.max_grad_norm,
-                                learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), verbose=verbose, tensorboard_log=log_path, gae_lambda=args.gae, seed=args.seed)
+                elif algorithm == "dqn":
+                    model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=linear_schedule(args.lr),
+                                buffer_size=args.buffer_size, learning_starts=args.learning_starts,
+                                batch_size=args.batch_size,
+                                tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
+                                tensorboard_log=log_path, seed=args.seed)
                 else:
                     raise NotImplementedError
             else:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
-                                max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose,
-                                tensorboard_log=log_path,
-                                create_eval_env=True, gae_lambda=args.gae)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
+                                gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
-                                max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
+                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path, gae_lambda=args.gae, seed=args.seed)
+                elif algorithm == "dqn":
+                    model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=(args.lr),
+                                buffer_size=args.buffer_size, learning_starts=args.learning_starts,
+                                batch_size=args.batch_size,
+                                tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
+                                seed=args.seed, tensorboard_log=log_path)
+
                 else:
                     raise NotImplementedError
         else:
             if algorithm == "a2c":
                 model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=(args.lr), normalize_advantage=True
-                            , rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae)
+                            learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae, seed=args.seed)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=(args.lr), verbose=verbose)
+                            learning_rate=(args.lr), verbose=verbose, gae_lambda=args.gae, seed=args.seed)
+            elif algorithm == "dqn":
+                model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=(args.lr),
+                            buffer_size=args.buffer_size, learning_starts=args.learning_starts,
+                            batch_size=args.batch_size,
+                            tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
+                            seed=args.seed)
             else:
-                exit()
+                raise NotImplementedError
     else:
         if algorithm == "a2c":
             model = A2C.load(args.load_dir, env)
@@ -134,26 +147,10 @@ def create_model(args, algorithm, env, verbose, log_path):
     return model
 
 
-class ImageRecorderCallback(BaseCallback):
-    def __init__(self, env, verbose=0):
-        super().__init__(verbose)
-        self.env = env
-
-    def _on_step(self):
-        image = self.env.render(mode="rgb_array")
-        print(type(self.env))
-        quit()
-        # "HWC" specify the dataformat of the image, here channel last
-        # (H for height, W for width, C for channel)
-        # See https://pytorch.org/docs/stable/tensorboard.html
-        # for supported formats
-        self.logger.record("trajectory/image", Image(image, "HWC"), exclude=("stdout", "log", "json", "csv"))
-        return True
-
-
 def main():
     args = get_args()
     print(args)
+
     algorithm = args.algo
 
     if args.log:
@@ -167,14 +164,17 @@ def main():
     # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
     if algorithm == "a2c":
         parameter_values = {
-            'gamma': str(args.gamma),
+            'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
-            # 'value_loss_coef': str(args.value_loss_coef),
-            # 'entropy_coef': str(args.entropy_coef),
-            # 'max_grad_norm': str(args.max_grad_norm),
+            'map_width': str(args.map_width),
+            'gamma': str(args.gamma),
+            'value_loss_coef': str(args.value_loss_coef),
+            'entropy_coef': str(args.entropy_coef),
+            'max_grad_norm': str(args.max_grad_norm),
             'lr': str(args.lr),
-            'eps': str(args.eps),
-            # 'gae_lambda': str(args.gae)
+            'seed': str(args.seed)
+            #'eps': str(args.eps),
+            #'lambda': str(args.gae)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
@@ -182,13 +182,20 @@ def main():
         save_path = log_path
     elif algorithm == "ppo":
         parameter_values = {
-            'gamma': str(args.gamma),
+            'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
+            'map_width': str(args.map_width),
             'clip_range': str(args.clip_param),
             'batch_size': str(args.num_mini_batch),
             'n_epochs': str(args.ppo_epoch),
+            'value_loss_coef': str(args.value_loss_coef),
+            'entropy_coef': str(args.entropy_coef),
             'lr': str(args.lr),
-            'eps': str(args.eps)
+            'eps': str(args.eps),
+            'gamma': str(args.gamma),
+            'max_grad_norm': str(args.max_grad_norm),
+            'lambda': str(args.gae),
+            'seed': str(args.seed)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
@@ -204,13 +211,13 @@ def main():
         changes = "TO FILL"
         make_change_log(log_path, changes)
 
-    env = make_env(vec=True, args=args)
+    env = make_env(args, log_path)
 
     model = create_model(args, algorithm, env, verbose, log_path)
     print("POLICY:", model.policy)
 
     if args.save:
-        checkpoint_callback = CheckpointCallback(save_freq=100000, save_path=save_path + "/models")
+        checkpoint_callback = CheckpointCallback(save_freq=args.save_interval, save_path=save_path + "/models")
         # Separate evaluation env
         eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
                                      log_path=save_path + '/models/best_model', eval_freq=2500)
