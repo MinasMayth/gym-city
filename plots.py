@@ -6,7 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load the CSV file
-file_path = 'logs/baselines/may/nuevo_grid_search/ppo/alpha=0.99_num_steps=256_map_width=24_clip_range=0.2_batch_size=128_n_epochs=10_value_loss_coef=0.5_entropy_coef=0.01_lr=1e-05_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.9_seed=1_2024-05-31_17-24-43/vec_monitor_log.csv.monitor.csv'
+file_path = \
+    "logs/baselines/may/nuevo_grid_search/ppo/alpha=0.99_num_steps=256_map_width=24_clip_range=0.2_batch_size=128_n_epochs=10_value_loss_coef=0.5_entropy_coef=0.01_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.95_seed=1_2024-05-31_17-24-24/vec_monitor_log.csv.monitor.csv"
 data = pd.read_csv(file_path, skiprows=1, header=0)
 
 
