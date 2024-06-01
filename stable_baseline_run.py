@@ -181,7 +181,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "testing", args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "new_grid_search", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "ppo":
         parameter_values = {
@@ -202,7 +202,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "testing", args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "new_reward_experiments", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "dqn":
         parameter_values = {
@@ -244,8 +244,9 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
-        changes = ("Full Toolset. Gamespeed 3. Reward is simple total population +"
-                   "total POWERED zones with road adjacency score of 0.1 + traffic. Static Build.")
+        #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
+        changes = ("Limited Toolset. Gamespeed 3. Reward is simple total population "
+                   "+ total powered zones. No Static Build.")
         make_change_log(log_path, changes)
 
     env = make_env(args, log_path)

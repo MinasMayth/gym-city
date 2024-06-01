@@ -465,10 +465,10 @@ class MicropolisEnv(gym.Env):
             #print(self.micro.map.zoneMap)
             #print(self.micro.map.zoneInts)
 
-            buildings = (self.get_building_map())
-            reward += (self.check_surroundings(building_map=buildings))
+            #buildings = (self.get_building_map())
+            #reward += (self.check_surroundings(building_map=buildings)) * self.micro.getPoweredZoneCount()
 
-            reward += self.micro.total_traffic
+            #reward += self.micro.total_traffic
 
 
 

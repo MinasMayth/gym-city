@@ -85,24 +85,24 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial', # basetoolset
-                'FireDept',
-                'PoliceDept',
+                #'FireDept',
+                #'PoliceDept',
                 # 'Query',
                 'Clear',  # basetoolset
                 'Wire', # basetoolset
-                'Rail',
+                #'Rail',
                 'Road', # basetoolset
-                'Stadium',
-                'Park',
-                'Seaport',
+                #'Stadium',
+                #'Park',
+                #'Seaport',
                 'CoalPowerPlant', # basetoolset
-                'NuclearPowerPlant', # basetoolset?? maybe not check this
-                'Airport',
+                'NuclearPowerPlant', # basetoolset
+                #'Airport',
                 #'Net',
                 #'Water',
-                'Land',
-                'Forest',
-                'Nil' # the agent takes no action
+                #'Land',
+                #'Forest',
+                'Nil' # the agent takes no action #basetoolset
                 ]
         #['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
         # since query is exluded for now:
@@ -348,7 +348,7 @@ class MicropolisControl():
         x = int(a[1])
         y = int(a[2])
         # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
-        self.doBotTool(x, y, tool, True)
+        self.doBotTool(x, y, tool, static_build)
         # if tool != "Road":
         #    if x < self.MAP_X - 2 and y < self.MAP_Y - 2:
         #        if x > 3:
