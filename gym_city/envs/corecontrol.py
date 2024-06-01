@@ -146,12 +146,14 @@ class MicropolisControl():
         self.win1.agentPanel.displayRewardWeights(reward_weights)
 
     def get_random_build_area(self, env, map_width, map_height, build_area_width, build_area_height):
-        def contains_water(build_area):
-            for row in build_area:
-                if 'Water' in row:
-                    return True
-            return False
+        def count_water_tiles(build_area):
+            return sum(row.count('Water') for row in build_area)
+
         counter = 0
+        min_water_tiles = float('inf')
+        best_top_left_x = None
+        best_top_left_y = None
+
         while True:
             # Randomly select the top-left corner of the build area
             top_left_x = random.randint(20, map_width - build_area_width - 20)
@@ -160,11 +162,22 @@ class MicropolisControl():
             self.MAP_XS = top_left_x
             self.MAP_YS = top_left_y
 
+            # Extract the build area from the map
             build_area = env.get_building_map()
             # Check if the build area contains any water tiles
+            water_tiles_count = count_water_tiles(build_area)
+
+            # Update the best build area if this one has fewer water tiles
+            if water_tiles_count < min_water_tiles:
+                min_water_tiles = water_tiles_count
+                best_top_left_x = top_left_x
+                best_top_left_y = top_left_y
+
             counter += 1
-            if not contains_water(build_area) or counter > 200:
-                return top_left_x, top_left_y
+
+            # If no water tiles are found or the counter limit is reached, return the current coordinates
+            if water_tiles_count == 0 or counter > 5000:
+                return best_top_left_x, best_top_left_y
 
     def simTick(self):
         # self.engine.resume()
