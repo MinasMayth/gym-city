@@ -403,7 +403,7 @@ class MicropolisEnv(gym.Env):
                             if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
                                 return 0
                             if not is_lonely(building_map[nx][ny]):
-                                return 0.1
+                                return 1
                 return 0
             return 0
 
@@ -466,10 +466,10 @@ class MicropolisEnv(gym.Env):
             # print(self.micro.map.zoneMap)
             # print(self.micro.map.zoneInts)
 
-            # buildings = (self.get_building_map())
-            # reward += (self.check_surroundings(building_map=buildings)) * self.micro.getPoweredZoneCount()
+            buildings = (self.get_building_map())
+            reward += (self.check_surroundings(building_map=buildings))
 
-            # reward += self.micro.total_traffic
+            reward += self.micro.total_traffic
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
@@ -480,7 +480,6 @@ class MicropolisEnv(gym.Env):
             #        pass
 
             # Integrate road network reward into the total reward
-            # reward += road_net_reward
 
             # if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
             #    reward = 0
