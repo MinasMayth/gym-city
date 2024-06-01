@@ -37,16 +37,16 @@ from pyMicropolis.gtkFrontend import main
 class MicropolisControl():
 
     def __init__(self, env, MAP_W=12, MAP_H=12, PADDING=13, gui=False, rank=None,
-            power_puzzle=False, paint=False):
-        env.micro = self # attach ourselves to our parent before we start
+                 power_puzzle=False, paint=False):
+        env.micro = self  # attach ourselves to our parent before we start
         # Reuse game engine if we are reinitializing controller (i.e. to change map size)
         if hasattr(self, 'engine'):
             print('REINIT: reuse engine and window')
             engine, win1 = self.engine, self.win1
         else:
             engine, win1 = main.train(env=env, rank=rank, map_x=MAP_W, map_y=MAP_H,
-                gui=gui)
-        #os.chdir(CURR_DIR)
+                                      gui=gui)
+        # os.chdir(CURR_DIR)
         self.env = env
         self.engine = engine
         self.engine.setGameLevel(2)
@@ -54,62 +54,63 @@ class MicropolisControl():
         self.MAP_Y = MAP_H
         self.PADDING = PADDING
         # shifts build area to centre of 120 by 100 tile map
-       # self.MAP_XS = 59 - self.MAP_X // 2
-       # self.MAP_YS = 49 - self.MAP_Y //2
-        self.MAP_XS = 16
-        self.MAP_YS = 8
+        # self.MAP_XS = 59 - self.MAP_X // 2
+        # self.MAP_YS = 49 - self.MAP_Y // 2
+        self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self.MAP_Y)
+        # self.MAP_XS = 16
+        # self.MAP_YS = 8
         self.num_roads = 0
         self.engineTools = ['Residential', 'Commercial', 'Industrial',
-                'FireDept',
-                'PoliceDept',
-                # TODO: implement query (skipped for now by indexing)
-               'Query',
-               'Wire',
-               'Clear',
-               'Rail',
-               'Road',
-                'Stadium',
-                'Park',
-                 'Seaport',
-                'CoalPowerPlant',
-                'NuclearPowerPlant',
-                'Airport',
-                'Net',
-                'Water',
-                'Land',
-                'Forest',
-                ]
+                            'FireDept',
+                            'PoliceDept',
+                            # TODO: implement query (skipped for now by indexing)
+                            'Query',
+                            'Wire',
+                            'Clear',
+                            'Rail',
+                            'Road',
+                            'Stadium',
+                            'Park',
+                            'Seaport',
+                            'CoalPowerPlant',
+                            'NuclearPowerPlant',
+                            'Airport',
+                            'Net',
+                            'Water',
+                            'Land',
+                            'Forest',
+                            ]
         # Names correspond to those of resultant zones
         if power_puzzle:
             self.tools = ['Wire']
         else:
             self.tools = [
-                'Residential', 'Commercial', 'Industrial', # basetoolset
-                #'FireDept',
-                #'PoliceDept',
+                'Residential', 'Commercial', 'Industrial',  # basetoolset
+                # 'FireDept',
+                # 'PoliceDept',
                 # 'Query',
                 'Clear',  # basetoolset
-                'Wire', # basetoolset
-                #'Rail',
-                'Road', # basetoolset
-                #'Stadium',
-                #'Park',
-                #'Seaport',
-                'CoalPowerPlant', # basetoolset
-                'NuclearPowerPlant', # basetoolset
-                #'Airport',
-                #'Net',
-                #'Water',
-                #'Land',
-                #'Forest',
-                'Nil' # the agent takes no action #basetoolset
-                ]
-        #['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
+                'Wire',  # basetoolset
+                # 'Rail',
+                'Road',  # basetoolset
+                # 'Stadium',
+                # 'Park',
+                # 'Seaport',
+                'CoalPowerPlant',  # basetoolset
+                'NuclearPowerPlant',  # basetoolset
+                # 'Airport',
+                # 'Net',
+                # 'Water',
+                # 'Land',
+                # 'Forest',
+                'Nil'  # the agent takes no action #basetoolset
+            ]
+        # ['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
         # since query is exluded for now:
         self.num_tools = len(self.tools)
         # TODO: move age-tracking into wrapper?
         self.map = TileMap(self, self.MAP_X + 2 * PADDING, self.MAP_Y + 2 * PADDING,
-                paint=paint)
+                           paint=paint)
         self.zones = self.map.zones
         self.num_zones = self.map.num_zones
         # allows building on rubble and forest
@@ -117,9 +118,9 @@ class MicropolisControl():
         # for bots
         self.land_value = 0
 
-       #win1.playCity()
+        # win1.playCity()
         if win1:
-           win1.playCity()
+            win1.playCity()
         self.engine.resume()
         self.engine.setGameMode('play')
 
@@ -127,11 +128,11 @@ class MicropolisControl():
         self.engine.setFunds(self.init_funds)
         self.engine.setSpeed(3)
         self.engine.setPasses(100)
-        #engine.simSpeed =99
+        # engine.simSpeed =99
         self.total_traffic = 0
         self.last_total_traffic = 0
-#       engine.clearMap()
-        self.win1=win1
+        #       engine.clearMap()
+        self.win1 = win1
         self.player_builds = []
 
     def reset_params(self, size):
@@ -141,44 +142,78 @@ class MicropolisControl():
                       MAP_W=size, MAP_H=size, PADDING=self.PADDING, gui=False, rank=self.env.rank,
                       power_puzzle=self.env.power_puzzle, paint=False)
 
-
     def displayRewardWeights(self, reward_weights):
         self.win1.agentPanel.displayRewardWeights(reward_weights)
 
+    def get_random_build_area(self, env, map_width, map_height, build_area_width, build_area_height):
+        def count_water_tiles(build_area):
+            return sum(row.count('Water') for row in build_area)
+
+        counter = 0
+        min_water_tiles = float('inf')
+        best_top_left_x = None
+        best_top_left_y = None
+
+        while True:
+            # Randomly select the top-left corner of the build area
+            top_left_x = random.randint(20, map_width - build_area_width - 20)
+            top_left_y = random.randint(20, map_height - build_area_height - 20)
+
+            self.MAP_XS = top_left_x
+            self.MAP_YS = top_left_y
+
+            # Extract the build area from the map
+            build_area = env.get_building_map()
+            # Check if the build area contains any water tiles
+            water_tiles_count = count_water_tiles(build_area)
+
+            # Update the best build area if this one has fewer water tiles
+            if water_tiles_count < min_water_tiles:
+                min_water_tiles = water_tiles_count
+                best_top_left_x = top_left_x
+                best_top_left_y = top_left_y
+
+            counter += 1
+
+            # If no water tiles are found or the counter limit is reached, return the current coordinates
+            if water_tiles_count == 0 or counter > 5000:
+                return best_top_left_x, best_top_left_y
+
     def simTick(self):
-       #self.engine.resume()
-       #self.engine.cityEvaluation()
+        # self.engine.resume()
+        # self.engine.cityEvaluation()
         self.engine.tickEngine()
         self.engine.simTick()
-       #self.engine.updateHeads()
-       #self.engine.updateDate()
-       #self.engine.changeCensus()
-       #self.engine.simUpdate()
-       #self.engine.doTimeStuff()
+
+    # self.engine.updateHeads()
+    # self.engine.updateDate()
+    # self.engine.changeCensus()
+    # self.engine.simUpdate()
+    # self.engine.doTimeStuff()
 
     def layGrid(self, w, h):
 
-        for i in range(round(self.MAP_X/2)):
-            for j in range(round(self.MAP_Y/2)):
-            #   gtk.mainiteration()
+        for i in range(round(self.MAP_X / 2)):
+            for j in range(round(self.MAP_Y / 2)):
+                #   gtk.mainiteration()
                 self.simTick()
                 # vertical road
                 if ((i + 4) % w == 0):
-                    self.doTool(i, j,'Road')
+                    self.doTool(i, j, 'Road')
                     if ((j + 1) % h in [1, h - 1]) and \
-                            j not in [0, self.MAP_Y -1]:
+                            j not in [0, self.MAP_Y - 1]:
                         self.doTool(i, j, 'Wire')
                 # horizontal roads
                 elif ((j + 1) % h == 0):
-                    self.doTool(i, j,'Road')
+                    self.doTool(i, j, 'Road')
                     if ((i + 4) % w in [1, w - 1]) and \
                             i not in [0, self.MAP_X - 1]:
                         self.doTool(i, j, 'Wire')
                 # random zones
-                elif ((i + 2 - (i + 4) // w) % 3) ==0 and \
-                     ((j + 2 - (j + 1) // h) % 3) ==0:
+                elif ((i + 2 - (i + 4) // w) % 3) == 0 and \
+                        ((j + 2 - (j + 1) // h) % 3) == 0:
 
-                    tool_i = random.randint(0, 3-1)
+                    tool_i = random.randint(0, 3 - 1)
                     self.doTool(i, j, ['Residential', 'Commercial', 'Industrial'][tool_i])
 
     def newMap(self):
@@ -196,12 +231,11 @@ class MicropolisControl():
     def updateMap(self):
         for i in range(self.MAP_X):
             for j in range(self.MAP_Y):
-                tile_int = self.getTile(i,j)
+                tile_int = self.getTile(i, j)
                 zone = zoneFromInt(tile_int)
                 # assuming there are no zones not built via us,
                 # or else we must find center
-                self.map.updateTile(i, j, zone, (i,j))
-
+                self.map.updateTile(i, j, zone, (i, j))
 
     def fillDensityMap(self, density_map, i, j, val):
         i = i * 2
@@ -213,11 +247,11 @@ class MicropolisControl():
         return density_map
 
     def getDensityMaps(self):
-       #self.last_pollution = self.pollution
+        # self.last_pollution = self.pollution
         self.total_traffic = 0
         self.land_value = 0
         density_maps = np.zeros((3, self.MAP_X, self.MAP_Y))
-        for i in range (self.MAP_X // 2):
+        for i in range(self.MAP_X // 2):
             for j in range(self.MAP_Y // 2):
                 im = p_im = t_im = i + self.MAP_YS // 2
                 jm = p_jm = t_jm = j + self.MAP_XS // 2
@@ -233,35 +267,36 @@ class MicropolisControl():
                 im += self.MAP_YS
                 jm += self.MAP_XS
                 density_maps[0][i][j] = self.engine.getPowerGrid(jm, im)
-               #self.land_value += self.engine.getLandValue(im, jm)
-       #if self.total_traffic > 0:
-       #    print('TRAFFIC: {}'.format(self.total_traffic))
+            # self.land_value += self.engine.getLandValue(im, jm)
+        # if self.total_traffic > 0:
+        #    print('TRAFFIC: {}'.format(self.total_traffic))
         return density_maps
 
     def getPowerMap(self):
         power_map = np.zeros((1, self.MAP_X, self.MAP_Y))
-        for i in range (self.MAP_X):
+        for i in range(self.MAP_X):
             for j in range(self.MAP_Y):
                 im = i + self.MAP_XS
                 jm = j + self.MAP_YS
         return power_map
 
     def getFunds(self):
-       #print('getting funds total {}'.format(self.engine.totalFunds))
+        # print('getting funds total {}'.format(self.engine.totalFunds))
         return self.engine.totalFunds
 
     def render(self):
         while gtk.events_pending():
-       #for i in range(2):
+            # for i in range(2):
             gtk.main_iteration()
 
     def setFunds(self, funds):
-       #print('setting funds to {}'.format(funds))
+        # print('setting funds to {}'.format(funds))
         return self.engine.setFunds(funds)
 
         # called by map module
+
     def doBulldoze(self, x, y):
-        return self.doSimTool(x,y,'Clear')
+        return self.doSimTool(x, y, 'Clear')
 
     def doLandOver(self, x, y):
         ''' a glitchy replacement to doBulldoze (layered buildings)
@@ -282,10 +317,10 @@ class MicropolisControl():
         if not x < self.MAP_X and y < self.MAP_Y:
             print('build site out of range')
             return
-       #x += self.MAP_XS
-       #y += self.MAP_YS
+        # x += self.MAP_XS
+        # y += self.MAP_YS
         tool_int = self.tools.index(self.engineTools[tool_int])
-       #self.map.addZonePlayer(x, y, tool, static_build=True)
+        # self.map.addZonePlayer(x, y, tool, static_build=True)
         self.player_builds += [(tool_int, x, y)]
 
     def toolDown(self, x, y, tool):
@@ -293,6 +328,7 @@ class MicropolisControl():
         self.map.addZoneBot(x, y, self.engineTools[tool])
 
         # called by map module
+
     def doSimTool(self, x, y, tool):
         x += self.MAP_XS
         y += self.MAP_YS
@@ -305,24 +341,29 @@ class MicropolisControl():
         return self.engine.getTile(x, y) & 1023
 
     def doSimToolInt(self, x, y, tool):
-       #print('calling engine doTool {} {} {}'.format(x, y, tool))
+        # print('calling engine doTool {} {} {}'.format(x, y, tool))
         result = self.engine.toolDown(tool, x, y)
-       #print('result in SimToolInt: {}'.format(result))
+        # print('result in SimToolInt: {}'.format(result))
         return result
 
-
     def getTotalPowerPop(self):
-        return  self.getCoalPowerPop() + self.getNuclearPowerPop()
+        return self.getCoalPowerPop() + self.getNuclearPowerPop()
+
     def getCoalPowerPop(self):
         return self.engine.coalPowerPop
+
     def getTotalZonePop(self):
         return self.engine.totalZonePop
+
     def getNuclearPowerPop(self):
         return self.engine.nuclearPowerPop
+
     def getPoweredZoneCount(self):
         return self.engine.poweredZoneCount
+
     def getResPop(self):
         return self.engine.resPop
+
     def getUnpoweredZoneCount(self):
         return self.engine.unpoweredZoneCount
 
@@ -331,7 +372,6 @@ class MicropolisControl():
 
     def getIndPop(self):
         return self.engine.indPop
-
 
     def getTotPop(self):
         return self.engine.totalPop
@@ -359,11 +399,12 @@ class MicropolisControl():
         #            self.doBotTool(x + 2, y, "Road", static_build)
         #            self.doBotTool(x + 2, y - 1, "Road", static_build)
         #            self.doBotTool(x + 2, y + 1, "Road", static_build)
-       #gtk.main_iteration() # for observation or recording
-       #time.sleep(1/60)
-       #self.engine.simTick()
-       #time.sleep(1/60)
-#       gtk.mainiteration()
+
+    # gtk.main_iteration() # for observation or recording
+    # time.sleep(1/60)
+    # self.engine.simTick()
+    # time.sleep(1/60)
+    #       gtk.mainiteration()
 
     def printTileMap(self):
         tileMap = np.zeros(shape=(self.MAP_X, self.MAP_Y))
@@ -373,8 +414,5 @@ class MicropolisControl():
         print(tileMap)
 
     def close(self):
-    #   self.engine.doReallyQuit()
-        del(self.engine)
-
-
-
+        #   self.engine.doReallyQuit()
+        del (self.engine)

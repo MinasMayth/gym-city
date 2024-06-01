@@ -415,6 +415,7 @@ class MicropolisEnv(gym.Env):
             result_map.append(row_result)
 
         return np.sum(result_map)
+
     def get_adjacent_zones(self, road):
         adjacent_zones = []
         for cell in road.cells:
@@ -462,20 +463,18 @@ class MicropolisEnv(gym.Env):
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            #print(self.micro.map.zoneMap)
-            #print(self.micro.map.zoneInts)
+            # print(self.micro.map.zoneMap)
+            # print(self.micro.map.zoneInts)
 
-            #buildings = (self.get_building_map())
-            #reward += (self.check_surroundings(building_map=buildings)) * self.micro.getPoweredZoneCount()
+            # buildings = (self.get_building_map())
+            # reward += (self.check_surroundings(building_map=buildings)) * self.micro.getPoweredZoneCount()
 
-            #reward += self.micro.total_traffic
-
-
+            # reward += self.micro.total_traffic
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
-            #for road_net_id, length in self.micro.map.road_net_sizes.items():
-                # You can adjust the shaping factor based on your requirement
+            # for road_net_id, length in self.micro.map.road_net_sizes.items():
+            # You can adjust the shaping factor based on your requirement
             #    reward += (-4 + length)
             #       else:
             #        pass
@@ -483,7 +482,7 @@ class MicropolisEnv(gym.Env):
             # Integrate road network reward into the total reward
             # reward += road_net_reward
 
-            #if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
+            # if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
             #    reward = 0
 
             self.last_pop = current_pop
