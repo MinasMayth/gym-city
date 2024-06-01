@@ -1,0 +1,20 @@
+PPO
+n_steps = 2048
+clip_range = 0.3
+batch_size = 128
+n_epochs = 20
+v_l_coef = 0.5
+e_coef = 0.0
+lr = 1e-3
+gamma = 0.95
+max_grad_norm = 0.5
+lambda = 0.95
+
+A2C
+lr = 1e-3
+n_steps = 20
+e_coef = 0.0
+gamma = 0.9
+lambda = 0.9
+v_l_coef = 0.5?
+max_grad_norm = 0.5?

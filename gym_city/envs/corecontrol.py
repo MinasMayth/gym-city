@@ -54,10 +54,11 @@ class MicropolisControl():
         self.MAP_Y = MAP_H
         self.PADDING = PADDING
         # shifts build area to centre of 120 by 100 tile map
-        # self.MAP_XS = 59 - self.MAP_X // 2
-        # self.MAP_YS = 49 - self.MAP_Y //2
-        self.MAP_XS = 16
-        self.MAP_YS = 8
+        #self.MAP_XS = 59 - self.MAP_X // 2
+        #self.MAP_YS = 49 - self.MAP_Y // 2
+        self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self. MAP_Y)
+        # self.MAP_XS = 16
+        # self.MAP_YS = 8
         self.num_roads = 0
         self.engineTools = ['Residential', 'Commercial', 'Industrial',
                             'FireDept',
@@ -84,24 +85,24 @@ class MicropolisControl():
             self.tools = ['Wire']
         else:
             self.tools = [
-                'Residential', 'Commercial', 'Industrial', # basetoolset
-                'FireDept',
-                'PoliceDept',
+                'Residential', 'Commercial', 'Industrial',  # basetoolset
+                #'FireDept',
+                #'PoliceDept',
                 # 'Query',
                 'Clear',  # basetoolset
-                'Wire', # basetoolset
-                'Rail',
-                'Road', # basetoolset
-                'Stadium',
-                'Park',
-                'Seaport',
-                'CoalPowerPlant', # basetoolset
-                'NuclearPowerPlant', # basetoolset?? maybe not check this
-                'Airport',
-                 'Net', #not included in full toolset
-                 'Water', #not included in full toolset
-                'Land',
-                'Forest',
+                'Wire',  # basetoolset
+                #'Rail',
+                'Road',  # basetoolset
+                #'Stadium',
+                #'Park',
+                #'Seaport',
+                'CoalPowerPlant',  # basetoolset
+                'NuclearPowerPlant',  # basetoolset?? maybe not check this
+                #'Airport',
+                #'Net',  # not included in full toolset
+                #'Water',  # not included in full toolset
+                #'Land',
+                #'Forest',
                 'Nil'  # the agent takes no action # basetoolset
             ]
         # ['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
@@ -125,7 +126,7 @@ class MicropolisControl():
 
         self.init_funds = 2000000
         self.engine.setFunds(self.init_funds)
-        self.engine.setSpeed(1)
+        self.engine.setSpeed(3)
         self.engine.setPasses(100)
         # engine.simSpeed =99
         self.total_traffic = 0
@@ -143,6 +144,27 @@ class MicropolisControl():
 
     def displayRewardWeights(self, reward_weights):
         self.win1.agentPanel.displayRewardWeights(reward_weights)
+
+    def get_random_build_area(self, env, map_width, map_height, build_area_width, build_area_height):
+        def contains_water(build_area):
+            for row in build_area:
+                if 'Water' in row:
+                    return True
+            return False
+        counter = 0
+        while True:
+            # Randomly select the top-left corner of the build area
+            top_left_x = random.randint(20, map_width - build_area_width - 20)
+            top_left_y = random.randint(20, map_height - build_area_height - 20)
+
+            self.MAP_XS = top_left_x
+            self.MAP_YS = top_left_y
+
+            build_area = env.get_building_map()
+            # Check if the build area contains any water tiles
+            counter += 1
+            if not contains_water(build_area) or counter > 200:
+                return top_left_x, top_left_y
 
     def simTick(self):
         # self.engine.resume()
@@ -350,7 +372,7 @@ class MicropolisControl():
         x = int(a[1])
         y = int(a[2])
         # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
-        self.doBotTool(x, y, tool, True)
+        self.doBotTool(x, y, tool, static_build)
         # if tool != "Road":
         #    if x < self.MAP_X - 2 and y < self.MAP_Y - 2:
         #        if x > 3:
