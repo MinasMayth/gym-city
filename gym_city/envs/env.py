@@ -334,7 +334,7 @@ class MicropolisEnv(gym.Env):
         # Define function to check surroundings of a tile
         def check_tile(x, y):
             tile = building_map[x][y]
-            if tile == "Road" or tile == "RoadWire":
+            if tile == "Road" or tile == "RoadWire" or tile == "RoadRail":
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if dx != 0 or dy != 0:
@@ -363,7 +363,7 @@ class MicropolisEnv(gym.Env):
                     adjacent_zones.append(neighbor.zone)
         return adjacent_zones
 
-    def getReward(self):
+    def getReward(self, action=None):
         '''Calculate reward.
         '''
         # add population, connectivity, road adjacency
@@ -373,6 +373,7 @@ class MicropolisEnv(gym.Env):
         current_pop = self.getPop()
         current_num_roads = self.micro.map.num_roads
         current_n_zones = self.micro.getTotalZonePop()
+        current_map = self.get_building_map()
         complexReward = False
 
         if complexReward:  # changed here
@@ -402,33 +403,45 @@ class MicropolisEnv(gym.Env):
             zone_diff = current_n_zones - self.last_n_zones
             roads_difference = current_num_roads - self.last_num_roads
 
-            reward = current_pop + current_n_zones
+            reward = current_pop + self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            #print(self.micro.map.zoneMap)
-            #print(self.micro.map.zoneInts)
+            if action is not None and action[0] not in [8, 3]: # penalising overbuilding
+                tool = self.micro.tools[action[0]]
+                x = int(action[1])
+                y = int(action[2])
+                if self.last_map is not None:
+                    if self.last_map[x][y] in ["Residential", "Commercial", "Industrial", "CoalPowerPlant", "NuclearPowerPlant"]:
+                        if current_map[x][y] in ["Road", "Rail", "RoadWire", "RoadRail", "Wire"]:
+                            reward -= 10
 
-            buildings = (self.get_building_map())
-            reward += (self.check_surroundings(building_map=buildings))
+            reward += (self.check_surroundings(building_map=current_map))
 
+            if current_num_roads > 5:
+                reward += self.micro.total_traffic
+            else:
+                reward *= (current_num_roads/5)
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
-            for road_net_id, length in self.micro.map.road_net_sizes.items():
-                # You can adjust the shaping factor based on your requirem
-                reward += (-4 + length)
+            # for road_net_id, length in self.micro.map.road_net_sizes.items():
+            # You can adjust the shaping factor based on your requirement
+            #    reward += (-4 + length)
             #       else:
             #        pass
 
             # Integrate road network reward into the total reward
-            # reward += road_net_reward
+
+            # if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
+            #    reward = 0
 
             self.last_pop = current_pop
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
             self.last_networks = self.micro.map.road_net_sizes
+            self.last_map = current_map
 
         if False:
             # if self.render_gui and reward != 0:
@@ -526,9 +539,9 @@ class MicropolisEnv(gym.Env):
         #    a = 0
         a = self.intsToActions[a]
         self.micro.takeAction(a, static_build)
-        return self.postact()
+        return self.postact(a)
 
-    def postact(self):
+    def postact(self, action=None):
         # never let the agent go broke, for now
         self.micro.setFunds(self.micro.init_funds)
         # print('rank {} tickin'.format(self.rank))
@@ -577,7 +590,7 @@ class MicropolisEnv(gym.Env):
         #           #elif n > max_net_2:
         #           #    max_net_2 = n
 
-        reward = self.getReward()
+        reward = self.getReward(action=action)
         # reward = reward / (self.max_step)
         self.curr_funds = curr_funds = self.micro.getFunds()
         bankrupt = curr_funds < self.minFunds
