@@ -111,9 +111,9 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 35
-        if self.poet:
-            self.num_obs_channels += len(self.city_trgs)
+        self.num_obs_channels = 1
+        #if self.poet:
+        #    self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
         # ac_high = np.array([self.num_tools - 1, self.MAP_X - 1, self.MAP_Y - 1])
         # self.action_space = spaces.Box(low=ac_low, high=ac_high, dtype=int)
@@ -295,7 +295,11 @@ class MicropolisEnv(gym.Env):
         #if self.static_builds:
         #    state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        state = building_map
+        state = np.array([building_map])
+
+        # Ensure the state has the correct shape (4, 1, 16, 16)
+        #if state.shape != (4, 1, 16, 16):
+        #    state = state.reshape((4, 1, 16, 16))
 
         return state
 
