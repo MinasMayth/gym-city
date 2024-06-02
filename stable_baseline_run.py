@@ -246,7 +246,7 @@ def main():
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
         #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
         changes = ("Limited Toolset. Gamespeed 3. Reward is simple total population "
-                   "+ total powered zones + road net reward of 1+ traffic. Static Build.")
+                   "+ total powered zones + road net reward of 1 and penalty of -1 + special traffic (5 roads). Static Build.")
         make_change_log(log_path, changes)
 
     env = make_env(args, log_path)

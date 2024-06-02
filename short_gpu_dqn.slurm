@@ -28,6 +28,6 @@ echo "[$SHELL] Log directory "$LOGDIR
 # Run the file
 echo "[$SHELL] Running gym city on $(hostname)"
 python --version
-python stable_baseline_run.py --num-frames 5_000_000 --algo dqn --lr 1e-5 --buffer-size 10000 --learning-starts 1000 --batch-size 32 --target-update-interval 1000 --tau 1.0 --map-width 24 --save-interval 500_000 --seed 1 --vec-env 4  --save True
+python stable_baseline_run.py --num-frames 2_000_000 --algo dqn --lr 1e-5 --buffer-size 10000 --learning-starts 1000 --batch-size 32 --target-update-interval 1000 --tau 1.0 --map-width 24 --save-interval 500_000 --seed 1 --vec-env 4  --save True
 
 echo "[$SHELL] Terminated. Job done"

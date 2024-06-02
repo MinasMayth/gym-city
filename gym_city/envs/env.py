@@ -395,7 +395,7 @@ class MicropolisEnv(gym.Env):
         # Define function to check surroundings of a tile
         def check_tile(x, y):
             tile = building_map[x][y]
-            if tile == "Road" or tile == "RoadWire":
+            if tile == "Road" or tile == "RoadWire" or tile == "RoadRail":
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if dx != 0 or dy != 0:
@@ -404,7 +404,7 @@ class MicropolisEnv(gym.Env):
                                 return 0
                             if not is_lonely(building_map[nx][ny]):
                                 return 1
-                return 0
+                return -1
             return 0
 
         result_map = []
@@ -469,7 +469,10 @@ class MicropolisEnv(gym.Env):
             buildings = (self.get_building_map())
             reward += (self.check_surroundings(building_map=buildings))
 
-            reward += self.micro.total_traffic
+            if current_num_roads > 5:
+                reward += self.micro.total_traffic
+            else:
+                reward *= (current_num_roads/5)
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
