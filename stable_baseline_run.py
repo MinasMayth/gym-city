@@ -36,7 +36,8 @@ def make_env(args, log_path):
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
         env.seed(args.seed)
-        env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
+        if args.save:
+            env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
