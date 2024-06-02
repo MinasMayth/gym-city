@@ -341,7 +341,7 @@ class MicropolisEnv(gym.Env):
         density_maps = self.micro.getDensityMaps()
         # if self.render_gui:
         #    print(density_maps[2])
-        road_networks = self.micro.map.road_networks
+        building_map = self.get_building_map(text=False)
         if self.render_gui:
             # print(road_networks, self.micro.map.road_net_sizes)
             pass
@@ -351,9 +351,11 @@ class MicropolisEnv(gym.Env):
             if not type(fill_val) == str:
                 scalar_layers[si].fill(scalars[si])
 
-        state = np.concatenate((simple_state, density_maps, scalar_layers, road_networks), 0)
-        if self.static_builds:
-            state = np.concatenate((state, self.micro.map.static_builds), 0)
+        #state = np.concatenate((simple_state, density_maps, scalar_layers, [building_map]), 0)
+        #if self.static_builds:
+        #    state = np.concatenate((state, self.micro.map.static_builds), 0)
+
+        state = building_map
 
         return state
 
@@ -368,21 +370,6 @@ class MicropolisEnv(gym.Env):
 
         return curr_pop
 
-    def calculate_zoning_penalty(self):
-        num_roads_without_zones = self.calculate_roads_without_zones()
-        # Define a penalty for each road without adjacent zones
-        penalty_per_road = 0.5  # Adjust as needed
-        zoning_penalty = num_roads_without_zones * penalty_per_road
-        return zoning_penalty
-
-    def calculate_roads_without_zones(self):
-        num_roads_without_zones = 0
-        for road in self.micro.map.roads:
-            adjacent_zones = self.get_adjacent_zones(road)
-            if not adjacent_zones:
-                num_roads_without_zones += 1
-        return num_roads_without_zones
-
     def check_surroundings(self, building_map):
         # Define lonely building types
         lonely_buildings = ["Road", "RoadWire", "Wire", "Water", "Land", "Forest", "Rubble",
@@ -395,7 +382,7 @@ class MicropolisEnv(gym.Env):
         # Define function to check surroundings of a tile
         def check_tile(x, y):
             tile = building_map[x][y]
-            if tile == "Road" or tile == "RoadWire" or tile == "RoadRail":
+            if "Road" in tile:
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if dx != 0 or dy != 0:
@@ -415,15 +402,6 @@ class MicropolisEnv(gym.Env):
             result_map.append(row_result)
 
         return np.sum(result_map)
-
-    def get_adjacent_zones(self, road):
-        adjacent_zones = []
-        for cell in road.cells:
-            neighbors = self.micro.map.grid.get_neighbors(cell)
-            for neighbor in neighbors:
-                if neighbor.zone:
-                    adjacent_zones.append(neighbor.zone)
-        return adjacent_zones
 
     def getReward(self, action=None):
         '''Calculate reward.
@@ -454,31 +432,16 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
 
         else:  # simple reward
+            reward = 0
 
-            pop_difference = current_pop - self.last_pop
-            zone_diff = current_n_zones - self.last_n_zones
-            roads_difference = current_num_roads - self.last_num_roads
-
-            reward = current_pop + self.micro.getPoweredZoneCount()
+            reward += current_pop + self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            if action is not None and action[0] not in [8, 3]: # penalising overbuilding
-                tool = self.micro.tools[action[0]]
-                x = int(action[1])
-                y = int(action[2])
-                if self.last_map is not None:
-                    if self.last_map[x][y] in ["Residential", "Commercial", "Industrial", "CoalPowerPlant", "NuclearPowerPlant"]:
-                        if current_map[x][y] in ["Road", "Rail", "RoadWire", "RoadRail", "Wire"]:
-                            reward -= 10
+            reward += self.penalise_overbuilding(action, current_map)
 
             reward += (self.check_surroundings(building_map=current_map))
-
-            if current_num_roads > 5:
-                reward += self.micro.total_traffic
-            else:
-                reward *= (current_num_roads/5)
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
@@ -509,15 +472,23 @@ class MicropolisEnv(gym.Env):
 
         return reward
 
-    def get_building_map(self):
+    def get_building_map(self, text=True):
         building_map = []
-        for x in range(self.MAP_X):
-            row_buildings = []
-            for y in range(self.MAP_Y):
-                tile = (self.micro.getTile(x, y))
-                tile = zoneFromInt(tile)
-                row_buildings.append(tile)
-            building_map.append(row_buildings)
+        if text:
+            for x in range(self.MAP_X):
+                row_buildings = []
+                for y in range(self.MAP_Y):
+                    tile = (self.micro.getTile(x, y))
+                    tile = zoneFromInt(tile)
+                    row_buildings.append(tile)
+                building_map.append(row_buildings)
+        else:
+            for x in range(self.MAP_X):
+                row_buildings = []
+                for y in range(self.MAP_Y):
+                    tile = (self.micro.getTile(x, y))
+                    row_buildings.append(tile)
+                building_map.append(row_buildings)
         return building_map
 
     def getPopReward(self):
@@ -722,3 +693,15 @@ class MicropolisEnv(gym.Env):
 
     def set_rating_weight(self, val):
         self.city_trgs['mayor_rating'] = val
+
+    def penalise_overbuilding(self, action, current_map):
+        if action is not None and action[0] not in [8]:  # penalising overbuilding
+            tool = self.micro.tools[action[0]]
+            x = int(action[1])
+            y = int(action[2])
+            if self.last_map is not None:
+                if self.last_map[x][y] in ["Residential", "Commercial", "Industrial", "CoalPowerPlant",
+                                           "NuclearPowerPlant"]:
+                    if current_map[x][y] in ["Road", "Rail", "RoadWire", "RoadRail", "Wire"] or tool == "clear":
+                        return -10
+        return 0
