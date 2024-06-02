@@ -464,11 +464,16 @@ class MicropolisEnv(gym.Env):
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            # print(self.micro.map.zoneMap)
-            # print(self.micro.map.zoneInts)
+            if action is not None and action[0] not in [8, 3]: # penalising overbuilding
+                tool = self.micro.tools[action[0]]
+                x = int(action[1])
+                y = int(action[2])
+                if self.last_map is not None:
+                    if self.last_map[x][y] in ["Residential", "Commercial", "Industrial", "CoalPowerPlant", "NuclearPowerPlant"]:
+                        if current_map[x][y] in ["Road", "Rail", "RoadWire", "RoadRail", "Wire"]:
+                            reward -= 10
 
-            buildings = (self.get_building_map())
-            reward += (self.check_surroundings(building_map=buildings))
+            reward += (self.check_surroundings(building_map=current_map))
 
             if current_num_roads > 5:
                 reward += self.micro.total_traffic
@@ -492,6 +497,7 @@ class MicropolisEnv(gym.Env):
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
             self.last_networks = self.micro.map.road_net_sizes
+            self.last_map = current_map
 
         if False:
             # if self.render_gui and reward != 0:
