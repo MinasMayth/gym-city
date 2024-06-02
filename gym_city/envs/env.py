@@ -425,7 +425,7 @@ class MicropolisEnv(gym.Env):
                     adjacent_zones.append(neighbor.zone)
         return adjacent_zones
 
-    def getReward(self):
+    def getReward(self, action=None):
         '''Calculate reward.
         '''
         # add population, connectivity, road adjacency
@@ -435,6 +435,7 @@ class MicropolisEnv(gym.Env):
         current_pop = self.getPop()
         current_num_roads = self.micro.map.num_roads
         current_n_zones = self.micro.getTotalZonePop()
+        current_map = self.get_building_map()
         complexReward = False
 
         if complexReward:  # changed here
@@ -588,9 +589,9 @@ class MicropolisEnv(gym.Env):
         #    a = 0
         a = self.intsToActions[a]
         self.micro.takeAction(a, static_build)
-        return self.postact()
+        return self.postact(a)
 
-    def postact(self):
+    def postact(self, action=None):
         # never let the agent go broke, for now
         self.micro.setFunds(self.micro.init_funds)
         # print('rank {} tickin'.format(self.rank))
@@ -639,7 +640,7 @@ class MicropolisEnv(gym.Env):
         #           #elif n > max_net_2:
         #           #    max_net_2 = n
 
-        reward = self.getReward()
+        reward = self.getReward(action=action)
         # reward = reward / (self.max_step)
         self.curr_funds = curr_funds = self.micro.getFunds()
         bankrupt = curr_funds < self.minFunds
