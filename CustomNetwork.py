@@ -29,7 +29,7 @@ class CustomCNN(BaseFeaturesExtractor):
         return self.cnn(observations)
 
 class CustomNetwork(nn.Module):
-    def __init__(self, feature_dim: int, action_space: spaces.Space):
+    def __init__(self, map_w, map_h, feature_dim: int, action_space: spaces.Space):
         super().__init__()
 
         # Convolutional layers
@@ -37,15 +37,14 @@ class CustomNetwork(nn.Module):
         #self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
         #self.relu = nn.ReLU()
 
-
         # 1x1 Convolution for action distribution
         self.action_net = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=action_space.n, kernel_size=1),
             nn.Flatten(),
-            nn.Linear(in_features=25600, out_features=256))
+            nn.Linear(in_features=action_space.n * 18 * 18, out_features=576))
 
         # Dimensions after convolution layers
-        self.conv_output_dim = 3200 # Update this according to your input size after conv layers
+        self.conv_output_dim = 10368 # Update this according to your input size after conv layers
 
         # Dense layers for value prediction
         self.fc1 = nn.Linear(self.conv_output_dim, 256)  # Assuming input feature size after conv layers is 6400
@@ -89,8 +88,11 @@ class CustomActorCriticPolicy(ActorCriticPolicy):
             **kwargs,
         )
         self.action_space = action_space
+        self.observation_space = observation_space
+
 
     def _build_mlp_extractor(self) -> None:
-        self.mlp_extractor = CustomNetwork(self.features_dim, self.action_space)
+        self.mlp_extractor = CustomNetwork(self.observation_space.shape[1], self.observation_space.shape[2],
+                                           self.features_dim, self.action_space)
         self.latent_dim_pi = self.mlp_extractor.latent_dim_pi
         self.latent_dim_vf = self.mlp_extractor.latent_dim_vf
