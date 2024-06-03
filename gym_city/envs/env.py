@@ -172,7 +172,7 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 1
+        self.num_obs_channels = 10
         #if self.poet:
         #    self.num_obs_channels += len(self.city_trgs)
         # ac_low = np.zeros((3))
@@ -336,30 +336,71 @@ class MicropolisEnv(gym.Env):
             scalars += trg_metrics
         return self.observation(scalars)
 
+    # def observation(self, scalars):
+    #     simple_state = self.micro.map.getMapState()
+    #     density_maps = self.micro.getDensityMaps()
+    #     # if self.render_gui:
+    #     #    print(density_maps[2])
+    #     building_map = self.get_building_map(text=False)
+    #     if self.render_gui:
+    #         # print(road_networks, self.micro.map.road_net_sizes)
+    #         pass
+    #     scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
+    #     for si in range(len(scalars)):
+    #         fill_val = scalars[si]
+    #         if not type(fill_val) == str:
+    #             scalar_layers[si].fill(scalars[si])
+    #
+    #     state = np.concatenate((simple_state, density_maps, scalar_layers, [building_map]), 0)
+    #     #if self.static_builds:
+    #     #    state = np.concatenate((state, self.micro.map.static_builds), 0)
+    #
+    #     state = np.array([building_map])
+    #
+    #     # Ensure the state has the correct shape (4, 1, 16, 16)
+    #     #if state.shape != (4, 1, 16, 16):
+    #     #    state = state.reshape((4, 1, 16, 16))
+    #
+    #     # Ensure each array has the same number of dimensions
+    #     simple_state = np.expand_dims(simple_state, axis=0)  # Shape (1, H, W)
+    #     building_map = np.expand_dims(building_map, axis=0)  # Shape (1, H, W)
+    #     density_maps = np.array(density_maps)  # Shape (D, H, W)
+    #
+    #     # Combine all the layers into a single state tensor
+    #     #state = np.concatenate((simple_state, density_maps, scalar_layers, building_map),
+    #     #                       axis=0)  # Shape (channels, H, W)
+    #
+    #     # Add batch dimension
+    #     state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
+    #
+    #     return state
+
     def observation(self, scalars):
+        # Assume these methods return arrays of shape (H, W)
         simple_state = self.micro.map.getMapState()
-        density_maps = self.micro.getDensityMaps()
-        # if self.render_gui:
-        #    print(density_maps[2])
+        density_maps = self.micro.getDensityMaps()  # Assume density_maps is a list of arrays of shape (H, W)
         building_map = self.get_building_map(text=False)
-        if self.render_gui:
-            # print(road_networks, self.micro.map.road_net_sizes)
-            pass
+
+        # Ensure all arrays are 3D with shape (1, H, W)
+        # simple_state = np.expand_dims(simple_state, axis=0)
+        density_maps = np.array([np.expand_dims(d, axis=0) for d in density_maps])
+        building_map = np.expand_dims(building_map, axis=0)
+
+        # Combine local information channels
+        local_channels = np.concatenate((building_map, density_maps[0], density_maps[1], density_maps[2]), axis=0)
+
+        # Global information channels
         scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
         for si in range(len(scalars)):
             fill_val = scalars[si]
-            if not type(fill_val) == str:
+            if not isinstance(fill_val, str):
                 scalar_layers[si].fill(scalars[si])
 
-        #state = np.concatenate((simple_state, density_maps, scalar_layers, [building_map]), 0)
-        #if self.static_builds:
-        #    state = np.concatenate((state, self.micro.map.static_builds), 0)
+        # Combine all channels into a single state tensor
+        state = np.concatenate((local_channels, scalar_layers), axis=0)
 
-        state = np.array([building_map])
-
-        # Ensure the state has the correct shape (4, 1, 16, 16)
-        #if state.shape != (4, 1, 16, 16):
-        #    state = state.reshape((4, 1, 16, 16))
+        # Add batch dimension
+        state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
 
         return state
 

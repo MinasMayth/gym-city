@@ -54,9 +54,9 @@ class MicropolisControl():
         self.MAP_Y = MAP_H
         self.PADDING = PADDING
         # shifts build area to centre of 120 by 100 tile map
-        # self.MAP_XS = 59 - self.MAP_X // 2
-        # self.MAP_YS = 49 - self.MAP_Y // 2
-        self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self.MAP_Y)
+        #self.MAP_XS = 59 - self.MAP_X // 2
+        #self.MAP_YS = 49 - self.MAP_Y // 2
+        self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self. MAP_Y)
         # self.MAP_XS = 16
         # self.MAP_YS = 8
         self.num_roads = 0
@@ -97,13 +97,13 @@ class MicropolisControl():
                 # 'Park',
                 # 'Seaport',
                 'CoalPowerPlant',  # basetoolset
-                'NuclearPowerPlant',  # basetoolset
-                # 'Airport',
-                # 'Net',
-                # 'Water',
-                # 'Land',
-                # 'Forest',
-                'Nil'  # the agent takes no action #basetoolset
+                'NuclearPowerPlant',  # basetoolset?? maybe not check this
+                #'Airport',
+                #'Net',  # not included in full toolset
+                #'Water',  # not included in full toolset
+                #'Land',
+                #'Forest',
+                'Nil'  # the agent takes no action # basetoolset
             ]
         # ['Residential','Commercial','Industrial','Road','Wire','NuclearPowerPlant', 'Park', 'Clear']
         # since query is exluded for now:
