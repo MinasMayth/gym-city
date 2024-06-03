@@ -133,8 +133,8 @@ class MicropolisEnv(gym.Env):
 
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
-                render_gui=False, empty_start=False, simple_reward=False,
-                power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
+                render_gui=False, empty_start=True, simple_reward=False,
+                power_puzzle=True, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
         self.render_gui = render_gui
@@ -438,14 +438,14 @@ class MicropolisEnv(gym.Env):
         else:  # simple reward
             reward = 0
 
-            reward += current_pop + self.micro.getPoweredZoneCount()
+            reward += current_pop# + self.micro.getPoweredZoneCount()
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            reward += self.penalise_overbuilding(action, current_map)
+            #reward += self.penalise_overbuilding(action, current_map)
 
-            reward += (self.check_surroundings(building_map=current_map))
+            #reward += (self.check_surroundings(building_map=current_map))
 
             # Calculate the reward based on road network length
             # road_net_reward = 0

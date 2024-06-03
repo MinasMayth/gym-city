@@ -384,7 +384,7 @@ class MicropolisControl():
 
     def takeAction(self, a, static_build=False):
         '''tool int depends on self.tools indexing'''
-        static_build = True
+        static_build = static_build
         tool = self.tools[a[0]]
         x = int(a[1])
         y = int(a[2])
