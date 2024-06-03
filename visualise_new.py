@@ -8,7 +8,7 @@ def make_env():
     return env
 def main():
     model = PPO.load(
-        "logs/baselines/june/new_reward_experiments/ppo/n_steps=2048_map_w=24_clip_range=0.3_batch_size=128_n_epochs=20_v_l_coef=0.5_e_coef=0.0_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.95_seed=1_2024-06-02_10-39-04/models/rl_model_2000000_steps.zip"
+        "logs/baselines/june/new_reward_experiments/V2/ppo/n_steps=2048_map_w=24_clip_range=0.3_batch_size=128_n_epochs=20_v_l_coef=0.5_e_coef=0.0_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.95_seed=1_2024-06-02_18-17-25/models/rl_model_7000000_steps.zip"
                     )
     env = make_env()
     obs = env.reset()
