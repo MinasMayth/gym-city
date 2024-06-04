@@ -82,8 +82,8 @@ def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     policy_kwargs = dict(
         net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])],
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=env.action_space.n),
+        #features_extractor_class=CustomCNN,
+        #features_extractor_kwargs=dict(features_dim=env.action_space.n),
     )
 
     if args.load_dir is None:
