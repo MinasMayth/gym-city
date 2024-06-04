@@ -134,7 +134,7 @@ class MicropolisEnv(gym.Env):
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
                 render_gui=False, empty_start=True, simple_reward=False,
-                power_puzzle=True, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
+                power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
         self.render_gui = render_gui
@@ -402,6 +402,7 @@ class MicropolisEnv(gym.Env):
         # Add batch dimension
         state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
 
+
         return state
 
     def getPop(self):
@@ -499,9 +500,11 @@ class MicropolisEnv(gym.Env):
             # Integrate road network reward into the total reward
 
             # if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
-            #    reward = 0
+            
+            reward = self.getPopReward()
 
             self.last_pop = current_pop
+
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
             self.last_networks = self.micro.map.road_net_sizes
