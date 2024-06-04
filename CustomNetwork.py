@@ -35,10 +35,14 @@ class CustomCNN(BaseFeaturesExtractor):
             nn.ReLU(),
             nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=0),
             nn.ReLU(),
+            nn.Flatten()
         )
         with th.no_grad():
             n_flatten = self._get_conv_output_size(observation_space.shape) / 2
             self.n_flatten = int(n_flatten)
+
+        self.fc1 = nn.Linear(self.n_flatten, features_dim)
+
     def _get_conv_output_size(self, shape):
         o = shape[1:]  # Only height and width
         for layer in self.cnn:
@@ -47,16 +51,14 @@ class CustomCNN(BaseFeaturesExtractor):
         return o[0] * o[1] * 64  # Number of channels in the last conv layer
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
-        return self.cnn(observations)
+        x = self.cnn(observations)
+        x2 = self.fc1(x)
+        return x2
+
 
 class CustomNetwork(nn.Module):
     def __init__(self, map_w, map_h, conv_output_dim, feature_dim: int, action_space: spaces.Space):
         super().__init__()
-
-        # Convolutional layers
-        #self.conv1 = nn.Conv2d(in_channels=feature_dim, out_channels=32, kernel_size=5)
-        #self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
-        #self.relu = nn.ReLU()
 
         # 1x1 Convolution for action distribution
         self.action_net = nn.Sequential(
@@ -78,17 +80,18 @@ class CustomNetwork(nn.Module):
         self.latent_dim_vf = 256
 
     def forward(self, features: th.Tensor) -> Tuple[th.Tensor, th.Tensor]:
-        # x = self.relu(self.conv1(features))
-        # x = self.relu(self.conv2(x))
+        return self.forward_actor(features), self.forward_critic(features)
+
+    def forward_actor(self, features: th.Tensor):
         action_distribution = self.action_net(features)
         # action_distribution = th.flatten(action_distribution)
+        return action_distribution
 
+    def forward_critic(self, features: th.Tensor):
         # Flattening for the dense layer
         x = th.flatten(features, start_dim=1)
         value = self.tanh(self.fc1(x))
-
-        # value = self.fc2(value)
-        return action_distribution, value
+        return value
 
 
 class CustomActorCriticPolicy(ActorCriticPolicy):

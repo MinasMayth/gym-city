@@ -609,7 +609,10 @@ class MicropolisEnv(gym.Env):
             self.player_step = False
         # else:
         #    a = 0
-        a = self.intsToActions[a]
+        if isinstance(a, np.ndarray):
+            a = self.intsToActions[a[0]]
+        else:
+            a = self.intsToActions[a]
         self.micro.takeAction(a, static_build)
         return self.postact(a)
 
