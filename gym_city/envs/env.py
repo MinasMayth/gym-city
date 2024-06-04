@@ -340,7 +340,7 @@ class MicropolisEnv(gym.Env):
         state = np.concatenate((local_channels, scalar_layers), axis=0)
 
         # Add batch dimension
-        state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
+        #state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
 
         # state = np.array([building_map])
         return state
