@@ -81,9 +81,9 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     policy_kwargs = dict(
-        net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])],
-        #features_extractor_class=CustomCNN,
-        #features_extractor_kwargs=dict(features_dim=env.action_space.n),
+        net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+        features_extractor_class=CustomCNN,
+        features_extractor_kwargs=dict(features_dim=env.action_space.n),
     )
 
     if args.load_dir is None:
@@ -92,9 +92,11 @@ def create_model(args, algorithm, env, verbose, log_path):
             if args.lr_schedule:
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                                gae_lambda=args.gae, seed=args.seed)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
+                                learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose,
+                                tensorboard_log=log_path,
+                                gae_lambda=args.gae, seed=args.seed, use_rms_prop=True, use_sde=False)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
@@ -114,9 +116,11 @@ def create_model(args, algorithm, env, verbose, log_path):
                 # NO SCHEDULE
                 if algorithm == "a2c":
                     model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
-                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
-                                gae_lambda=args.gae, seed=args.seed)
+                                vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
+                                max_grad_norm=args.max_grad_norm,
+                                learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose,
+                                tensorboard_log=log_path,
+                                gae_lambda=args.gae, seed=args.seed, use_rms_prop=True, use_sde=False)
                 elif algorithm == "ppo":
                     model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,

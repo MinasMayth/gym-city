@@ -400,7 +400,7 @@ class MicropolisEnv(gym.Env):
         state = np.concatenate((local_channels, scalar_layers), axis=0)
 
         # Add batch dimension
-        state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
+        #state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
 
 
         return state
@@ -487,7 +487,7 @@ class MicropolisEnv(gym.Env):
 
             #reward += self.penalise_overbuilding(action, current_map)
 
-            reward += (self.check_surroundings(building_map=current_map))
+            #reward += (self.check_surroundings(building_map=current_map))
 
             # Calculate the reward based on road network length
             # road_net_reward = 0
@@ -500,11 +500,9 @@ class MicropolisEnv(gym.Env):
             # Integrate road network reward into the total reward
 
             # if self.micro.getTotalPowerPop() < 2 or self.micro.getTotalPowerPop() > 6:
-            
-            reward = self.getPopReward()
+            #    reward = 0
 
             self.last_pop = current_pop
-
             self.last_n_zones = current_n_zones
             self.last_num_roads = current_num_roads
             self.last_networks = self.micro.map.road_net_sizes
