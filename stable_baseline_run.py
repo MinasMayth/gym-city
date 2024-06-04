@@ -91,12 +91,12 @@ def create_model(args, algorithm, env, verbose, log_path):
             # SCHEDULE
             if args.lr_schedule:
                 if algorithm == "a2c":
-                    model = A2C(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                    model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=linear_schedule(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
                                 gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
-                    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
                                 max_grad_norm=args.max_grad_norm,
@@ -113,12 +113,12 @@ def create_model(args, algorithm, env, verbose, log_path):
             else:
                 # NO SCHEDULE
                 if algorithm == "a2c":
-                    model = A2C(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                    model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                                 learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, tensorboard_log=log_path,
                                 gae_lambda=args.gae, seed=args.seed)
                 elif algorithm == "ppo":
-                    model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                    model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
                                 max_grad_norm=args.max_grad_norm,
@@ -140,7 +140,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                             learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae,
                             seed=args.seed, use_rms_prop=True, use_sde=False)
             elif algorithm == "ppo":
-                model = PPO(CustomActorCriticPolicy, env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=(args.lr), verbose=verbose, gae_lambda=args.gae, seed=args.seed,
                             use_sde=False)
