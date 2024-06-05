@@ -671,8 +671,15 @@ class MicropolisEnv(gym.Env):
         # reward = reward / (self.max_step)
         self.curr_funds = curr_funds = self.micro.getFunds()
         bankrupt = curr_funds < self.minFunds
-        terminal = (bankrupt or self.num_step >= self.max_step) and \
-                   self.auto_reset
+        if self.power_puzzle:
+            terminal = (self.micro.getPoweredZoneCount() == self.micro.getTotalZonePop() + 1
+                        or self.num_step >= self.max_step) and self.auto_reset
+        else:
+            terminal = (bankrupt or self.num_step >= self.max_step) and \
+                       self.auto_reset
+
+
+
         if self.print_map:
             # if static_build:
             #    print('STATIC BUILD')
@@ -692,7 +699,7 @@ class MicropolisEnv(gym.Env):
         ## Override Reward
         # reward = self.city_metrics['res_pop'] + self.city_metrics['com_pop']\
         #         + self.city_metrics['ind_pop'] + self.city_metrics['traffic']
-        return (self.state, reward, terminal, infos)
+        return self.state, reward, terminal, infos
 
     def getRating(self):
         return self.micro.engine.cityYes
