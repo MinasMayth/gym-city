@@ -82,8 +82,8 @@ def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     policy_kwargs = dict(
         net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
-        # features_extractor_class=CustomCNN,
-        # features_extractor_kwargs=dict(features_dim=env.action_space.n),
+        features_extractor_class=CustomCNN,
+        features_extractor_kwargs=dict(features_dim=env.action_space.n),
     )
 
     if args.load_dir is None:
@@ -253,8 +253,8 @@ def main():
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
         #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
-        changes = ("PP. Gamespeed 3. Reward is simple pop"
-                   "+ No Forced Static Build & Old State Representation.")
+        changes = ("PP. Gamespeed 3. Reward is powered zones"
+                   "+ No Forced Static Build & Old State Representation, custom cnn.")
         make_change_log(log_path, changes)
 
     env = make_env(args, log_path)

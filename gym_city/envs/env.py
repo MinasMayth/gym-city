@@ -480,7 +480,8 @@ class MicropolisEnv(gym.Env):
         else:  # simple reward
             reward = 0
 
-            reward += current_pop  # + self.micro.getPoweredZoneCount()
+            reward = self.micro.getPoweredZoneCount()
+            # print(reward)
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
