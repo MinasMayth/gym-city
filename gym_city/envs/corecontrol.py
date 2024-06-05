@@ -54,9 +54,9 @@ class MicropolisControl():
         self.MAP_Y = MAP_H
         self.PADDING = PADDING
         # shifts build area to centre of 120 by 100 tile map
-        #self.MAP_XS = 59 - self.MAP_X // 2
-        #self.MAP_YS = 49 - self.MAP_Y // 2
-        self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self. MAP_Y)
+        self.MAP_XS = 59 - self.MAP_X // 2
+        self.MAP_YS = 49 - self.MAP_Y // 2
+        # self.MAP_XS, self.MAP_YS = self.get_random_build_area(env, 120, 100, self.MAP_X, self.MAP_Y)
         # self.MAP_XS = 16
         # self.MAP_YS = 8
         self.num_roads = 0
@@ -86,16 +86,16 @@ class MicropolisControl():
         else:
             self.tools = [
                 'Residential', 'Commercial', 'Industrial',  # basetoolset
-                #'FireDept',
-                #'PoliceDept',
+                # 'FireDept',
+                # 'PoliceDept',
                 # 'Query',
                 'Clear',  # basetoolset
                 'Wire',  # basetoolset
-                #'Rail',
+                # 'Rail',
                 'Road',  # basetoolset
-                #'Stadium',
-                #'Park',
-                #'Seaport',
+                # 'Stadium',
+                # 'Park',
+                # 'Seaport',
                 'CoalPowerPlant',  # basetoolset
                 'NuclearPowerPlant',  # basetoolset?? maybe not check this
                 #'Airport',
@@ -364,6 +364,9 @@ class MicropolisControl():
     def getResPop(self):
         return self.engine.resPop
 
+    def getUnpoweredZoneCount(self):
+        return self.engine.unpoweredZoneCount
+
     def getComPop(self):
         return self.engine.comPop
 
@@ -381,10 +384,11 @@ class MicropolisControl():
 
     def takeAction(self, a, static_build=False):
         '''tool int depends on self.tools indexing'''
+        # static_build = True
         tool = self.tools[a[0]]
         x = int(a[1])
         y = int(a[2])
-        # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
+        print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
         self.doBotTool(x, y, tool, static_build)
         # if tool != "Road":
         #    if x < self.MAP_X - 2 and y < self.MAP_Y - 2:

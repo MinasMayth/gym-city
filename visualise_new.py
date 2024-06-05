@@ -4,16 +4,16 @@ import gym_city
 from stable_baselines3 import A2C, PPO
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    env.setMapSize(24, render_gui=True)
+    env.setMapSize(16, render_gui=True)
     return env
 def main():
-    model = PPO.load(
-            "logs/baselines/june/power_puzzle/V2/ppo/n_steps=2048_map_w=24_clip_range=0.3_batch_size=128_n_epochs=20_v_l_coef=0.5_e_coef=0.0_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.95_seed=1_2024-06-04_00-15-46/models/rl_model_1000000_steps.zip"
-                    )
+    model = A2C.load(
+    "logs/baselines/june/custom_network/V3/a2c/n_steps=20_map_w=16_gamma=0.95_v_l_coef=0.5_e_coef=0.0_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.95_2024-06-05_15-55-57/models/rl_model_1000000_steps.zip"
+                   )
     env = make_env()
     obs = env.reset()
     for i in range(10000):
-        action, _state = model.predict(obs)
+        action, _state = model.predict(obs, deterministic=False)
         obs, reward, done, info = env.step(action)
         env.render("human")
         # VecEnv resets automatically
