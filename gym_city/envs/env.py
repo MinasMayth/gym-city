@@ -478,15 +478,15 @@ class MicropolisEnv(gym.Env):
                 reward += metric_rew * self.weights[metric]
 
         else:  # simple reward
-            reward = 0
+            # reward = 0
 
-            reward = self.micro.getPoweredZoneCount()
+            reward = self.micro.getPoweredZoneCount() + current_pop
             # print(reward)
 
             if self.last_networks is None:
                 self.last_networks = self.micro.map.road_net_sizes
 
-            #reward += self.penalise_overbuilding(action, current_map)
+            # reward += self.penalise_overbuilding(action, current_map)
 
             # reward += (self.check_surroundings(building_map=current_map))
 
