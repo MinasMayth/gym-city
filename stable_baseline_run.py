@@ -25,9 +25,9 @@ def make_env(args, log_path):
         def make_env_vec(env_id):
             def _init():
                 env = gym.make(env_id)
-                env.setMapSize(args.map_width, render_gui=False)
+                if "Micropolis" in env_id:
+                    env.setMapSize(args.map_width, render_gui=False)
                 return env
-
             return _init
 
         env_id = args.env_name
@@ -42,7 +42,8 @@ def make_env(args, log_path):
             env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
-        env.setMapSize(args.map_width, render_gui=args.render)
+        if "Micropolis" in args.env_name:
+            env.setMapSize(args.map_width, render_gui=args.render)
         if args.save:
             env = Monitor(env)
     return env
@@ -83,11 +84,16 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
 def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
-    policy_kwargs = dict(
-        net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=env.action_space.n),
-    )
+    if args.custom_extractor == True:
+        policy_kwargs = dict(
+            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+            features_extractor_class=CustomCNN,
+            features_extractor_kwargs=dict(features_dim=env.action_space.n),
+        )
+    else:
+        policy_kwargs = dict(
+            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+        )
 
     if args.load_dir is None:
         if args.save:
@@ -275,7 +281,7 @@ def main():
                                      deterministic=False, render=False)
 
         # Create the callback list
-        callback = CallbackList([checkpoint_callback])
+        callback = CallbackList([checkpoint_callback, eval_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))

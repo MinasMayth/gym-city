@@ -106,7 +106,7 @@ class MicropolisEnv(gym.Env):
         #        }
         self.city_metrics = {}
         # self.max_reward = 100
-        self.setMapSize(MAP_X)
+        # self.setMapSize(MAP_X)
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -375,34 +375,34 @@ class MicropolisEnv(gym.Env):
 
         return state
 
-    # def observation(self, scalars):
-    #     # Assume these methods return arrays of shape (H, W)
-    #     simple_state = self.micro.map.getMapState()
-    #     density_maps = self.micro.getDensityMaps()  # Assume density_maps is a list of arrays of shape (H, W)
-    #     building_map = self.get_building_map(text=False)
-    #
-    #     # Ensure all arrays are 3D with shape (1, H, W)
-    #     # simple_state = np.expand_dims(simple_state, axis=0)
-    #     density_maps = np.array([np.expand_dims(d, axis=0) for d in density_maps])
-    #     building_map = np.expand_dims(building_map, axis=0)
-    #
-    #     # Combine local information channels
-    #     local_channels = np.concatenate((building_map, density_maps[0], density_maps[1], density_maps[2]), axis=0)
-    #
-    #     # Global information channels
-    #     scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
-    #     for si in range(len(scalars)):
-    #         fill_val = scalars[si]
-    #         if not isinstance(fill_val, str):
-    #             scalar_layers[si].fill(scalars[si])
-    #
-    #     # Combine all channels into a single state tensor
-    #     state = np.concatenate((local_channels, scalar_layers), axis=0)
-    #
-    #     # Add batch dimension
-    #     #state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
+    def observation_alt(self, scalars):
+        # Assume these methods return arrays of shape (H, W)
+        simple_state = self.micro.map.getMapState()
+        density_maps = self.micro.getDensityMaps()  # Assume density_maps is a list of arrays of shape (H, W)
+        building_map = self.get_building_map(text=False)
 
+        # Ensure all arrays are 3D with shape (1, H, W)
+        # simple_state = np.expand_dims(simple_state, axis=0)
+        density_maps = np.array([np.expand_dims(d, axis=0) for d in density_maps])
+        building_map = np.expand_dims(building_map, axis=0)
 
+        # Combine local information channels
+        local_channels = np.concatenate((building_map, density_maps[0], density_maps[1], density_maps[2]), axis=0)
+
+        # Global information channels
+        scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
+        for si in range(len(scalars)):
+            fill_val = scalars[si]
+            if not isinstance(fill_val, str):
+                scalar_layers[si].fill(scalars[si])
+
+        # Combine all channels into a single state tensor
+        state = np.concatenate((local_channels, scalar_layers), axis=0)
+
+        # Add batch dimension
+        #state = np.expand_dims(state, axis=0)  # Shape (1, channels, H, W)
+
+        # state = np.array([building_map])
         return state
 
     def getPop(self):
@@ -510,13 +510,12 @@ class MicropolisEnv(gym.Env):
             self.last_networks = self.micro.map.road_net_sizes
             self.last_map = current_map
 
-        if False:
-            # if self.render_gui and reward != 0:
+        if self.render_gui and reward != 0:
             pass
-            print(self.city_metrics)
-            print(self.city_trgs)
-            print(reward)
-            print()
+            #print(self.city_metrics)
+            #print(self.city_trgs)
+            #print(reward)
+            #print()
 
         return reward
 
