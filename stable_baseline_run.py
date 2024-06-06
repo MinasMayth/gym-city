@@ -187,7 +187,8 @@ def obtain_log_path(args):
             'lr': str(args.lr),
             'seed': str(args.seed),
             'eps': str(args.eps),
-            'lambda': str(args.gae)
+            'lambda': str(args.gae),
+            'vec_envs': str(args.vec_envs)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
@@ -208,7 +209,8 @@ def obtain_log_path(args):
             'gamma': str(args.gamma),
             'max_grad_norm': str(args.max_grad_norm),
             'lambda': str(args.gae),
-            'seed': str(args.seed)
+            'seed': str(args.seed),
+            'vec_envs': str(args.vec_envs)
         }
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
@@ -273,7 +275,7 @@ def main():
                                      deterministic=False, render=False)
 
         # Create the callback list
-        callback = CallbackList([checkpoint_callback, eval_callback])
+        callback = CallbackList([checkpoint_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))

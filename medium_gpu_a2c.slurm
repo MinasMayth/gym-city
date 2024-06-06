@@ -28,6 +28,6 @@ echo "[$SHELL] Log directory "$LOGDIR
 # Run the file
 echo "[$SHELL] Running gym city on $(hostname)"
 python --version
-python stable_baseline_run.py --num-frames 10_000_000 --algo a2c --eps 1e-5 --value-loss-coef 0.5 --max-grad-norm 0.5 --entropy-coef 0.00 --lr 1e-4 --gae 0.95 --gamma 0.95 --num-steps 20 --map-width 16 --save-interval 500_000 --seed 1 --vec-envs 4  --save True
+python stable_baseline_run.py --num-frames 20_000_000 --algo a2c --eps 1e-5 --value-loss-coef 0.5 --max-grad-norm 0.5 --entropy-coef 0.00 --lr 1e-4 --gae 0.95 --gamma 0.95 --num-steps 50 --map-width 16 --save-interval 1_000_000 --seed 1 --vec-envs 8  --save True
 
 echo "[$SHELL] Terminated. Job done"
