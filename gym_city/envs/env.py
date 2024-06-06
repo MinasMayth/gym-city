@@ -106,7 +106,7 @@ class MicropolisEnv(gym.Env):
         #        }
         self.city_metrics = {}
         # self.max_reward = 100
-        self.setMapSize(MAP_X)
+        # self.setMapSize(MAP_X)
 
     def seed(self, seed=None):
         self.np_random, seed1 = seeding.np_random(seed)
@@ -510,13 +510,12 @@ class MicropolisEnv(gym.Env):
             self.last_networks = self.micro.map.road_net_sizes
             self.last_map = current_map
 
-        if False:
-            # if self.render_gui and reward != 0:
+        if self.render_gui and reward != 0:
             pass
-            print(self.city_metrics)
-            print(self.city_trgs)
-            print(reward)
-            print()
+            #print(self.city_metrics)
+            #print(self.city_trgs)
+            #print(reward)
+            #print()
 
         return reward
 

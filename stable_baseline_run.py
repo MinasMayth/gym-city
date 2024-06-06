@@ -25,9 +25,9 @@ def make_env(args, log_path):
         def make_env_vec(env_id):
             def _init():
                 env = gym.make(env_id)
-                env.setMapSize(args.map_width, render_gui=False)
+                if "Micropolis" in env_id:
+                    env.setMapSize(args.map_width, render_gui=False)
                 return env
-
             return _init
 
         env_id = args.env_name
@@ -42,7 +42,8 @@ def make_env(args, log_path):
             env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
-        env.setMapSize(args.map_width, render_gui=args.render)
+        if "Micropolis" in args.env_name:
+            env.setMapSize(args.map_width, render_gui=args.render)
         if args.save:
             env = Monitor(env)
     return env
@@ -83,11 +84,16 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
 def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
-    policy_kwargs = dict(
-        net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
-        features_extractor_class=CustomCNN,
-        features_extractor_kwargs=dict(features_dim=env.action_space.n),
-    )
+    if args.custom_extractor == True:
+        policy_kwargs = dict(
+            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+            features_extractor_class=CustomCNN,
+            features_extractor_kwargs=dict(features_dim=env.action_space.n),
+        )
+    else:
+        policy_kwargs = dict(
+            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+        )
 
     if args.load_dir is None:
         if args.save:
@@ -188,6 +194,7 @@ def main():
     # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
     if algorithm == "a2c":
         parameter_values = {
+            'env_name': str(args.env_name),
             'alpha': str(args.alpha),
             'num_steps': str(args.num_steps),
             'map_width': str(args.map_width),
@@ -247,7 +254,7 @@ def main():
         checkpoint_callback = CheckpointCallback(save_freq=max(args.save_interval // args.vec_envs, 1),
                                                  save_path=log_path + "/models")
         eval_callback = EvalCallback(eval_env=env, best_model_save_path=save_path + '/models/best_model',
-                                     log_path=save_path + '/models/best_model', eval_freq=max(2000 // args.vec_envs, 1),
+                                     log_path=save_path + '/models/best_model', eval_freq=max(50000 // args.vec_envs, 1),
                                      deterministic=False, render=False)
 
         # Create the callback list
@@ -270,19 +277,6 @@ def main():
 
     if args.save:
         model.save(save_path + "/models")
-
-    # local render
-
-    for i in range(1000):
-        vec_env = model.get_env()
-        obs = vec_env.reset()
-        action, _state = model.predict(obs)
-        obs, reward, done, info = vec_env.step(action)
-        vec_env.render("human")
-    # VecEnv resets automatically
-    if done:
-        print("Episode finished after {} timesteps".format(i + 1))
-        obs = vec_env.reset()
 
     env.close()
 
