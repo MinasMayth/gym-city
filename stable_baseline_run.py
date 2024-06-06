@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from arguments import get_args
 import torch
+from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor
 from stable_baselines3.common.env_util import make_vec_env
 #from networks import CustomActorCriticPolicy
@@ -42,6 +43,8 @@ def make_env(args, log_path):
     else:
         env = gym.make(args.env_name)
         env.setMapSize(args.map_width, render_gui=args.render)
+        if args.save:
+            env = Monitor(env)
     return env
 
 
@@ -126,10 +129,10 @@ def create_model(args, algorithm, env, verbose, log_path):
                                 batch_size=args.num_mini_batch, n_epochs=args.ppo_epoch, clip_range=args.clip_param,
                                 vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef,
                                 max_grad_norm=args.max_grad_norm,
-                                learning_rate=(args.lr), verbose=verbose, tensorboard_log=log_path, gae_lambda=args.gae,
+                                learning_rate=args.lr, verbose=verbose, tensorboard_log=log_path, gae_lambda=args.gae,
                                 seed=args.seed, use_sde=False)
                 elif algorithm == "dqn":
-                    model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=(args.lr),
+                    model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=args.lr,
                                 buffer_size=args.buffer_size, learning_starts=args.learning_starts,
                                 batch_size=args.batch_size,
                                 tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
@@ -139,17 +142,17 @@ def create_model(args, algorithm, env, verbose, log_path):
                     raise NotImplementedError
         else:  # NO SAVE
             if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, policy_kwargs= policy_kwargs,gamma=args.gamma, n_steps=args.num_steps,
+                model = A2C("MlpPolicy", env, policy_kwargs= policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=(args.lr), rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae,
+                            learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae,
                             seed=args.seed, use_rms_prop=True, use_sde=False)
             elif algorithm == "ppo":
                 model = PPO("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
-                            learning_rate=(args.lr), verbose=verbose, gae_lambda=args.gae, seed=args.seed,
+                            learning_rate=args.lr, verbose=verbose, gae_lambda=args.gae, seed=args.seed,
                             use_sde=False)
             elif algorithm == "dqn":
-                model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=(args.lr),
+                model = DQN("MlpPolicy", env, gamma=args.gamma, learning_rate=args.lr,
                             buffer_size=args.buffer_size, learning_starts=args.learning_starts,
                             batch_size=args.batch_size,
                             tau=args.tau, target_update_interval=args.target_update_interval, verbose=verbose,
@@ -229,7 +232,10 @@ def main():
     if args.save:
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
-        changes = "TO FILL"
+        save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
+        #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
+        changes = ("LT. Gamespeed 3. Reward is powered zones + pop"
+                   "+ No Forced Static Build & Old State Representation, custom cnn.")
         make_change_log(log_path, changes)
 
     env = make_env(args, log_path)
@@ -238,12 +244,14 @@ def main():
     print("POLICY:", model.policy)
 
     if args.save:
-        checkpoint_callback = CheckpointCallback(save_freq=args.save_interval, save_path=save_path + "/models")
-        # Separate evaluation env
-        eval_callback = EvalCallback(model.get_env(), best_model_save_path=save_path + '/models/best_model',
-                                     log_path=save_path + '/models/best_model', eval_freq=2500)
+        checkpoint_callback = CheckpointCallback(save_freq=max(args.save_interval // args.vec_envs, 1),
+                                                 save_path=log_path + "/models")
+        eval_callback = EvalCallback(eval_env=env, best_model_save_path=save_path + '/models/best_model',
+                                     log_path=save_path + '/models/best_model', eval_freq=max(2000 // args.vec_envs, 1),
+                                     deterministic=False, render=False)
+
         # Create the callback list
-        callback = CallbackList([checkpoint_callback])
+        callback = CallbackList([checkpoint_callback, eval_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
@@ -277,6 +285,17 @@ def main():
         obs = vec_env.reset()
 
     env.close()
+
+
+def save_to_text_file(args, file_path):
+    try:
+        # Open the file in write mode
+        with open(file_path, 'w') as file:
+            # Write the contents of the args variable to the file
+            file.write(str(args))
+        print("Data successfully saved to", file_path)
+    except Exception as e:
+        print("Error occurred while saving to file:", str(e))
 
 
 if __name__ == "__main__":

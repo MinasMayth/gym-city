@@ -388,7 +388,7 @@ class MicropolisControl():
         tool = self.tools[a[0]]
         x = int(a[1])
         y = int(a[2])
-        print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
+        # print('taking action {} {} {}'.format(x + self.MAP_XS, y + self.MAP_YS, tool))
         self.doBotTool(x, y, tool, static_build)
         # if tool != "Road":
         #    if x < self.MAP_X - 2 and y < self.MAP_Y - 2:

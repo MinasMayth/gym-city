@@ -8,7 +8,7 @@ def make_env():
     return env
 def main():
     model = A2C.load(
-    "logs/baselines/june/custom_network/V3/a2c/n_steps=20_map_w=16_gamma=0.95_v_l_coef=0.5_e_coef=0.0_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.95_2024-06-05_15-55-57/models/rl_model_1000000_steps.zip"
+        "logs/baselines/a2c/alpha=0.99_num_steps=5_map_width=16_gamma=0.99_value_loss_coef=0.5_entropy_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_2024-06-05_21-15-37/models/best_model/best_model.zip"
                    )
     env = make_env()
     obs = env.reset()

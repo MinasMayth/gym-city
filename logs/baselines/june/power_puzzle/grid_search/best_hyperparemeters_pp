@@ -1,0 +1,8 @@
+A2C
+lr = 1e-4
+n_steps = 50
+e_coef = 0.01
+gamma = 0.95
+lambda = 0.95
+v_l_coef = 0.5
+max_grad_norm = 0.5
