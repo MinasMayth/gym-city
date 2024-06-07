@@ -12,21 +12,20 @@ from stable_baselines3.common.env_checker import check_env
 
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    print(check_env(env))
     env.setMapSize(16, render_gui=True)
+    print(check_env(env))
     return env
 
 def main():
     env = make_env()
-    env = YourEnv()
-    obs, info = env.reset()
-    n_steps = 10
+    obs = env.reset()
+    n_steps = 10000
     for _ in range(n_steps):
         # Random action
         action = env.action_space.sample()
-        obs, reward, terminated, truncated, info = env.step(action)
+        obs, reward, done, info = env.step(action)
         if done:
-            obs, info = env.reset()
+            obs = env.reset()
 
     env.close()
 

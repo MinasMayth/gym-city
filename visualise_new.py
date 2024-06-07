@@ -10,7 +10,7 @@ def make_env():
     return env
 def main():
     model = A2C.load(
-        "logs/baselines/a2c/env_name=MicropolisEnv-v0_alpha=0.99_num_steps=50_map_width=16_gamma=0.95_value_loss_coef=0.5_entropy_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_2024-06-06_20-18-15/models/best_model/best_model.zip"
+        ""
                    )
     env = make_env()
     obs = env.reset()
