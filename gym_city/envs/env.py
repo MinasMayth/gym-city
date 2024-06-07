@@ -101,7 +101,7 @@ class MicropolisEnv(gym.Env):
         self.last_state = None
         # self.metadata = {'runtime.vectorized': True}
         # Define the observation space as a flattened 1D array
-        low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=-1)
+        low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=0)
         high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=956)
         self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=float)
         self.state = None
@@ -240,7 +240,7 @@ class MicropolisEnv(gym.Env):
         return curr_pop
 
     def getReward(self, action=None):
-        reward = self.micro.getPoweredZoneCount()
+        reward = self.micro.getPoweredZoneCount()+ self.getPop()
         return reward
 
     def step(self, a, static_build=False):

@@ -7,7 +7,7 @@ import torch
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor
 from stable_baselines3.common.env_util import make_vec_env
-#from networks import CustomActorCriticPolicy
+# from networks import CustomActorCriticPolicy
 from typing import Callable
 from CustomNetwork import CustomActorCriticPolicy, CustomCNN
 import os
@@ -18,6 +18,7 @@ from stable_baselines3.common.logger import Image
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
+from stable_baselines3.common.sb2_compat.rmsprop_tf_like import RMSpropTFLike
 
 
 def make_env(args, log_path):
@@ -28,6 +29,7 @@ def make_env(args, log_path):
                 if "Micropolis" in env_id:
                     env.setMapSize(args.map_width, render_gui=False)
                 return env
+
             return _init
 
         env_id = args.env_name
@@ -86,13 +88,15 @@ def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     if args.custom_extractor == True:
         policy_kwargs = dict(
-            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
-            features_extractor_class=CustomCNN,
-            features_extractor_kwargs=dict(features_dim=env.action_space.n),
+            net_arch=[64, 64, dict(vf=[64], pi=[256])],
+            optimizer_class=RMSpropTFLike,
+            optimizer_kwargs=dict(eps=1e-5),
+            # features_extractor_class=CustomCNN,
+            # features_extractor_kwargs=dict(features_dim=env.action_space.n),
         )
     else:
         policy_kwargs = dict(
-            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+            net_arch=[64, 64, dict(vf=[64], pi=[256])],
         )
 
     if args.load_dir is None:
@@ -148,7 +152,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                     raise NotImplementedError
         else:  # NO SAVE
             if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, policy_kwargs= policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae,
                             seed=args.seed, use_rms_prop=True, use_sde=False)
@@ -258,7 +262,7 @@ def main():
                                      deterministic=False, render=False)
 
         # Create the callback list
-        callback = CallbackList([checkpoint_callback, eval_callback])
+        callback = CallbackList([checkpoint_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))
