@@ -7,7 +7,7 @@ import torch
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecMonitor
 from stable_baselines3.common.env_util import make_vec_env
-#from networks import CustomActorCriticPolicy
+# from networks import CustomActorCriticPolicy
 from typing import Callable
 from CustomNetwork import CustomActorCriticPolicy, CustomCNN
 import os
@@ -29,6 +29,7 @@ def make_env(args, log_path):
                 if "Micropolis" in env_id:
                     env.setMapSize(args.map_width, render_gui=False)
                 return env
+
             return _init
 
         env_id = args.env_name
@@ -90,8 +91,8 @@ def create_model(args, algorithm, env, verbose, log_path):
             net_arch=[64, 64, dict(vf=[64], pi=[256])],
             optimizer_class=RMSpropTFLike,
             optimizer_kwargs=dict(eps=1e-5),
-            #features_extractor_class=CustomCNN,
-            #features_extractor_kwargs=dict(features_dim=env.action_space.n),
+            # features_extractor_class=CustomCNN,
+            # features_extractor_kwargs=dict(features_dim=env.action_space.n),
         )
     else:
         policy_kwargs = dict(
@@ -151,7 +152,7 @@ def create_model(args, algorithm, env, verbose, log_path):
                     raise NotImplementedError
         else:  # NO SAVE
             if algorithm == "a2c":
-                model = A2C("MlpPolicy", env, policy_kwargs= policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
+                model = A2C("MlpPolicy", env, policy_kwargs=policy_kwargs, gamma=args.gamma, n_steps=args.num_steps,
                             vf_coef=args.value_loss_coef, ent_coef=args.entropy_coef, max_grad_norm=args.max_grad_norm,
                             learning_rate=args.lr, rms_prop_eps=args.eps, verbose=verbose, gae_lambda=args.gae,
                             seed=args.seed, use_rms_prop=True, use_sde=False)
@@ -266,7 +267,7 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
-        #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
+        # changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
         changes = ("PP. Gamespeed 3. Reward is powered zones"
                    "+ No Forced Static Build & Old State Representation, custom cnn.")
         make_change_log(log_path, changes)
