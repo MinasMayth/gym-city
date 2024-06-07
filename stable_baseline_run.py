@@ -202,7 +202,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "experiments" ,args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "experiments" ,args.algo, "V2",
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "ppo":
         parameter_values = {
