@@ -18,6 +18,7 @@ from stable_baselines3.common.logger import Image
 from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.env_checker import check_env
+from stable_baselines3.common.sb2_compat.rmsprop_tf_like import RMSpropTFLike
 
 
 def make_env(args, log_path):
@@ -86,13 +87,15 @@ def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
     if args.custom_extractor == True:
         policy_kwargs = dict(
-            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
-            features_extractor_class=CustomCNN,
-            features_extractor_kwargs=dict(features_dim=env.action_space.n),
+            net_arch=[64, 64, dict(vf=[64], pi=[256])],
+            optimizer_class=RMSpropTFLike,
+            optimizer_kwargs=dict(eps=1e-5),
+            #features_extractor_class=CustomCNN,
+            #features_extractor_kwargs=dict(features_dim=env.action_space.n),
         )
     else:
         policy_kwargs = dict(
-            net_arch=[64, 64, 64, dict(vf=[64, 64], pi=[256])],
+            net_arch=[64, 64, dict(vf=[64], pi=[256])],
         )
 
     if args.load_dir is None:
@@ -199,7 +202,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "grid_search" ,args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "experiments" ,args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "ppo":
         parameter_values = {
@@ -221,7 +224,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "grid_search", args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle", "experiments", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "dqn":
         parameter_values = {

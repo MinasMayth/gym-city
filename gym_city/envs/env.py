@@ -96,7 +96,7 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 24
+        self.num_obs_channels = 25
 
         self.action_space = spaces.Discrete(self.num_tools * self.MAP_X * self.MAP_Y)
         self.last_state = None
@@ -200,11 +200,11 @@ class MicropolisEnv(gym.Env):
             fill_val = scalars[si]
             if not type(fill_val) == str:
                 scalar_layers[si].fill(scalars[si])
-        state = np.concatenate((simple_state, scalar_layers), 0)
+        state = np.concatenate((simple_state, density_maps), 0)
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        state = simple_state.flatten()
+        state =state.flatten()
 
         # unique_values, counts = np.unique(state, return_counts=True)
         return state
