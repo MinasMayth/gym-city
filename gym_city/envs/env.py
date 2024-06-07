@@ -96,14 +96,13 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 24
-
+        self.num_obs_channels = 1
         self.action_space = spaces.Discrete(self.num_tools * self.MAP_X * self.MAP_Y)
         self.last_state = None
         # self.metadata = {'runtime.vectorized': True}
         # Define the observation space as a flattened 1D array
         low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=-1)
-        high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=1)
+        high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=956)
         self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=float)
         self.state = None
         self.intsToActions = {}
@@ -119,6 +118,7 @@ class MicropolisEnv(gym.Env):
         self.last_priority_road_net_size = 0
         if self.render_gui and self.rank == 0:
             self.render()
+
 
     def mapIntsToActionsChunk(self):
         ''' Unrolls the action vector into spatial chunks (does this matter empirically?).'''
@@ -192,7 +192,26 @@ class MicropolisEnv(gym.Env):
         scalars = [res_pop, com_pop, ind_pop, resDemand, comDemand, indDemand]
         return self.observation(scalars)
 
+    def get_building_map(self, text=True):
+        building_map = []
+        if text:
+            for x in range(self.MAP_X):
+                row_buildings = []
+                for y in range(self.MAP_Y):
+                    tile = (self.micro.getTile(x, y))
+                    tile = zoneFromInt(tile)
+                    row_buildings.append(tile)
+                building_map.append(row_buildings)
+        else:
+            for x in range(self.MAP_X):
+                row_buildings = []
+                for y in range(self.MAP_Y):
+                    tile = (self.micro.getTile(x, y))
+                    row_buildings.append(tile)
+                building_map.append(row_buildings)
+        return building_map
     def observation(self, scalars):
+        building_map = self.get_building_map(text=False)
         simple_state = self.micro.map.getMapState()
         density_maps = self.micro.getDensityMaps()
         scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
@@ -204,7 +223,7 @@ class MicropolisEnv(gym.Env):
         if self.static_builds:
             state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        state = simple_state.flatten()
+        state = np.array(building_map).flatten()
 
         # unique_values, counts = np.unique(state, return_counts=True)
         return state
