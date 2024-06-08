@@ -12,13 +12,14 @@ from stable_baselines3.common.env_checker import check_env
 
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    env.setMapSize(16, render_gui=True)
+    env.setMapSize(16, render_gui=False)
     print(check_env(env))
     return env
 
 def main():
     env = make_env()
     obs = env.reset()
+
     n_steps = 10000
     for _ in range(n_steps):
         # Random action

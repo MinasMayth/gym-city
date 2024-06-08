@@ -181,6 +181,72 @@ def create_model(args, algorithm, env, verbose, log_path):
     return model
 
 
+def obtain_log_path(args):
+    # Get current date and time
+    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # Define the path with the current date and time
+    # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
+    if args.algo == "a2c":
+        parameter_values = {
+            'n_steps': str(args.num_steps),
+            'map_w': str(args.map_width),
+            'gamma': str(args.gamma),
+            'v_l_coef': str(args.value_loss_coef),
+            'e_coef': str(args.entropy_coef),
+            'max_grad_norm': str(args.max_grad_norm),
+            'lr': str(args.lr),
+            'seed': str(args.seed),
+            'eps': str(args.eps),
+            'lambda': str(args.gae),
+            'vec_envs': str(args.vec_envs)
+        }
+        # Generate a string representation of parameters
+        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
+        log_path = os.path.join("logs", "new", "power_puzzle", "experiments" ,args.algo, "V2",
+                                f"{parameter_string}_{current_datetime}")
+    elif args.algo == "ppo":
+        parameter_values = {
+            'n_steps': str(args.num_steps),
+            'map_w': str(args.map_width),
+            'clip_range': str(args.clip_param),
+            'batch_size': str(args.num_mini_batch),
+            'n_epochs': str(args.ppo_epoch),
+            'v_l_coef': str(args.value_loss_coef),
+            'e_coef': str(args.entropy_coef),
+            'lr': str(args.lr),
+            'eps': str(args.eps),
+            'gamma': str(args.gamma),
+            'max_grad_norm': str(args.max_grad_norm),
+            'lambda': str(args.gae),
+            'seed': str(args.seed),
+            'vec_envs': str(args.vec_envs)
+        }
+        # Generate a string representation of parameters
+        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
+        log_path = os.path.join("logs", "new", "power_puzzle", "experiments", args.algo,
+                                f"{parameter_string}_{current_datetime}")
+    elif args.algo == "dqn":
+        parameter_values = {
+            'lrng_starts': str(args.learning_starts),
+            'map_w': str(args.map_width),
+            'batch_size': str(args.batch_size),
+            'updt_intvl': str(args.target_update_interval),
+            'bffr_size': str(args.buffer_size),
+            'lr': str(args.lr),
+            'gamma': str(args.gamma),
+            'seed': str(args.seed)
+        }
+        # Generate a string representation of parameters
+        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
+        log_path = os.path.join("logs", "new", "testing", args.algo,
+                                f"{parameter_string}_{current_datetime}")
+        save_path = log_path
+    else:
+        raise NotImplementedError
+
+    return log_path
+
+
 def main():
     args = get_args()
     print(args)
@@ -191,61 +257,15 @@ def main():
         verbose = 1
     else:
         verbose = 0
-    # Get current date and time
-    current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    # Define the path with the current date and time
-    # save_path = os.path.join("trained_models", "baseline_models", algorithm, current_datetime)
-    if algorithm == "a2c":
-        parameter_values = {
-            'env_name': str(args.env_name),
-            'alpha': str(args.alpha),
-            'num_steps': str(args.num_steps),
-            'map_width': str(args.map_width),
-            'gamma': str(args.gamma),
-            'value_loss_coef': str(args.value_loss_coef),
-            'entropy_coef': str(args.entropy_coef),
-            'max_grad_norm': str(args.max_grad_norm),
-            'lr': str(args.lr),
-            'seed': str(args.seed)
-            #'eps': str(args.eps),
-            #'lambda': str(args.gae)
-        }
-        # Generate a string representation of parameters
-        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
-        log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
-        save_path = log_path
-    elif algorithm == "ppo":
-        parameter_values = {
-            'alpha': str(args.alpha),
-            'num_steps': str(args.num_steps),
-            'map_width': str(args.map_width),
-            'clip_range': str(args.clip_param),
-            'batch_size': str(args.num_mini_batch),
-            'n_epochs': str(args.ppo_epoch),
-            'value_loss_coef': str(args.value_loss_coef),
-            'entropy_coef': str(args.entropy_coef),
-            'lr': str(args.lr),
-            'eps': str(args.eps),
-            'gamma': str(args.gamma),
-            'max_grad_norm': str(args.max_grad_norm),
-            'lambda': str(args.gae),
-            'seed': str(args.seed)
-        }
-        # Generate a string representation of parameters
-        parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
-        log_path = os.path.join("logs", "baselines", algorithm, f"{parameter_string}_{current_datetime}")
-        save_path = log_path
-    else:
-        log_path = os.path.join("logs", "baselines", algorithm, current_datetime)
-        save_path = log_path
+    log_path = obtain_log_path(args)
 
     if args.save:
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
-        #changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
-        changes = ("LT. Gamespeed 3. Reward is powered zones + pop"
+        # changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
+        changes = ("PP. Gamespeed 3. Reward is powered zones"
                    "+ No Forced Static Build & Old State Representation, custom cnn.")
         make_change_log(log_path, changes)
 
@@ -257,8 +277,8 @@ def main():
     if args.save:
         checkpoint_callback = CheckpointCallback(save_freq=max(args.save_interval // args.vec_envs, 1),
                                                  save_path=log_path + "/models")
-        eval_callback = EvalCallback(eval_env=env, best_model_save_path=save_path + '/models/best_model',
-                                     log_path=save_path + '/models/best_model', eval_freq=max(50000 // args.vec_envs, 1),
+        eval_callback = EvalCallback(eval_env=env, best_model_save_path=log_path + '/models/best_model',
+                                     log_path=log_path + '/models/best_model', eval_freq=max(2000 // args.vec_envs, 1),
                                      deterministic=False, render=False)
 
         # Create the callback list
@@ -280,8 +300,7 @@ def main():
             model.learn(total_timesteps=args.num_frames, reset_num_timesteps=True)
 
     if args.save:
-        model.save(save_path + "/models")
-
+        model.save(log_path + "/models")
     env.close()
 
 
