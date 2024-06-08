@@ -1,3 +1,5 @@
+import random
+
 import gym
 import gym_city
 import time
@@ -21,6 +23,15 @@ from stable_baselines3.common.env_checker import check_env
 from stable_baselines3.common.sb2_compat.rmsprop_tf_like import RMSpropTFLike
 
 
+def seed_everything(seed, env):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    env.seed(seed)
+
+
 def make_env(args, log_path):
     if args.vec_envs > 1:
         def make_env_vec(env_id):
@@ -39,13 +50,16 @@ def make_env(args, log_path):
 
         # Create SubprocVecEnv
         env = SubprocVecEnv(env_fns)
-        env.seed(args.seed)
+
+        seed_everything(args.seed, env)
+
         if args.save:
             env = VecMonitor(env, os.path.join(log_path, "vec_monitor_log.csv"))
     else:
         env = gym.make(args.env_name)
         if "Micropolis" in args.env_name:
             env.setMapSize(args.map_width, render_gui=args.render)
+        seed_everything(args.seed, env)
         if args.save:
             env = Monitor(env)
     return env
