@@ -185,11 +185,11 @@ class MicropolisControl():
         self.engine.tickEngine()
         self.engine.simTick()
 
-        self.engine.updateHeads()
-        self.engine.updateDate()
-        self.engine.changeCensus()
-        self.engine.simUpdate()
-        self.engine.doTimeStuff()
+    # self.engine.updateHeads()
+    # self.engine.updateDate()
+    # self.engine.changeCensus()
+    # self.engine.simUpdate()
+    # self.engine.doTimeStuff()
 
     def layGrid(self, w, h):
 

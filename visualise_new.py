@@ -10,15 +10,16 @@ def make_env():
     env.setMapSize(16, render_gui=True)
     return env
 def main():
-    model = A2C.load(
-        "logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=5_map_w=16_gamma=0.98_v_l_coef=0.5_e_coef=0.05_max_grad_norm=0.5_lr=0.0005_seed=1_eps=1e-05_lambda=0.96_vec_envs=4_2024-06-08_10-42-11/models/rl_model_1250000_steps.zip"
-                   )
     env = make_env()
+    model = A2C.load(
+        "logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=64_2024-06-08_17-44-43/models/rl_model_749952_steps.zip"
+        ,env=env)
+
+    env = model.get_env()
     obs = env.reset()
     for i in range(10000):
-        action, _state = model.predict(obs, deterministic=False)
+        action, _state = model.predict(obs, deterministic=True)
         obs, reward, done, info = env.step(action)
-        print(reward)
 
         env.render("human")
         # VecEnv resets automatically
