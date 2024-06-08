@@ -243,9 +243,45 @@ class MicropolisEnv(gym.Env):
 
         return curr_pop
 
+    def check_surroundings(self, building_map):
+        # Define lonely building types
+        lonely_buildings = ["Road", "RoadWire", "Wire", "Water", "Land", "Forest", "Rubble",
+                            "Flood", "Rail", "RailWire", "RoadRail", "Bridge"]
+
+        # Define function to check if a tile is lonely
+        def is_lonely(tile):
+            return tile in lonely_buildings
+
+        # Define function to check surroundings of a tile
+        def check_tile(x, y):
+            tile = building_map[x][y]
+            if "Road" in tile:
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        if dx != 0 or dy != 0:
+                            nx, ny = x + dx, y + dy
+                            if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
+                                return 0
+                            if not is_lonely(building_map[nx][ny]):
+                                return 1
+                return -1
+            return 0
+
+        result_map = []
+        for x in range(len(building_map)):
+            row_result = []
+            for y in range(len(building_map[0])):
+                row_result.append(check_tile(x, y))
+            result_map.append(row_result)
+
+        return np.sum(result_map)
+
     def getReward(self, action=None):
 
         reward = self.getPop()
+
+        current_map = self.get_building_map()
+        reward += (self.check_surroundings(building_map=current_map))
 
         return reward
 
