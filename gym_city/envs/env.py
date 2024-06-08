@@ -58,7 +58,7 @@ class MicropolisEnv(gym.Env):
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
                 render_gui=False, empty_start=True, simple_reward=False,
-                power_puzzle=True, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
+                power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
         self.render_gui = render_gui
@@ -244,12 +244,8 @@ class MicropolisEnv(gym.Env):
         return curr_pop
 
     def getReward(self, action=None):
-        reward = (self.micro.getPoweredZoneCount() - 1) * 10
-        map = self.get_building_map(True)
-        for row in map:
-            for tile in row:
-                if tile == "Wire":
-                    reward -= 0.1
+
+        reward = self.getPop()
 
         return reward
 
@@ -268,14 +264,11 @@ class MicropolisEnv(gym.Env):
         # never let the agent go broke, for now
         self.micro.setFunds(self.micro.init_funds)
 
-        # TODO: BROKEN!
         self.micro.simTick()
 
         self.state = self.getState()
 
         self.curr_pop = self.getPop()
-
-        # reward = self.getReward(action=action)
 
         self.curr_funds = curr_funds = self.micro.getFunds()
 
@@ -287,11 +280,15 @@ class MicropolisEnv(gym.Env):
         else:
             terminal = (bankrupt or self.num_step >= self.max_step) and \
                        self.auto_reset
-
-        if terminal:
-            reward = self.max_step - self.num_step
+        
+        if self.power_puzzle:
+            if terminal:
+                reward = self.max_step - self.num_step
+            else:
+                reward = 0
         else:
-            reward = 0
+            reward = self.getReward(action=action)
+
         if self.render_gui:
             self.micro.render()
         infos = {}
