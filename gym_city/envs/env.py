@@ -244,7 +244,13 @@ class MicropolisEnv(gym.Env):
         return curr_pop
 
     def getReward(self, action=None):
-        reward = self.micro.getPoweredZoneCount() - 1
+        reward = (self.micro.getPoweredZoneCount() - 1) * 10
+        map = self.get_building_map(True)
+        for row in map:
+            for tile in row:
+                if tile == "Wire":
+                    reward -= 0.1
+         
         return reward
 
     def step(self, a, static_build=False):
@@ -269,19 +275,23 @@ class MicropolisEnv(gym.Env):
 
         self.curr_pop = self.getPop()
 
-        reward = self.getReward(action=action)
+        # reward = self.getReward(action=action)
 
         self.curr_funds = curr_funds = self.micro.getFunds()
 
         bankrupt = curr_funds < self.minFunds
 
-        if False:  # self.power_puzzle:
+        if self.power_puzzle:
             terminal = (self.micro.getPoweredZoneCount() == self.micro.getTotalZonePop() + 1
                         or self.num_step >= self.max_step) and self.auto_reset
         else:
             terminal = (bankrupt or self.num_step >= self.max_step) and \
                        self.auto_reset
 
+        if terminal:
+            reward = self.max_step - self.num_step
+        else:
+            reward = 0
         if self.render_gui:
             self.micro.render()
         infos = {}
