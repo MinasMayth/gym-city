@@ -166,7 +166,6 @@ class MicropolisEnv(gym.Env):
                                  'NuclearPowerPlant', static_build=True)
 
     def reset(self, prebuild=True):
-        super().reset()
         self.micro.clearMap()
         if not self.empty_start:
             self.micro.newMap()
@@ -242,7 +241,7 @@ class MicropolisEnv(gym.Env):
         return curr_pop
 
     def getReward(self, action=None):
-        reward = self.micro.getPoweredZoneCount()+ self.getPop()
+        reward = self.micro.getPoweredZoneCount() - 1
         return reward
 
     def step(self, a, static_build=False):
