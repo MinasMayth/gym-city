@@ -98,7 +98,7 @@ class MicropolisEnv(gym.Env):
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
         self.num_obs_channels = 34
-        self.action_space = spaces.Discrete(self.num_tools * self.MAP_X * self.MAP_Y)
+        self.action_space = spaces.MultiDiscrete([self.num_tools, self.MAP_X, self.MAP_Y])
         self.last_state = None
         # self.metadata = {'runtime.vectorized': True}
         # Define the observation space as a flattened 1D array
@@ -250,17 +250,17 @@ class MicropolisEnv(gym.Env):
             for tile in row:
                 if tile == "Wire":
                     reward -= 0.1
-         
+
         return reward
 
     def step(self, a, static_build=False):
         if self.player_step:
             a = self.player_step
             self.player_step = False
-        if isinstance(a, np.ndarray):
-            a = self.intsToActions[a[0]]
-        else:
-            a = self.intsToActions[a]
+        #if isinstance(a, np.ndarray):
+        #    a = self.intsToActions[a[0]]
+        #else:
+        #    a = self.intsToActions[a]
         self.micro.takeAction(a, static_build)
         return self.postact(a)
 
