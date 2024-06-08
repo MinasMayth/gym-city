@@ -61,7 +61,7 @@ def make_env(args, log_path):
             env.setMapSize(args.map_width, render_gui=args.render)
         seed_everything(args.seed, env)
         if args.save:
-            env = Monitor(env)
+            env = Monitor(env, os.path.join(log_path, "monitor_log.csv"))
     return env
 
 
