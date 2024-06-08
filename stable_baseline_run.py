@@ -86,18 +86,20 @@ def linear_schedule(initial_value: float) -> Callable[[float], float]:
 
 def create_model(args, algorithm, env, verbose, log_path):
     # policy_kwargs = dict(net_arch=[128, 128, 128, dict(vf=[64, 64], pi=[64])])
-    if args.custom_extractor == True:
-        policy_kwargs = dict(
-            net_arch=[64, 64, dict(vf=[64], pi=[256])],
-            optimizer_class=RMSpropTFLike,
-            optimizer_kwargs=dict(eps=1e-5),
-            # features_extractor_class=CustomCNN,
-            # features_extractor_kwargs=dict(features_dim=env.action_space.n),
-        )
-    else:
-        policy_kwargs = dict(
-            net_arch=[64, 64, dict(vf=[64], pi=[256])],
-        )
+    # if args.custom_extractor == True:
+    #
+    # else:
+    #     policy_kwargs = dict(
+    #         net_arch=[64, 64, dict(vf=[64], pi=[256])],
+    #     )
+
+    policy_kwargs = dict(
+        net_arch=[64, 64, dict(vf=[64], pi=[256])],
+        optimizer_class=RMSpropTFLike,
+        optimizer_kwargs=dict(eps=1e-5),
+        # features_extractor_class=CustomCNN,
+        # features_extractor_kwargs=dict(features_dim=env.action_space.n),
+    )
 
     if args.load_dir is None:
         if args.save:
@@ -285,7 +287,7 @@ def main():
                                      deterministic=False, render=False)
 
         # Create the callback list
-        callback = CallbackList([checkpoint_callback, eval_callback])
+        callback = CallbackList([checkpoint_callback])
         # Save model parameters to a text file
         with open(os.path.join(log_path, "model_parameters.txt"), "w") as f:
             f.write(str(model.get_parameters()))

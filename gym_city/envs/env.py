@@ -25,6 +25,7 @@ import torch
 
 
 class MicropolisEnv(gym.Env):
+    metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 60}
 
     def __init__(self, MAP_X=20, MAP_Y=20, PADDING=0):
         super(MicropolisEnv, self).__init__()
@@ -103,7 +104,7 @@ class MicropolisEnv(gym.Env):
         # Define the observation space as a flattened 1D array
         low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=0)
         high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=956)
-        self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=float)
+        self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=np.uint)
         self.state = None
         self.intsToActions = {}
         self.actionsToInts = np.zeros((self.num_tools, self.MAP_X, self.MAP_Y))
@@ -165,6 +166,7 @@ class MicropolisEnv(gym.Env):
                                  'NuclearPowerPlant', static_build=True)
 
     def reset(self, prebuild=True):
+        super().reset()
         self.micro.clearMap()
         if not self.empty_start:
             self.micro.newMap()
@@ -240,7 +242,7 @@ class MicropolisEnv(gym.Env):
         return curr_pop
 
     def getReward(self, action=None):
-        reward = self.micro.getPoweredZoneCount()
+        reward = self.micro.getPoweredZoneCount()+ self.getPop()
         return reward
 
     def step(self, a, static_build=False):
