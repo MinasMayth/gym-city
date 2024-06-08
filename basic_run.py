@@ -12,7 +12,7 @@ from stable_baselines3.common.env_checker import check_env
 
 def make_env():
     env = gym.make("MicropolisEnv-v0")
-    env.setMapSize(16, render_gui=False)
+    env.setMapSize(16, render_gui=True)
     print(check_env(env))
     return env
 

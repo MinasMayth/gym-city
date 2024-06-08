@@ -257,9 +257,9 @@ class MicropolisControl():
                 jm = p_jm = t_jm = j + self.MAP_XS // 2
                 t_xy_density = self.engine.getTrafficDensity(t_jm, t_im)
                 self.total_traffic += t_xy_density
-                density_maps[2] = self.fillDensityMap(density_maps[2], i, j, t_xy_density)
+                density_maps[2] = self.fillDensityMap(density_maps[2], i, j, t_xy_density/100)
                 pop_xy_density = self.engine.getPopulationDensity(p_jm, p_im)
-                density_maps[1] = self.fillDensityMap(density_maps[1], i, j, pop_xy_density)
+                density_maps[1] = self.fillDensityMap(density_maps[1], i, j, pop_xy_density/100)
         for i in range(self.MAP_X):
             for j in range(self.MAP_Y):
                 im = i

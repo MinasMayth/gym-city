@@ -11,13 +11,14 @@ def make_env():
     return env
 def main():
     model = A2C.load(
-        "logs/baselines/a2c/env_name=MicropolisEnv-v0_alpha=0.99_num_steps=50_map_width=16_gamma=0.95_value_loss_coef=0.5_entropy_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_2024-06-07_11-58-50/models/best_model/best_model.zip"
+        "logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=5_map_w=16_gamma=0.98_v_l_coef=0.5_e_coef=0.05_max_grad_norm=0.5_lr=0.0005_seed=1_eps=1e-05_lambda=0.96_vec_envs=4_2024-06-08_10-42-11/models/rl_model_1250000_steps.zip"
                    )
     env = make_env()
     obs = env.reset()
     for i in range(10000):
         action, _state = model.predict(obs, deterministic=False)
         obs, reward, done, info = env.step(action)
+        print(reward)
 
         env.render("human")
         # VecEnv resets automatically
