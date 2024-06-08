@@ -81,7 +81,7 @@ class MicropolisEnv(gym.Env):
             self.MAP_Y = size[1]
 
         self.obs_width = self.MAP_X + PADDING * 2
-        self.static_builds = False
+        self.static_builds = True
 
     def post_gui(self):
         self.win1 = self.micro.win1
@@ -97,14 +97,14 @@ class MicropolisEnv(gym.Env):
         num_user_features = 1  # static builds
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
-        self.num_obs_channels = 1
+        self.num_obs_channels = 34
         self.action_space = spaces.Discrete(self.num_tools * self.MAP_X * self.MAP_Y)
         self.last_state = None
         # self.metadata = {'runtime.vectorized': True}
         # Define the observation space as a flattened 1D array
-        low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=0)
-        high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=956)
-        self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=np.uint)
+        low_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=-1)
+        high_obs = np.full((self.num_obs_channels * self.MAP_X * self.MAP_Y,), fill_value=1)
+        self.observation_space = spaces.Box(low=low_obs, high=high_obs, dtype=np.float)
         self.state = None
         self.intsToActions = {}
         self.actionsToInts = np.zeros((self.num_tools, self.MAP_X, self.MAP_Y))
@@ -119,7 +119,6 @@ class MicropolisEnv(gym.Env):
         self.last_priority_road_net_size = 0
         if self.render_gui and self.rank == 0:
             self.render()
-
 
     def mapIntsToActionsChunk(self):
         ''' Unrolls the action vector into spatial chunks (does this matter empirically?).'''
@@ -211,6 +210,7 @@ class MicropolisEnv(gym.Env):
                     row_buildings.append(tile)
                 building_map.append(row_buildings)
         return building_map
+
     def observation(self, scalars):
         building_map = self.get_building_map(text=False)
         simple_state = self.micro.map.getMapState()
@@ -218,13 +218,16 @@ class MicropolisEnv(gym.Env):
         scalar_layers = np.zeros((len(scalars), self.MAP_X, self.MAP_Y))
         for si in range(len(scalars)):
             fill_val = scalars[si]
-            if not type(fill_val) == str:
-                scalar_layers[si].fill(scalars[si])
+            if not type(fill_val) == str and -1.0 <= fill_val <= 1.0:
+                scalar_layers[si].fill(fill_val)
+            else:
+                scalar_layers[si].fill(0)
         state = np.concatenate((simple_state, scalar_layers), 0)
-        if self.static_builds:
-            state = np.concatenate((state, self.micro.map.static_builds), 0)
 
-        state = np.array(building_map).flatten()
+        if self.static_builds:
+            state = np.concatenate((state, density_maps, self.micro.map.static_builds), 0)
+
+        state = np.array(state).flatten()
 
         # unique_values, counts = np.unique(state, return_counts=True)
         return state
@@ -272,7 +275,7 @@ class MicropolisEnv(gym.Env):
 
         bankrupt = curr_funds < self.minFunds
 
-        if False: # self.power_puzzle:
+        if False:  # self.power_puzzle:
             terminal = (self.micro.getPoweredZoneCount() == self.micro.getTotalZonePop() + 1
                         or self.num_step >= self.max_step) and self.auto_reset
         else:
