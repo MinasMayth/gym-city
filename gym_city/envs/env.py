@@ -58,7 +58,7 @@ class MicropolisEnv(gym.Env):
     def pre_gui(self, size, max_step=None, rank=0, print_map=False,
                 PADDING=0, static_builds=True, parallel_gui=False,
                 render_gui=False, empty_start=True, simple_reward=False,
-                power_puzzle=True, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
+                power_puzzle=False, record=False, traffic_only=False, random_builds=False, poet=False, **kwargs):
         self.PADDING = PADDING
         self.rank = rank
         self.render_gui = render_gui
@@ -98,7 +98,7 @@ class MicropolisEnv(gym.Env):
         # traffic, power, density
         print('num map features: {}'.format(self.micro.map.num_features))
         self.num_obs_channels = 34
-        self.action_space = spaces.Discrete(self.num_tools * self.MAP_X * self.MAP_Y)
+        self.action_space = spaces.MultiDiscrete([self.num_tools, self.MAP_X, self.MAP_Y])
         self.last_state = None
         # self.metadata = {'runtime.vectorized': True}
         # Define the observation space as a flattened 1D array
@@ -257,10 +257,10 @@ class MicropolisEnv(gym.Env):
         if self.player_step:
             a = self.player_step
             self.player_step = False
-        if isinstance(a, np.ndarray):
-            a = self.intsToActions[a[0]]
-        else:
-            a = self.intsToActions[a]
+        #if isinstance(a, np.ndarray):
+        #    a = self.intsToActions[a[0]]
+        #else:
+        #    a = self.intsToActions[a]
         self.micro.takeAction(a, static_build)
         return self.postact(a)
 
