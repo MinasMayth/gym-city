@@ -312,6 +312,7 @@ class MicropolisEnv(gym.Env):
     def step(self, a, static_build=False):
         if self.player_step:
             a = self.player_step
+            a = self.intsToActions[a]
             self.player_step = False
         #if isinstance(a, np.ndarray):
         #    a = self.intsToActions[a[0]]
@@ -340,7 +341,7 @@ class MicropolisEnv(gym.Env):
         else:
             terminal = (bankrupt or self.num_step >= self.max_step) and \
                        self.auto_reset
-        
+
         if self.power_puzzle:
             if terminal:
                 reward = self.max_step - self.num_step
