@@ -284,7 +284,7 @@ def main():
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
         # changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
-        changes = ("LT. Gamespeed 3. Reward is pop + road adjacency"
+        changes = ("LT. Gamespeed 3. Reward is Earles popreward V3 with conditional"
                    "+ No Forced Static Build & Old State Representation.")
         make_change_log(log_path, changes)
 
