@@ -243,19 +243,52 @@ class MicropolisEnv(gym.Env):
 
         return curr_pop
 
+    def check_surroundings(self, building_map):
+        # Define lonely building types
+        lonely_buildings = ["Road", "RoadWire", "Wire", "Water", "Land", "Forest", "Rubble",
+                            "Flood", "Rail", "RailWire", "RoadRail", "Bridge"]
+
+        # Define function to check if a tile is lonely
+        def is_lonely(tile):
+            return tile in lonely_buildings
+
+        # Define function to check surroundings of a tile
+        def check_tile(x, y):
+            tile = building_map[x][y]
+            if "Road" in tile:
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        if dx != 0 or dy != 0:
+                            nx, ny = x + dx, y + dy
+                            if not (0 <= nx < len(building_map) and 0 <= ny < len(building_map[0])):
+                                return 0
+                            if not is_lonely(building_map[nx][ny]):
+                                return 1
+                return -1
+            return 0
+
+        result_map = []
+        for x in range(len(building_map)):
+            row_result = []
+            for y in range(len(building_map[0])):
+                row_result.append(check_tile(x, y))
+            result_map.append(row_result)
+
+        return np.sum(result_map)
+
     def getReward(self, action=None):
-        reward = (self.micro.getPoweredZoneCount() - 1) * 10
-        map = self.get_building_map(True)
-        for row in map:
-            for tile in row:
-                if tile == "Wire":
-                    reward -= 0.1
+
+        reward = self.getPop()
+
+        current_map = self.get_building_map()
+        reward += (self.check_surroundings(building_map=current_map))
 
         return reward
 
     def step(self, a, static_build=False):
         if self.player_step:
             a = self.player_step
+            a = self.intsToActions[a]
             self.player_step = False
         #if isinstance(a, np.ndarray):
         #    a = self.intsToActions[a[0]]
@@ -268,30 +301,31 @@ class MicropolisEnv(gym.Env):
         # never let the agent go broke, for now
         self.micro.setFunds(self.micro.init_funds)
 
-        # TODO: BROKEN!
         self.micro.simTick()
 
         self.state = self.getState()
 
         self.curr_pop = self.getPop()
 
-        # reward = self.getReward(action=action)
-
         self.curr_funds = curr_funds = self.micro.getFunds()
 
         bankrupt = curr_funds < self.minFunds
 
-        if self.power_puzzle:
+        if False:
             terminal = (self.micro.getPoweredZoneCount() == self.micro.getTotalZonePop() + 1
                         or self.num_step >= self.max_step) and self.auto_reset
         else:
             terminal = (bankrupt or self.num_step >= self.max_step) and \
                        self.auto_reset
 
-        if terminal:
-            reward = self.max_step - self.num_step
+        if self.power_puzzle:
+            if terminal:
+                reward = self.max_step - self.num_step
+            else:
+                reward = 0
         else:
-            reward = 0
+            reward = self.getReward(action=action)
+
         if self.render_gui:
             self.micro.render()
         infos = {}

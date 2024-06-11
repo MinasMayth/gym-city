@@ -12,13 +12,13 @@ def make_env():
 def main():
     env = make_env()
     model = A2C.load(
-        "logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=64_2024-06-08_17-44-43/models/rl_model_749952_steps.zip"
+        "logs/baselines/june/limited_toolset/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=32_2024-06-10_15-43-54/models/rl_model_61000000_steps.zip"
         ,env=env)
 
     env = model.get_env()
     obs = env.reset()
     for i in range(10000):
-        action, _state = model.predict(obs, deterministic=True)
+        action, _state = model.predict(obs, deterministic=False)
         obs, reward, done, info = env.step(action)
 
         env.render("human")

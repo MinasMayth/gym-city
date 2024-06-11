@@ -3,6 +3,46 @@ import numpy as np
 import pandas as pd
 import os
 
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+def plot_multiple_timesteps_vs_rewards(file_paths, labels, title):
+    plt.figure(figsize=(10, 6))
+
+    for file_path, label in zip(file_paths, labels):
+        # Load the CSV file
+        data = pd.read_csv(file_path)
+
+        # Extract the relevant columns
+        timesteps = data['time/total_timesteps']
+        rewards = data['rollout/ep_rew_mean']
+
+        # Plot the data
+        plt.plot(timesteps, rewards, label=label)
+
+    # Adding labels and title
+    plt.xlabel('Total Timesteps')
+    plt.ylabel('Episode Reward Mean')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    output_folder = "plots/power_puzzle"
+
+    # Ensure the output folder exists
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Construct the file name
+    file_name = f"{title}.png"
+    file_path = os.path.join(output_folder, file_name)
+
+    # Display the plot
+    plt.savefig(file_path)
+    plt.close()
+
+
+
 
 def plot_smoothed_rewards(file_paths, num_envs, hyperparams, title, algorithm, smoothing_window=10):
     plt.figure(figsize=(6, 6))  # Adjust the figure size to be more square
@@ -33,14 +73,14 @@ def plot_smoothed_rewards(file_paths, num_envs, hyperparams, title, algorithm, s
         plt.plot(results['time'], results['smoothed_reward'], label=f'{hyperparam}')
 
     # Adding labels and title
-    plt.xlim(0, 12_000)
+    plt.xlim(0, 10_000)
     plt.xlabel('Time (s)')
     plt.ylabel('Average Reward')
     plt.title(title)
     plt.legend(title='Hyperparameter Value')
     plt.grid(True)
 
-    output_folder = "grid_search_plots/full_toolset/"
+    output_folder = "power_puzzle_plots"
 
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)
@@ -51,24 +91,26 @@ def plot_smoothed_rewards(file_paths, num_envs, hyperparams, title, algorithm, s
 
     # Save the plot
     plt.savefig(file_path)
+    # plt.show()
     plt.close()
 
 
-title = "Value Loss Coefficient"
 
-# Example usage
-file_paths = [
-    "logs/baselines/june/new_grid_search/ppo/n_steps=256_map_w=24_clip_range=0.2_batch_size=128_"
-    "n_epochs=10_v_l_coef=0.5_e_coef=0.01_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda="
-    "0.95_seed=1_2024-05-31_23-01-13/vec_monitor_log.csv.monitor.csv",  # baseline run
-    "logs/baselines/june/new_grid_search/ppo/v_l_coef/n_steps=256_map_w=24_clip_range=0.2_batch_size=128_n_epochs=10_v_l_coef=1.0_e_coef=0.01_lr=0.001_eps=1e-05_gamma=0.95_max_grad_norm=0.5_lambda=0.95_seed=1_2024-05-31_23-10-40/vec_monitor_log.csv.monitor.csv"
+if __name__ == "__main__":
+    title = "Power Puzzle Results"
+
+    # Example usage
+    file_paths = [
+
+        "logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=64_2024-06-08_17-44-43/progress.csv"
+        ,"logs/baselines/june/power_puzzle/new_pp/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=48_2024-06-08_18-32-59/progress.csv"
     ]
-hyperparams = [
-    '0.5',  # Corresponding hyperparameter for baseline
-    '1.0'
-    # Add more hyperparameters here
-]
+    labels = [
+        'Discrete Action Space',  # Corresponding label for baseline
+        'Multidiscrete Action Space',
+        'Config 3',
+        'Config 4'
+        # Add more hyperparameters here
+    ]
 
-# Call the function
-plot_smoothed_rewards(file_paths, num_envs=4, hyperparams=hyperparams, title=title,
-                      algorithm="PPO", smoothing_window=10)
+    plot_multiple_timesteps_vs_rewards(file_paths, labels, title)
