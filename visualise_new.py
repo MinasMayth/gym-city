@@ -12,7 +12,7 @@ def make_env():
 def main():
     env = make_env()
     model = A2C.load(
-        "logs/baselines/june/limited_toolset/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=48_2024-06-11_11-15-03/models/rl_model_22999632_steps.zip"
+        "logs/baselines/june/limited_toolset/a2c/n_steps=20_map_w=16_gamma=0.96_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.0001_seed=1_eps=1e-05_lambda=0.98_vec_envs=48_2024-06-11_15-44-46/models/rl_model_77998752_steps.zip"
         ,env=env)
 
     env = model.get_env()
