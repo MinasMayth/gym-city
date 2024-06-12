@@ -166,6 +166,7 @@ class MicropolisEnv(gym.Env):
 
     def reset(self, prebuild=True):
         self.micro.clearMap()
+        self.micro.layGrid(8, 8)
         if not self.empty_start:
             self.micro.newMap()
         self.num_step = 0
