@@ -135,8 +135,8 @@ def get_parser():
     #parser.add_argument('--n-recs', default=3, type=int,
     #        help='number of times the expansion rule is applied in the construction of a fractal net')
 ########################################### Micropolis ###########################################
-    # parser.add_argument('--power-puzzle', action='store_true',
-    #         help='a minigame: the agent uses wire to efficiently connect zones.')
+    parser.add_argument('--power-puzzle', type=str2bool, default=False,
+             help='a minigame: the agent uses wire to efficiently connect zones.')
     # parser.add_argument('--simple-reward', action='store_true',
     #        help='reward only for overall population according to game')
    #parser.add_argument('--traffic-only', action='store_true',

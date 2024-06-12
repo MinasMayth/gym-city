@@ -38,7 +38,7 @@ def make_env(args, log_path):
             def _init():
                 env = gym.make(env_id)
                 if "Micropolis" in env_id:
-                    env.setMapSize(args.map_width, render_gui=False)
+                    env.setMapSize(args.map_width, power_puzzle=args.power_puzzle, render_gui=False)
                 return env
 
             return _init
@@ -58,7 +58,7 @@ def make_env(args, log_path):
     else:
         env = gym.make(args.env_name)
         if "Micropolis" in args.env_name:
-            env.setMapSize(args.map_width, render_gui=args.render)
+            env.setMapSize(args.map_width, power_puzzle=args.power_puzzle, render_gui=args.render)
         seed_everything(args.seed, env)
         if args.save:
             env = Monitor(env, os.path.join(log_path, "monitor_log.csv"))
