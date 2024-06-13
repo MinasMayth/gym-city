@@ -283,8 +283,8 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
-        # changes = ("Limited toolset. Gamespeed 3. Complex Reward. No Static Build")
-        changes = ("LT. Gamespeed 3. Reward is Earles popreward V3 with conditional"
+        #changes = ("PP. Gamespeed 3.")
+        changes = ("LT. Gamespeed 3. Reward is Earles popreward normalised + traffic and NO grid layout of 4x4 on quarter map"
                    "+ No Forced Static Build & Old State Representation.")
         make_change_log(log_path, changes)
 

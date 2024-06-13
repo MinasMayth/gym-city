@@ -166,7 +166,7 @@ class MicropolisEnv(gym.Env):
 
     def reset(self, prebuild=True):
         self.micro.clearMap()
-        self.micro.layGrid(8, 8)
+        #self.micro.layGrid(4, 4)
         if not self.empty_start:
             self.micro.newMap()
         self.num_step = 0
@@ -280,12 +280,13 @@ class MicropolisEnv(gym.Env):
     def getReward(self, action=None):
 
         reward = self.getPopReward()/100
-
+        reward += self.micro.total_traffic
         if reward > 40: # Check we have some population before enforcing roadbuilding
-            current_map = self.get_building_map()
-            reward += min(20, (self.check_surroundings(building_map=current_map)))
+            pass
+            #current_map = self.get_building_map()
+            #reward += min(20, (self.check_surroundings(building_map=current_map)))
 
-            reward = reward * self.micro.map.num_roads/10
+            # reward = reward * self.micro.map.num_roads/10
         return reward
 
     def getPopReward(self):
