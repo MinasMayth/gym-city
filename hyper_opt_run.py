@@ -41,7 +41,7 @@ def make_env(args, log_path):
             def _init():
                 env = gym.make(env_id)
                 if "Micropolis" in env_id:
-                    env.setMapSize(args.map_width, render_gui=False)
+                    env.setMapSize(args.map_width, power_puzzle=args.power_puzzle, render_gui=False)
                 return env
 
             return _init
@@ -61,7 +61,7 @@ def make_env(args, log_path):
     else:
         env = gym.make(args.env_name)
         if "Micropolis" in args.env_name:
-            env.setMapSize(args.map_width, render_gui=args.render)
+            env.setMapSize(args.map_width, power_puzzle=args.power_puzzle, render_gui=args.render)
         seed_everything(args.seed, env)
         if args.save:
             env = Monitor(env, os.path.join(log_path, "monitor_log.csv"))
@@ -223,7 +223,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "local", "hpo", args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "local", "hpo_limitedV2", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "ppo":
         parameter_values = {
@@ -359,7 +359,7 @@ def main():
         fn=objective,
         space=search_space,
         algo=tpe.suggest,
-        max_evals=65,
+        max_evals=20,
         show_progressbar=True
     )
     print("Best parameters found: ", best)
