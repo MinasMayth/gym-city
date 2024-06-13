@@ -199,16 +199,16 @@ class MicropolisControl():
                 self.simTick()
                 # vertical road
                 if ((i + 4) % w == 0):
-                    self.doTool(i, j, 'Road')
+                    self.doTool(i, j, 'Road', static_build=False)
                     if ((j + 1) % h in [1, h - 1]) and \
                             j not in [0, self.MAP_Y - 1]:
                         self.doTool(i, j, 'Wire')
                 # horizontal roads
                 elif ((j + 1) % h == 0):
-                    self.doTool(i, j, 'Road')
+                    self.doTool(i, j, 'Road',static_build=False)
                     if ((i + 4) % w in [1, w - 1]) and \
                             i not in [0, self.MAP_X - 1]:
-                        self.doTool(i, j, 'Wire')
+                        self.doTool(i, j, 'Wire', static_build=False)
                 # random zones
                 elif ((i + 2 - (i + 4) // w) % 3) == 0 and \
                         ((j + 2 - (j + 1) // h) % 3) == 0:
@@ -306,11 +306,11 @@ class MicropolisControl():
         '''Takes string for tool'''
         return self.map.addZoneBot(x + self.PADDING, y + self.PADDING, tool, static_build=static_build)
 
-    def doTool(self, x, y, tool):
+    def doTool(self, x, y, tool, static_build=False):
         '''Takes string for tool'''
         if tool == 'Nil':
             return
-        return self.map.addZoneBot(x, y, tool)
+        return self.map.addZoneBot(x, y, tool, static_build)
 
     # called from mictopolistool.py in micropoliengine
     def playerToolDown(self, tool_int, x, y):

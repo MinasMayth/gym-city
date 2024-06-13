@@ -166,7 +166,7 @@ class MicropolisEnv(gym.Env):
 
     def reset(self, prebuild=True):
         self.micro.clearMap()
-        self.micro.layGrid(8, 8)
+        self.micro.layGrid(4, 4)
         if not self.empty_start:
             self.micro.newMap()
         self.num_step = 0
@@ -279,12 +279,35 @@ class MicropolisEnv(gym.Env):
 
     def getReward(self, action=None):
 
-        reward = self.getPop()
+        reward = self.getPopReward()/100
 
-        current_map = self.get_building_map()
-        reward += (self.check_surroundings(building_map=current_map))
+        if reward > 40: # Check we have some population before enforcing roadbuilding
+            current_map = self.get_building_map()
+            reward += min(20, (self.check_surroundings(building_map=current_map)))
 
         return reward
+
+    def getPopReward(self):
+        if False:
+            pop_reward = self.micro.getTotPop()
+
+        else:
+            resPop, comPop, indPop = (1 / 4) * self.micro.getResPop(), self.micro.getComPop(), self.micro.getIndPop()
+            pop_reward = resPop + comPop + indPop
+            # population density per 16x16 section of map
+            pop_reward = pop_reward / (self.MAP_X * self.MAP_Y / 16 ** 2)
+            zone_variety = 0
+            if resPop > 0:
+                zone_variety += 1
+            if comPop > 0:
+                zone_variety += 1
+            if indPop > 0:
+                zone_variety += 1
+            zone_bonus = (zone_variety - 1) * 50
+            pop_reward += max(0, zone_bonus)
+        if False:
+            pop_reward = (resPop + 1) * (comPop + 1) * (indPop + 1) - 1
+        return pop_reward
 
     def step(self, a, static_build=False):
         if self.player_step:
@@ -312,7 +335,7 @@ class MicropolisEnv(gym.Env):
 
         bankrupt = curr_funds < self.minFunds
 
-        if False:
+        if self.power_puzzle:
             terminal = (self.micro.getPoweredZoneCount() == self.micro.getTotalZonePop() + 1
                         or self.num_step >= self.max_step) and self.auto_reset
         else:
@@ -325,7 +348,7 @@ class MicropolisEnv(gym.Env):
             else:
                 reward = 0
         else:
-            reward = self.getReward(action=action)
+            reward = self.getReward()
 
         if self.render_gui:
             self.micro.render()
