@@ -272,20 +272,38 @@ def obtain_log_path(args):
 
 def objective(params):
     args = get_args()
-    args.lr = params['lr']
-    args.gamma = params['gamma']
-    args.num_steps = params['num_steps']
-    args.entropy_coef = params['entropy_coef']
-    args.value_loss_coef = params['value_loss_coef']
-    args.max_grad_norm = params['max_grad_norm']
-    args.gae = params['lambda']
-    # args.num_mini_batch = params['num_mini_batch']
-    # args.ppo_epoch = params['ppo_epoch']
-    # args.clip_param = params['clip_param']
-    # args.buffer_size = params['buffer_size']
-    # args.batch_size = params['batch_size']
-    # args.learning_starts = params['learning_starts']
-    # args.target_update_interval = params['target_update_interval']
+    if args.algo == "a2c":
+        args.lr = params['lr']
+        args.gamma = params['gamma']
+        args.num_steps = params['num_steps']
+        args.entropy_coef = params['entropy_coef']
+        args.value_loss_coef = params['value_loss_coef']
+        args.max_grad_norm = params['max_grad_norm']
+        args.gae = params['lambda']
+        # args.num_mini_batch = params['num_mini_batch']
+        # args.ppo_epoch = params['ppo_epoch']
+        # args.clip_param = params['clip_param']
+        # args.buffer_size = params['buffer_size']
+        # args.batch_size = params['batch_size']
+        # args.learning_starts = params['learning_starts']
+        # args.target_update_interval = params['target_update_interval']
+    elif args.algo == "ppo":
+        args.lr = params['lr']
+        args.gamma = params['gamma']
+        args.num_steps = params['num_steps']
+        args.entropy_coef = params['entropy_coef']
+        args.value_loss_coef = params['value_loss_coef']
+        args.max_grad_norm = params['max_grad_norm']
+        args.gae = params['lambda']
+        args.num_mini_batch = params['num_mini_batch']
+        args.ppo_epoch = params['ppo_epoch']
+        args.clip_param = params['clip_param']
+        # args.buffer_size = params['buffer_size']
+        # args.batch_size = params['batch_size']
+        # args.learning_starts = params['learning_starts']
+        # args.target_update_interval = params['target_update_interval']
+    else:
+        raise NotImplementedError
 
     if args.log:
         verbose = 1
@@ -342,19 +360,37 @@ def save_to_text_file(args, file_path):
 
 
 def main():
-    search_space = {
-        'lr': hp.uniform('lr', 1e-5, 1e-3),
-        'gamma': hp.uniform('gamma', 0.9, 0.999),
-        'lambda': hp.uniform('lambda', 0.9, 0.999),
-        'num_steps': scope.int(hp.quniform('num_steps', 5, 50, 5)),
-        'entropy_coef': hp.uniform('entropy_coef', 0.00, 0.01),
-        'value_loss_coef': hp.choice('value_loss_coef', [0.5, 1.0]),
-        'max_grad_norm': hp.choice('max_grad_norm', [0.5, 1.0]),
-        # 'num_mini_batch': scope.int(hp.quniform('num_mini_batch', 4, 64, 1)),
-        # 'ppo_epoch': scope.int(hp.quniform('ppo_epoch', 1, 10, 1)),
-        # 'clip_param': hp.uniform('clip_param', 0.1, 0.4),
-        # 'batch_size': scope.int(hp.quniform('batch_size', 16, 256, 16)),
+    args = get_args()
+
+    if args.algo == "a2c":
+        search_space = {
+            'lr': hp.uniform('lr', 1e-5, 1e-3),
+            'gamma': hp.uniform('gamma', 0.9, 0.999),
+            'lambda': hp.uniform('lambda', 0.9, 0.999),
+            'num_steps': scope.int(hp.quniform('num_steps', 5, 50, 5)),
+            'entropy_coef': hp.uniform('entropy_coef', 0.00, 0.01),
+            'value_loss_coef': hp.choice('value_loss_coef', [0.5, 1.0]),
+            'max_grad_norm': hp.choice('max_grad_norm', [0.5, 1.0]),
+            # 'num_mini_batch': scope.int(hp.quniform('num_mini_batch', 4, 64, 1)),
+            # 'ppo_epoch': scope.int(hp.quniform('ppo_epoch', 1, 10, 1)),
+            # 'clip_param': hp.uniform('clip_param', 0.1, 0.4),
+            # 'batch_size': scope.int(hp.quniform('batch_size', 16, 256, 16)),
         }
+    elif args.algo == "ppo":
+        search_space = {
+            'lr': hp.uniform('lr', 1e-5, 1e-3),
+            'gamma': hp.uniform('gamma', 0.9, 0.999),
+            'lambda': hp.uniform('lambda', 0.9, 0.999),
+            'num_steps': scope.int(hp.quniform('num_steps', 256, 2048, 256)),
+            'entropy_coef': hp.uniform('entropy_coef', 0.00, 0.01),
+            'value_loss_coef': hp.choice('value_loss_coef', [0.5, 1.0]),
+            'max_grad_norm': hp.choice('max_grad_norm', [0.5, 1.0]),
+            'num_mini_batch': scope.int(hp.quniform('num_mini_batch', 32, 128, 16)),
+            'ppo_epoch': scope.int(hp.quniform('ppo_epoch', 10, 30, 5)),
+            'clip_param': hp.quniform('clip_param', 0.1, 0.3, 0.1),
+        }
+    else:
+        raise NotImplementedError
     best = fmin(
         fn=objective,
         space=search_space,
@@ -364,8 +400,10 @@ def main():
     )
     print("Best parameters found: ", best)
 
-    ALICE_path = '/home/s3458717/data1/hpo_results/'
-    save_to_text_file(best, os.path.join(ALICE_path, "results.txt"))
+    hpo_save_path = '/home/s3458717/data1/hpo_results/'
+
+    os.makedirs(hpo_save_path, exist_ok=True)
+    save_to_text_file(best, os.path.join(hpo_save_path, "results.txt"))
 
 
 if __name__ == "__main__":
