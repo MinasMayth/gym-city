@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def plot_multiple_timesteps_vs_rewards(file_paths, labels, title):
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(10, 6))
 
     for file_path, label in zip(file_paths, labels):
         # Load the CSV file
@@ -27,7 +27,7 @@ def plot_multiple_timesteps_vs_rewards(file_paths, labels, title):
     plt.xlabel('Total Timesteps', fontsize=16)
     plt.ylabel('Episode Reward Mean', fontsize=16)
     plt.title(title, fontsize=16)
-    plt.xlim(0, 2_000_000)
+    plt.xlim(0, 5_000_000)
 
     # Adjust tick label font size
     plt.xticks(fontsize=14)
@@ -105,17 +105,23 @@ def plot_multiple_timesteps_vs_rewards(file_paths, labels, title):
 
 
 if __name__ == "__main__":
-    title = "Value Loss Coefficient"
+    title = "Power Puzzle TPE Results"
 
     # Example usage
     file_paths = [
-        "logs/baselines/june/new_grid_search/a2c/n_steps=20_map_w=24_gamma=0.95_v_l_coef=0.5_e_coef=0.01_max_grad_norm=0.5_lr=0.001_seed=1_eps=1e-05_lambda=0.95_2024-06-01_11-03-28/progress.csv"
-        ,"logs/baselines/june/new_grid_search/a2c/v_l_coef/n_steps=20_map_w=24_gamma=0.95_v_l_coef=1.0_e_coef=0.01_max_grad_norm=0.5_lr=0.001_seed=1_eps=1e-05_lambda=0.95_2024-06-01_03-57-40/progress.csvg"
+        "logs/baselines/june/power_puzzle/hpo/a2c/env=MicropolisEnv-v0_n_steps=25_map_w=16_gamma=0.9232915815931727_v_l_coef=1.0_e_coef=0.003562332739793055_max_grad_norm=1.0_lr=0.00024332432650053733_seed=1_eps=1e-05_lambda=0.9071892113362182_vec_envs=64_2024-06-14_01-05-24/progress.csv"
+        ,"logs/baselines/june/power_puzzle/hpo/a2c/env=MicropolisEnv-v0_n_steps=20_map_w=16_gamma=0.9092479585232253_v_l_coef=0.5_e_coef=0.007151143307822816_max_grad_norm=1.0_lr=2.6207691439454325e-05_seed=1_eps=1e-05_lambda=0.9558371479647279_vec_envs=64_2024-06-13_22-38-37/progress.csv"
+        ,"logs/baselines/june/power_puzzle/hpo/a2c/env=MicropolisEnv-v0_n_steps=10_map_w=16_gamma=0.9896861463523989_v_l_coef=1.0_e_coef=0.00477770774539551_max_grad_norm=0.5_lr=0.0002802889111622435_seed=1_eps=1e-05_lambda=0.9829989543451472_vec_envs=64_2024-06-14_00-17-48/progress.csv"
+        ,"logs/baselines/june/power_puzzle/hpo/a2c/env=MicropolisEnv-v0_n_steps=45_map_w=16_gamma=0.9213868493333549_v_l_coef=1.0_e_coef=0.008635431976966677_max_grad_norm=0.5_lr=0.0007635932147661107_seed=1_eps=1e-05_lambda=0.9512275834734647_vec_envs=64_2024-06-14_03-27-20/progress.csv"
+        ,"logs/baselines/june/power_puzzle/hpo/a2c/env=MicropolisEnv-v0_n_steps=50_map_w=16_gamma=0.9195534292678114_v_l_coef=0.5_e_coef=0.004971555619914275_max_grad_norm=1.0_lr=0.0005597018445260412_seed=1_eps=1e-05_lambda=0.9582986496398334_vec_envs=64_2024-06-14_13-13-18/progress.csv"
 
     ]
     labels = [
-        '0.5',  # Corresponding label for baseline
-        '1.0',
+        'Config 1',  # Corresponding label for baseline
+        'Config 2',
+        'Config 3',
+        'Config 4',
+        'Config 5'
         # Add more hyperparameters here
     ]
 
