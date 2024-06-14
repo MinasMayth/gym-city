@@ -219,7 +219,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "limited_toolset" ,args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "power_puzzle" ,"final_run", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "ppo":
         parameter_values = {
@@ -241,7 +241,7 @@ def obtain_log_path(args):
         # Generate a string representation of parameters
         parameter_string = "_".join([f"{key}={value}" for key, value in parameter_values.items()])
         ALICE_path = '/home/s3458717/data1/'
-        log_path = os.path.join(ALICE_path, "logs", "new", "limited_toolset", args.algo,
+        log_path = os.path.join(ALICE_path, "logs", "new", "limited_toolset", "grid_search_june", args.algo,
                                 f"{parameter_string}_{current_datetime}")
     elif args.algo == "dqn":
         parameter_values = {
@@ -283,9 +283,9 @@ def main():
         os.makedirs(log_path, exist_ok=True)
         new_logger = configure(log_path, ["stdout", "csv", "tensorboard"])
         save_to_text_file(args, os.path.join(log_path, "arguments.txt"))
-        #changes = ("PP. Gamespeed 3.")
-        changes = ("LT. Gamespeed 3. Reward is Earles popreward normalised + traffic and NO grid layout of 4x4 on quarter map"
-                   "+ No Forced Static Build & Old State Representation.")
+        changes = ("PP. Gamespeed 3.")
+        #changes = ("LT. Gamespeed 3. Reward is Earles popreward normalised + traffic and NO grid layout of 4x4 on quarter map"
+        #           "+ No Forced Static Build & Old State Representation.")
         make_change_log(log_path, changes)
 
     env = make_env(args, log_path)

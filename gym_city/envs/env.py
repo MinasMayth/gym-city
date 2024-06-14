@@ -279,8 +279,8 @@ class MicropolisEnv(gym.Env):
 
     def getReward(self, action=None):
 
-        reward = self.getPopReward()/100
-        reward += self.micro.total_traffic
+        reward = self.getPopReward()
+        # reward += self.micro.total_traffic
         if reward > 40: # Check we have some population before enforcing roadbuilding
             pass
             #current_map = self.get_building_map()
